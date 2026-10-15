@@ -11,7 +11,7 @@ export default async function OrgLayout({ children, params }: { children: ReactN
   return (
     <div className="mx-auto grid max-w-2xl gap-5">
       <div className="grid gap-2">
-        <Link href="/portal" className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary">
+        <Link href="/portal" className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
           ← All organisations
         </Link>
         <h1 className="text-2xl font-bold leading-tight">{organization.name}</h1>

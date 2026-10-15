@@ -1,7 +1,9 @@
 # Design system
 
-Status: **provisional.** No brand assets were supplied. These tokens are a neutral, accessible starting point
-and will be replaced once a logo, palette and typeface are provided. A visual preview lives in
+Status: **brand applied (15 Oct 2026).** Black + gold from the BAID Atlas logo; typeface Plus Jakarta Sans.
+The mark is redrawn as vector in `components/logo.tsx` (B with roof spine, gold towers, orbit, guiding star).
+Gold text uses `--gold-strong` (#9a6a12) on light backgrounds to meet 4.5:1 contrast; bright gold is for
+fills, icons and large display text. Illustrations on the home page are always labelled "Illustration". A visual preview lives in
 [`preview/tokens.html`](preview/tokens.html) (screenshot: [`preview/tokens-mobile.png`](preview/tokens-mobile.png)).
 
 ## Principles
@@ -73,3 +75,17 @@ Durations 120 / 200 / 320 ms, ease `cubic-bezier(.2,.8,.2,1)`. All non-essential
   - *Sponsored* — always shown on paid placements.
   - *Render* / *Virtually staged* / *Concept* — on media and cards.
 - **Empty, loading (skeleton) and error states** for every list and detail view.
+
+## Brand tokens (current)
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| `--primary` (ink / main buttons) | `#121212` | `#E2B04A` |
+| `--gold` | `#D9A12E` | `#D9A12E` |
+| `--gold-strong` (gold text) | `#9A6A12` | `#E8BC5C` |
+| `--bg` | `#F7F6F3` | `#0B0B0B` |
+| `--surface` | `#FFFFFF` | `#161616` |
+| Gold gradient | `#F6D27A → #D9A12E → #A8741A` | same |
+
+Shapes: pill buttons (`rounded-full`), 20–24 px card radii, round category bubbles, horizontal snap rails on
+phones. Social preview: `lib/og.tsx` (1200×630, generated at build).

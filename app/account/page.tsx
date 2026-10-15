@@ -30,14 +30,14 @@ export default async function AccountPage({
       <Card className="grid gap-3">
         <h2 className="text-lg font-semibold">Provider organisations</h2>
         <p className="text-sm text-muted">Manage your agency, developer or landlord organisation and its team.</p>
-        <Link href="/portal" className="inline-flex min-h-11 items-center font-semibold text-primary">
+        <Link href="/portal" className="inline-flex min-h-11 items-center font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
           Go to provider portal →
         </Link>
       </Card>
 
       <Card className="grid gap-3">
         <h2 className="text-lg font-semibold">Security</h2>
-        <Link href="/reset-password/update" className="inline-flex min-h-11 items-center font-semibold text-primary">
+        <Link href="/reset-password/update" className="inline-flex min-h-11 items-center font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
           Change password →
         </Link>
         <div className="grid gap-3 sm:grid-cols-2">

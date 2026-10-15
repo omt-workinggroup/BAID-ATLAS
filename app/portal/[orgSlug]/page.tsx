@@ -24,12 +24,12 @@ export default async function OrgOverviewPage({
           {canManageTeam(role) && (
             <>
               <li>
-                <Link href={`/portal/${orgSlug}/organisation`} className="inline-flex min-h-11 items-center font-semibold text-primary">
+                <Link href={`/portal/${orgSlug}/organisation`} className="inline-flex min-h-11 items-center font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
                   Complete your public profile →
                 </Link>
               </li>
               <li>
-                <Link href={`/portal/${orgSlug}/team`} className="inline-flex min-h-11 items-center font-semibold text-primary">
+                <Link href={`/portal/${orgSlug}/team`} className="inline-flex min-h-11 items-center font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
                   Invite your team →
                 </Link>
               </li>
@@ -37,7 +37,7 @@ export default async function OrgOverviewPage({
           )}
           {!canManageTeam(role) && (
             <li>
-              <Link href={`/portal/${orgSlug}/team`} className="inline-flex min-h-11 items-center font-semibold text-primary">
+              <Link href={`/portal/${orgSlug}/team`} className="inline-flex min-h-11 items-center font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
                 See your team →
               </Link>
             </li>

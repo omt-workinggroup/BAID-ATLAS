@@ -23,7 +23,7 @@ export default async function SignInPage({
       footer={
         <>
           New to BAID Atlas?{" "}
-          <Link href="/sign-up" className="font-semibold text-primary">
+          <Link href="/sign-up" className="font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
             Create an account
           </Link>
         </>

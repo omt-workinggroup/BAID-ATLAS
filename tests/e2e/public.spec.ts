@@ -5,6 +5,12 @@ const shotDir = "docs/screenshots/phase-1";
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+  // Content can also be clipped without page scroll; key elements must sit inside the viewport.
+  const width = page.viewportSize()!.width;
+  for (const el of await page.locator("main h1, main form, main [role=img]").all()) {
+    const box = await el.boundingBox();
+    if (box) expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+  }
 }
 
 async function shot(page: Page, name: string, project: string) {
@@ -15,7 +21,7 @@ test.describe("public pages", () => {
   test("home renders with mobile navigation and no fake listings", async ({ page }, info) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Find property in Ghana");
-    await expect(page.getByText("Property search is coming soon")).toBeVisible();
+    await expect(page.getByText("Search East Legon, Kumasi…")).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Primary" }).last();
     await expect(nav).toBeVisible();
     await expectNoHorizontalScroll(page);
@@ -114,4 +120,20 @@ test("desktop layout shows top navigation @desktop", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("navigation", { name: "Primary" }).first()).toBeVisible();
   await page.screenshot({ path: `${shotDir}/10-home-desktop.png` });
+});
+
+test.describe("social preview", () => {
+  test("open graph and twitter metadata point at generated images", async ({ page, request }, info) => {
+    await page.goto("/");
+    const og = await page.locator('meta[property="og:image"]').getAttribute("content");
+    expect(og).toBeTruthy();
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+    const res = await request.get(new URL(og!).pathname);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/png");
+    if (info.project.name === "pixel-7") {
+      const fs = await import("node:fs");
+      fs.writeFileSync(`${shotDir}/00-social-preview.png`, await res.body());
+    }
+  });
 });

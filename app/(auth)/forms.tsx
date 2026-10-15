@@ -46,7 +46,7 @@ export function SignInForm({ next }: { next?: string }) {
       <Field label="Email" name="email" type="email" autoComplete="email" inputMode="email" required defaultValue={state?.email} error={state?.errors?.email} />
       <Field label="Password" name="password" type="password" autoComplete="current-password" required error={state?.errors?.password} />
       <div className="-mt-1 text-right">
-        <Link href="/reset-password" className="inline-flex min-h-11 items-center text-sm font-semibold text-primary">
+        <Link href="/reset-password" className="inline-flex min-h-11 items-center text-sm font-semibold text-text underline decoration-gold decoration-2 underline-offset-4">
           Forgot password?
         </Link>
       </div>

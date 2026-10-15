@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 type Tab = { href: string; label: string; icon: (active: boolean) => React.ReactNode; match: (p: string) => boolean };
 
-const stroke = (active: boolean) => (active ? "var(--primary)" : "currentColor");
+const stroke = (active: boolean) => (active ? "var(--text)" : "currentColor");
 
 const HomeIcon = (a: boolean) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
@@ -53,10 +53,11 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
               <Link
                 href={t.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-16 flex-col items-center justify-center gap-1 text-xs ${
-                  active ? "font-semibold text-primary" : "text-muted"
+                className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs ${
+                  active ? "font-bold text-text" : "text-muted"
                 }`}
               >
+                {active && <span aria-hidden="true" className="bg-gold-gradient absolute top-0 h-1 w-8 rounded-b-full" />}
                 {t.icon(active)}
                 {t.label}
               </Link>
@@ -80,8 +81,8 @@ export function DesktopNav({ signedIn }: { signedIn: boolean }) {
               <Link
                 href={t.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 items-center rounded-md px-3 text-sm ${
-                  active ? "bg-primary-soft font-semibold text-primary" : "text-muted hover:text-text"
+                className={`flex min-h-10 items-center rounded-full px-4 text-sm ${
+                  active ? "bg-primary text-primary-contrast font-semibold" : "text-muted hover:text-text"
                 }`}
               >
                 {t.label}

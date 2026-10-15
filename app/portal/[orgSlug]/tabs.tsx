@@ -21,7 +21,7 @@ export function OrgTabs({ slug }: { slug: string }) {
                 href={t.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-11 items-center border-b-2 px-3 text-sm ${
-                  active ? "border-primary font-semibold text-primary" : "border-transparent text-muted"
+                  active ? "border-gold font-bold text-text" : "border-transparent text-muted"
                 }`}
               >
                 {t.label}

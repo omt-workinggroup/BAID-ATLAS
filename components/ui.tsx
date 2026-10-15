@@ -6,7 +6,7 @@ function cx(...classes: (string | false | null | undefined)[]) {
 }
 
 const buttonBase =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-md px-5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 const buttonVariants = {
   primary: "bg-primary text-primary-contrast hover:bg-primary-hover",
   secondary: "border border-primary bg-surface text-primary hover:bg-primary-soft",
@@ -55,7 +55,7 @@ export function Field({
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cx(
-          "min-h-12 w-full rounded-md border bg-surface px-3.5 text-base text-text placeholder:text-muted",
+          "min-h-12 w-full rounded-xl border bg-surface px-3.5 text-base text-text placeholder:text-muted",
           error ? "border-danger" : "border-border",
           className,
         )}
@@ -99,7 +99,7 @@ export function SelectField({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-err` : undefined}
         className={cx(
-          "min-h-12 w-full rounded-md border bg-surface px-3 text-base text-text",
+          "min-h-12 w-full rounded-xl border bg-surface px-3 text-base text-text",
           error ? "border-danger" : "border-border",
         )}
         {...props}
@@ -137,7 +137,7 @@ export function TextArea({
         rows={4}
         aria-invalid={error ? true : undefined}
         className={cx(
-          "w-full rounded-md border bg-surface px-3.5 py-3 text-base text-text",
+          "w-full rounded-xl border bg-surface px-3.5 py-3 text-base text-text",
           error ? "border-danger" : "border-border",
         )}
         {...props}
@@ -163,14 +163,14 @@ export function Alert({ tone = "info", children }: { tone?: keyof typeof alertTo
 }
 
 export function Card({ className, ...props }: ComponentProps<"section">) {
-  return <section className={cx("rounded-lg border border-border bg-surface p-4 sm:p-6", className)} {...props} />;
+  return <section className={cx("rounded-3xl border border-border bg-surface p-5 sm:p-6", className)} {...props} />;
 }
 
 export function PageHeader({ title, description, back }: { title: string; description?: ReactNode; back?: { href: string; label: string } }) {
   return (
     <div className="grid gap-1">
       {back && (
-        <Link href={back.href} className="mb-1 inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary">
+        <Link href={back.href} className="mb-1 inline-flex min-h-11 w-fit items-center text-sm font-semibold text-gold-strong">
           ← {back.label}
         </Link>
       )}
