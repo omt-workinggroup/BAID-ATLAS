@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+/* Design tokens: see docs/design/design-system.md (provisional until brand assets arrive). */
+:root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --surface-muted: #f3f1ea;
+  --text: #1c1b18;
+  --text-muted: #5e5b53;
+  --border: #e4e1d8;
+  --primary: #0f5b4a;
+  --primary-hover: #0b4a3c;
+  --primary-contrast: #ffffff;
+  --primary-soft: #e3efeb;
+  --accent: #c8862a;
+  --verified: #1d6fb8;
+  --sponsored: #6b4ba1;
+  --warning: #9a5b00;
+  --warning-soft: #fff6e8;
+  --danger: #b3261e;
+  --danger-soft: #fdecea;
+  --success: #1e7b45;
+  --success-soft: #e6f4ec;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121210;
+    --surface: #1c1b18;
+    --surface-muted: #24231f;
+    --text: #f2f0ea;
+    --text-muted: #b5b1a6;
+    --border: #33312c;
+    --primary: #4fbf9f;
+    --primary-hover: #6fd0b4;
+    --primary-contrast: #08241d;
+    --primary-soft: #16352d;
+    --warning: #f0b45c;
+    --warning-soft: #2e2413;
+    --danger: #f2827a;
+    --danger-soft: #3a1714;
+    --success: #6fcf97;
+    --success-soft: #14301f;
+    --verified: #7ab8ef;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-contrast: var(--primary-contrast);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-verified: var(--verified);
+  --color-sponsored: var(--sponsored);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

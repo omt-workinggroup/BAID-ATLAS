@@ -5,8 +5,8 @@ a written report. Work stops for approval at the end of every phase.
 
 | Phase | Scope | Key deliverables | Exit criteria |
 | --- | --- | --- | --- |
-| **0** | Discovery and planning | Repo inspection, 10 docs, design token preview | Approved by product owner |
-| **1** | Foundation | Next.js + TS + Tailwind scaffold, PWA manifest, design tokens, app shell with mobile bottom nav; Supabase local stack; migrations for enums, `profiles`, `staff_roles`, `organizations`, `organization_members`, `organization_invitations`, `audit_log`, `rate_limit_buckets`; RLS + pgTAP tests; sign-up/in, email verification, reset, callback, sign-out; onboarding (profile, create org); team management; GitHub Actions CI | AC-04, AC-05 (orgs), AC-13 (accounts); M-01..M-07 |
+| **0** ✅ | Discovery and planning | Repo inspection, 10 docs, design token preview | Approved by product owner |
+| **1** ✅ | Foundation ([report](phase-1-report.md)) | Next.js + TS + Tailwind scaffold, PWA manifest, design tokens, app shell with mobile bottom nav; Supabase local stack; migrations for enums, `profiles`, `staff_roles`, `organizations`, `organization_members`, `organization_invitations`, `audit_log`, `rate_limit_buckets`; RLS + pgTAP tests; sign-up/in, email verification, reset, callback, sign-out; onboarding (profile, create org); team management; GitHub Actions CI | AC-04, AC-05 (orgs), AC-13 (accounts); M-01..M-07 |
 | **2** | Listings and discovery | Properties, listings, media upload pipeline, moderation queue, public views, explore/search, map, detail, provider profiles, saved properties, category hubs | AC-01..03, 05, 06, 12, 14..16 |
 | **3** | Leads | Inquiries (idempotent), viewing requests, conversations/messages, notifications, report/abuse, rate limits | AC-07, AC-08 |
 | **4** | Trust and developments | Verification cases, private evidence, reviewer assignment, developments, units, inventory | AC-06, 09, 10 |

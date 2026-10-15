@@ -1,6 +1,6 @@
 # Technology decisions
 
-Status: **proposed — awaiting approval.** The repository was empty at Phase 0, so there is no existing stack
+Status: **approved 15 Oct 2026** (hosting: Netlify; database: new Supabase project in eu-west-2). The repository was empty at Phase 0, so there is no existing stack
 to preserve or migrate.
 
 ## Chosen stack (recommended)
@@ -49,7 +49,7 @@ to preserve or migrate.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY   # publishable key (replaces legacy anon key)
 SUPABASE_SERVICE_ROLE_KEY        # server only
 NEXT_PUBLIC_SITE_URL
 RESEND_API_KEY                   # Phase 3
