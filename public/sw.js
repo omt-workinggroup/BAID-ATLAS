@@ -1,10 +1,10 @@
 // Minimal service worker: caches static assets and shows an offline page for failed navigations.
 // Authenticated pages are never cached.
-const CACHE = "baid-atlas-v2";
+const CACHE = "baid-atlas-v3";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([OFFLINE_URL, "/icons/icon-192.png"])));
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll([OFFLINE_URL, "/icons/icon-192.png", "/brand/logo-full.webp"])));
   self.skipWaiting();
 });
 
@@ -26,7 +26,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/")) {
+  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/") || url.pathname.startsWith("/brand/")) {
     event.respondWith(
       caches.match(request).then(
         (hit) =>

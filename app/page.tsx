@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui";
 import { SceneArt } from "@/components/illustrations";
-import { LogoMark } from "@/components/logo";
+import { Logo, TAGLINE } from "@/components/logo";
 import { getCurrentProfile, getCurrentUser } from "@/lib/auth/session";
 
 const icon = (d: string, size = 24) => (
@@ -65,6 +65,7 @@ export default async function HomePage() {
           Find property in Ghana <br className="hidden sm:block" />
           you can <span className="text-gold">trust</span>.
         </h1>
+        <p className="-mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted">{TAGLINE}</p>
 
         <div className="flex items-center gap-3">
           <div aria-disabled="true" className="flex min-h-13 flex-1 items-center gap-3 rounded-full border border-border bg-surface px-4 text-muted shadow-sm">
@@ -134,7 +135,6 @@ export default async function HomePage() {
       {/* Trust banner */}
       <section className="relative overflow-hidden rounded-3xl bg-[#121212] p-6 text-white sm:p-10">
         <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[radial-gradient(circle,rgba(217,161,46,0.55),transparent_70%)]" />
-        <LogoMark size={120} className="pointer-events-none absolute -bottom-6 -right-4 opacity-20 [--logo-ink:#2a2a2a] [--logo-cut:#121212]" />
         <div className="relative grid gap-4 sm:max-w-lg">
           <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">Trust, explained</p>
           <h2 className="text-2xl font-extrabold leading-tight sm:text-3xl">No vague &ldquo;verified&rdquo; badges. Ever.</h2>
@@ -169,6 +169,7 @@ export default async function HomePage() {
       {/* Providers */}
       <section className="grid gap-5 rounded-3xl border border-border bg-surface p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-10">
         <div className="grid gap-3">
+          <Logo variant="mark" height={56} />
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-gold-strong">For property professionals</p>
           <h2 className="text-2xl font-extrabold leading-tight tracking-tight">Agencies, developers & landlords — get your team ready.</h2>
           <ul className="flex flex-wrap gap-2 text-sm">

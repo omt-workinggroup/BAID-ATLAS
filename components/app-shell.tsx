@@ -15,7 +15,7 @@ export function AppShell({ signedIn, children }: { signedIn: boolean; children: 
       <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link href="/" className="flex min-h-11 items-center" aria-label="BAID Atlas home">
-            <Logo wordmark />
+            <Logo variant="horizontal" height={42} priority />
           </Link>
           <DesktopNav signedIn={signedIn} />
           {!signedIn && (

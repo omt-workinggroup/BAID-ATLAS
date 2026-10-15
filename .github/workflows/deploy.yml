@@ -1,0 +1,56 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [main, claude/dazzling-pasteur-kqzrut]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netlify-deploy
+  cancel-in-progress: false
+
+env:
+  NETLIFY_SITE_ID: af6bc06f-ab2c-48e8-b9c4-ff49b2afcf94
+  # Public values only (also set on the Netlify site).
+  NEXT_PUBLIC_SUPABASE_URL: https://ecikayrsbjzgdjkehnhl.supabase.co
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_PvFo2yR2L05I89ToXMBp0A_U3HzZ8l0
+  NEXT_PUBLIC_SITE_URL: https://baid-atlas.netlify.app
+
+jobs:
+  deploy:
+    name: Build and deploy (production)
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://baid-atlas.netlify.app
+    steps:
+      - name: Check Netlify token
+        id: token
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "::warning::NETLIFY_AUTH_TOKEN secret is not set; skipping deploy. Add it under Settings → Secrets and variables → Actions."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.token.outputs.ready == 'true'
+      - uses: pnpm/action-setup@v4
+        if: steps.token.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.token.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        if: steps.token.outputs.ready == 'true'
+      - name: Build and deploy with Netlify CLI
+        if: steps.token.outputs.ready == 'true'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: pnpm dlx netlify-cli@23 deploy --build --prod --site "$NETLIFY_SITE_ID" --message "GitHub ${{ github.sha }}"
