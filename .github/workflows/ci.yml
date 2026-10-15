@@ -56,10 +56,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          version: latest
-      - run: supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor
-      - run: supabase test db
-      - run: supabase stop
+          node-version: 22
+          cache: pnpm
+      # Uses the Supabase CLI version pinned in package.json.
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor
+      - run: pnpm exec supabase test db
+      - run: pnpm exec supabase stop
         if: always()
