@@ -5,7 +5,6 @@ Mobile-first property discovery, listing, verification and marketing platform, l
 **Status: Phase 2 (listings and discovery) complete** — explore, property pages, provider listings, moderation. See the [Phase 2 report](docs/implementation/phase-2-report.md).
 
 **Live:** https://baid-atlas.vercel.app (Vercel, deployed from this branch on every push).
-See the [Phase 1 report](docs/implementation/phase-1-report.md).
 
 ## Development
 
