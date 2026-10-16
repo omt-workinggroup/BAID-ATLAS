@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
 import { ServiceWorker } from "@/components/service-worker";
 import { getCurrentUser } from "@/lib/auth/session";
+import { env } from "@/lib/env";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
@@ -11,7 +12,7 @@ const description =
   "Find homes, land, rentals and commercial property in Ghana. Moderated listings, honest verification labels and tools for agencies, developers and landlords.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(env.siteUrl),
   title: { default: "BAID Atlas — Find property in Ghana you can trust", template: "%s · BAID Atlas" },
   description,
   applicationName: "BAID Atlas",
