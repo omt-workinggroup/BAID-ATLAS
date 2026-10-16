@@ -18,6 +18,17 @@ const PortalIcon = (a: boolean) => (
     <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
   </svg>
 );
+const ExploreIcon = (a: boolean) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" strokeLinecap="round" />
+  </svg>
+);
+const SavedIcon = (a: boolean) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill={a ? "var(--text)" : "none"} stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
+    <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" strokeLinejoin="round" />
+  </svg>
+);
 const AccountIcon = (a: boolean) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
     <circle cx="12" cy="8" r="4" />
@@ -28,12 +39,14 @@ const AccountIcon = (a: boolean) => (
 function tabs(signedIn: boolean): Tab[] {
   return [
     { href: "/", label: "Home", icon: HomeIcon, match: (p) => p === "/" },
+    { href: "/explore", label: "Explore", icon: ExploreIcon, match: (p) => p.startsWith("/explore") || p.startsWith("/properties") },
+    { href: "/account/saved", label: "Saved", icon: SavedIcon, match: (p) => p.startsWith("/account/saved") },
     { href: "/portal", label: "Provider", icon: PortalIcon, match: (p) => p.startsWith("/portal") },
     {
       href: signedIn ? "/account" : "/sign-in",
       label: signedIn ? "Account" : "Sign in",
       icon: AccountIcon,
-      match: (p) => p.startsWith("/account") || p.startsWith("/sign-") || p.startsWith("/onboarding"),
+      match: (p) => (p.startsWith("/account") && !p.startsWith("/account/saved")) || p.startsWith("/sign-") || p.startsWith("/onboarding"),
     },
   ];
 }
@@ -45,7 +58,7 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
       aria-label="Primary"
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
-      <ul className="mx-auto grid max-w-md grid-cols-3">
+      <ul className="mx-auto grid max-w-lg grid-cols-5">
         {tabs(signedIn).map((t) => {
           const active = t.match(pathname);
           return (
@@ -53,7 +66,7 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
               <Link
                 href={t.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-xs ${
+                className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-[0.7rem] ${
                   active ? "font-bold text-text" : "text-muted"
                 }`}
               >

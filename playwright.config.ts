@@ -6,6 +6,9 @@ export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
+  // Data requests retry with backoff when the backend is unreachable (as in CI), so allow for it.
+  expect: { timeout: 15_000 },
+  timeout: 60_000,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: { baseURL: `http://localhost:${port}`, trace: "retain-on-failure" },
   // Mobile first: every test runs on phone viewports. Chromium is used for both so CI needs one browser.

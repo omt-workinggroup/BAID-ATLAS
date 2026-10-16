@@ -100,3 +100,19 @@ const loadMembership = cache(async (slug: string, profileId: string): Promise<Me
 export function canManageTeam(role: string) {
   return role === "owner" || role === "admin";
 }
+
+export const getStaffRoles = cache(async (): Promise<string[]> => {
+  const user = await getCurrentUser();
+  if (!user) return [];
+  const supabase = await createClient();
+  const { data } = await supabase.from("staff_roles").select("role").eq("user_id", user.id);
+  return (data ?? []).map((r) => r.role as string);
+});
+
+// Platform staff only; organisation roles never grant access here.
+export async function requireStaff(next: string, roles: string[] = ["moderator", "platform_admin"]) {
+  const profile = await requireActiveProfile(next);
+  const staff = await getStaffRoles();
+  if (!staff.some((r) => roles.includes(r))) redirect("/account?error=staff-only");
+  return { profile, staff };
+}

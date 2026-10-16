@@ -2,7 +2,9 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/ui";
 import { SceneArt } from "@/components/illustrations";
 import { Logo, TAGLINE } from "@/components/logo";
+import { ListingCard } from "@/components/listings/listing-card";
 import { getCurrentProfile, getCurrentUser } from "@/lib/auth/session";
+import { latestListings, savedListingIds } from "@/lib/listings/queries";
 
 const icon = (d: string, size = 24) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -11,12 +13,12 @@ const icon = (d: string, size = 24) => (
 );
 
 const categories = [
-  { label: "House", d: "M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" },
-  { label: "Apartment", d: "M5 21V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v17M15 9h3a1 1 0 0 1 1 1v11M8 7h4M8 11h4M8 15h4M3 21h18" },
-  { label: "Land", d: "M3 20h18M5 20l4-9 4 5 3-4 3 8M7 6h.01M7 3v6" },
-  { label: "Short stay", d: "M3 18v-6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v6M3 14h18M7 9V6h10v3" },
-  { label: "Commercial", d: "M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 9h4a1 1 0 0 1 1 1v11M8 8h3M8 12h3M8 16h3M3 21h18" },
-  { label: "New build", d: "M4 21V10l8-6 8 6v11M9 21v-6h6v6M2 21h20" },
+  { label: "House", href: "/explore?type=house", d: "M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" },
+  { label: "Apartment", href: "/explore?type=apartment", d: "M5 21V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v17M15 9h3a1 1 0 0 1 1 1v11M8 7h4M8 11h4M8 15h4M3 21h18" },
+  { label: "Land", href: "/explore?type=land", d: "M3 20h18M5 20l4-9 4 5 3-4 3 8M7 6h.01M7 3v6" },
+  { label: "Short stay", href: "/explore?purpose=short_stay", d: "M3 18v-6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v6M3 14h18M7 9V6h10v3" },
+  { label: "Commercial", href: "/explore?type=commercial", d: "M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 9h4a1 1 0 0 1 1 1v11M8 8h3M8 12h3M8 16h3M3 21h18" },
+  { label: "Office", href: "/explore?type=office", d: "M4 21V10l8-6 8 6v11M9 21v-6h6v6M2 21h20" },
 ];
 
 const previews = [
@@ -37,6 +39,8 @@ export default async function HomePage() {
   const user = await getCurrentUser();
   const profile = user ? await getCurrentProfile() : null;
   const firstName = profile?.display_name?.split(" ")[0];
+  const latest = await latestListings(8).catch(() => []);
+  const saved = await savedListingIds(user?.id, latest.map((l) => l.id));
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8 sm:gap-12">
@@ -68,69 +72,77 @@ export default async function HomePage() {
         <p className="-mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted">{TAGLINE}</p>
 
         <div className="flex items-center gap-3">
-          <div aria-disabled="true" className="flex min-h-13 flex-1 items-center gap-3 rounded-full border border-border bg-surface px-4 text-muted shadow-sm">
-            {icon("M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5", 20)}
-            <span className="flex-1 truncate">Search East Legon, Kumasi…</span>
-          </div>
-          <span
-            aria-label="Filters (coming soon)"
-            role="img"
-            className="grid size-13 flex-none place-items-center rounded-full bg-primary text-primary-contrast shadow-md"
-          >
+          <form action="/explore" method="get" role="search" className="flex min-h-13 flex-1 items-center gap-3 rounded-full border border-border bg-surface px-4 shadow-sm focus-within:border-primary">
+            <span className="text-muted">{icon("M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5", 20)}</span>
+            <label htmlFor="home-q" className="sr-only">Search by place</label>
+            <input id="home-q" name="q" placeholder="Search East Legon, Kumasi…" enterKeyHint="search" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted" />
+          </form>
+          <Link href="/explore" aria-label="Filters" className="grid size-13 flex-none place-items-center rounded-full bg-primary text-primary-contrast shadow-md">
             {icon("M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4", 22)}
-          </span>
+          </Link>
         </div>
-        <p className="-mt-1 text-xs text-muted">
-          <span className="mr-1.5 inline-block rounded-full bg-gold-soft px-2 py-0.5 font-semibold text-gold-strong">Soon</span>
-          Search, filters and listings open in the next release.
-        </p>
       </section>
 
       {/* Category bubbles */}
       <section aria-label="Property types">
         <ul className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
           {categories.map((c, i) => (
-            <li key={c.label} className="flex w-[4.5rem] flex-none flex-col items-center gap-2 text-center">
-              <span
-                className={`grid size-16 place-items-center rounded-full border ${
-                  i === 0 ? "border-transparent bg-primary text-primary-contrast" : "border-border bg-surface text-text"
-                }`}
-              >
-                {icon(c.d, 26)}
-              </span>
-              <span className="text-xs font-medium">{c.label}</span>
+            <li key={c.label} className="flex-none">
+              <Link href={c.href} className="group flex w-[4.5rem] flex-col items-center gap-2 text-center">
+                <span
+                  className={`grid size-16 place-items-center rounded-full border transition-transform group-hover:-translate-y-0.5 group-active:scale-95 motion-reduce:transform-none ${
+                    i === 0 ? "border-transparent bg-primary text-primary-contrast" : "border-border bg-surface text-text"
+                  }`}
+                >
+                  {icon(c.d, 26)}
+                </span>
+                <span className="text-xs font-medium">{c.label}</span>
+              </Link>
             </li>
           ))}
         </ul>
       </section>
 
-      {/* Preview rail */}
-      <section aria-labelledby="explore-heading" className="grid gap-4">
-        <div className="flex items-end justify-between">
-          <h2 id="explore-heading" className="text-xl font-bold tracking-tight">Coming to BAID Atlas</h2>
-          <span className="text-sm font-semibold text-gold-strong">Listings soon</span>
-        </div>
-        <ul className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0">
-          {previews.map((p) => (
-            <li key={p.title} className="w-[16.5rem] flex-none snap-start overflow-hidden rounded-3xl border border-border bg-surface shadow-sm sm:w-auto">
-              <div className="relative aspect-[16/11] overflow-hidden rounded-3xl m-2">
-                <SceneArt scene={p.scene} className="size-full" />
-                <span className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white backdrop-blur">
-                  Illustration
-                </span>
-                <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white/90 text-[#121212]" aria-hidden="true">
-                  {icon("M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z", 18)}
-                </span>
-              </div>
-              <div className="grid gap-1 px-4 pb-4 pt-1">
-                <span className="w-fit rounded-md bg-surface-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted">{p.tag}</span>
-                <h3 className="font-bold">{p.title}</h3>
-                <p className="text-sm text-muted">{p.line}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {/* Live listings, or an honest preview until there are some */}
+      {latest.length > 0 ? (
+        <section aria-labelledby="fresh-heading" className="grid gap-4">
+          <div className="flex items-end justify-between">
+            <h2 id="fresh-heading" className="text-xl font-bold tracking-tight">Fresh on BAID Atlas</h2>
+            <Link href="/explore" className="text-sm font-semibold text-gold-strong">See all</Link>
+          </div>
+          <ul className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0">
+            {latest.map((l, i) => (
+              <li key={l.id} className="flex-none">
+                <ListingCard l={l} layout="rail" saved={saved.has(l.id)} signedIn={Boolean(user)} priority={i < 2} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <section aria-labelledby="explore-heading" className="grid gap-4">
+          <div className="flex items-end justify-between">
+            <h2 id="explore-heading" className="text-xl font-bold tracking-tight">Coming to BAID Atlas</h2>
+            <span className="text-sm font-semibold text-gold-strong">Listings soon</span>
+          </div>
+          <ul className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0">
+            {previews.map((p) => (
+              <li key={p.title} className="w-[16.5rem] flex-none snap-start overflow-hidden rounded-3xl border border-border bg-surface shadow-sm sm:w-auto">
+                <div className="relative m-2 aspect-[16/11] overflow-hidden rounded-3xl">
+                  <SceneArt scene={p.scene} className="size-full" />
+                  <span className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white backdrop-blur">
+                    Illustration
+                  </span>
+                </div>
+                <div className="grid gap-1 px-4 pb-4 pt-1">
+                  <span className="w-fit rounded-md bg-surface-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted">{p.tag}</span>
+                  <h3 className="font-bold">{p.title}</h3>
+                  <p className="text-sm text-muted">{p.line}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Trust banner */}
       <section className="relative overflow-hidden rounded-3xl bg-[#121212] p-6 text-white sm:p-10">

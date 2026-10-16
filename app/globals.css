@@ -121,3 +121,26 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@utility animate-rise {
+  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+dialog[open] {
+  animation: rise 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}

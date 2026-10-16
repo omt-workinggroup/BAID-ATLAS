@@ -45,12 +45,31 @@ export default async function OrgOverviewPage({
         </ul>
       </Card>
 
+      <Card className="grid gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Listings</h2>
+          <Link href={`/portal/${orgSlug}/listings`} className="text-sm font-semibold underline decoration-gold decoration-2 underline-offset-4">
+            Manage →
+          </Link>
+        </div>
+        <p className="text-sm text-muted">Create a listing, add photos, and submit it for review. Approved listings go live once your organisation is verified.</p>
+        {["owner", "admin", "listing_manager"].includes(role) && (
+          <Link href={`/portal/${orgSlug}/listings/new`} className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary font-semibold text-primary-contrast">
+            + New listing
+          </Link>
+        )}
+      </Card>
+
       <Card className="grid gap-2">
-        <h2 className="text-lg font-semibold">Listings</h2>
-        <p className="text-sm text-muted">
-          Listing creation, media uploads and moderation arrive in the next release. Your organisation and team
-          setup will carry over.
-        </p>
+        <h2 className="text-lg font-semibold">Verification</h2>
+        {organization.verification_status === "verified" ? (
+          <p className="text-sm">✅ Your organisation is verified. Approved listings can be published.</p>
+        ) : (
+          <p className="text-sm text-muted">
+            Not verified yet. Our team checks your business registration before your listings can go live. Verification
+            states exactly what was checked — it never implies you own a particular property.
+          </p>
+        )}
       </Card>
     </div>
   );

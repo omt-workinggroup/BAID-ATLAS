@@ -7,6 +7,7 @@ export function OrgTabs({ slug }: { slug: string }) {
   const pathname = usePathname();
   const tabs = [
     { href: `/portal/${slug}`, label: "Overview" },
+    { href: `/portal/${slug}/listings`, label: "Listings" },
     { href: `/portal/${slug}/team`, label: "Team" },
     { href: `/portal/${slug}/organisation`, label: "Profile" },
   ];
@@ -14,7 +15,7 @@ export function OrgTabs({ slug }: { slug: string }) {
     <nav aria-label="Organisation" className="-mx-4 overflow-x-auto border-b border-border px-4">
       <ul className="flex gap-1">
         {tabs.map((t) => {
-          const active = pathname === t.href;
+          const active = t.label === "Listings" ? pathname.startsWith(t.href) : pathname === t.href;
           return (
             <li key={t.href}>
               <Link

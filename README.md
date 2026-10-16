@@ -2,7 +2,7 @@
 
 Mobile-first property discovery, listing, verification and marketing platform, launching in Ghana first.
 
-**Status: Phase 1 (foundation) complete** — auth, profiles, organisations, teams, RLS, CI.
+**Status: Phase 2 (listings and discovery) complete** — explore, property pages, provider listings, moderation. See the [Phase 2 report](docs/implementation/phase-2-report.md).
 See the [Phase 1 report](docs/implementation/phase-1-report.md).
 
 ## Development

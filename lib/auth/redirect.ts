@@ -1,5 +1,5 @@
 // Only same-origin, allow-listed paths may be used as post-auth redirect targets.
-const ALLOWED_PREFIXES = ["/account", "/onboarding", "/portal", "/invitations", "/reset-password/update"];
+const ALLOWED_PREFIXES = ["/account", "/onboarding", "/portal", "/invitations", "/reset-password/update", "/ops", "/properties", "/explore"];
 const DEFAULT_PATH = "/account";
 
 export function safeRedirectPath(input: string | null | undefined, fallback = DEFAULT_PATH): string {

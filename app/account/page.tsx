@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Alert, Card, PageHeader } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
-import { requireActiveProfile } from "@/lib/auth/session";
+import { getStaffRoles, requireActiveProfile } from "@/lib/auth/session";
 import { signOut } from "@/app/(auth)/actions";
 import { ProfileForm } from "./profile-form";
 
@@ -15,12 +15,31 @@ export default async function AccountPage({
 }) {
   const profile = await requireActiveProfile("/account");
   const { welcome, updated } = await searchParams;
+  const staff = await getStaffRoles();
 
   return (
     <div className="mx-auto grid max-w-2xl gap-6">
       <PageHeader title="Account" description={profile.email} />
-      {welcome && <Alert tone="success">You&apos;re all set, {profile.display_name}. Property search is coming soon.</Alert>}
+      {welcome && <Alert tone="success">You&apos;re all set, {profile.display_name}. Start exploring!</Alert>}
       {updated === "password" && <Alert tone="success">Password updated. Other devices have been signed out.</Alert>}
+
+      <div className="grid grid-cols-2 gap-3">
+        <Link href="/account/saved" className="grid gap-1 rounded-3xl border border-border bg-surface p-4 hover:border-primary">
+          <span className="text-2xl" aria-hidden="true">♡</span>
+          <span className="font-bold">Saved</span>
+          <span className="text-xs text-muted">Your hearted properties</span>
+        </Link>
+        <Link href="/explore" className="grid gap-1 rounded-3xl border border-border bg-surface p-4 hover:border-primary">
+          <span className="text-2xl" aria-hidden="true">⌕</span>
+          <span className="font-bold">Explore</span>
+          <span className="text-xs text-muted">Search live listings</span>
+        </Link>
+      </div>
+      {staff.length > 0 && (
+        <Link href="/ops" className="flex items-center justify-between rounded-3xl bg-primary px-5 py-4 font-semibold text-primary-contrast">
+          Operations dashboard <span aria-hidden="true">→</span>
+        </Link>
+      )}
 
       <Card className="grid gap-4">
         <h2 className="text-lg font-semibold">Profile and preferences</h2>

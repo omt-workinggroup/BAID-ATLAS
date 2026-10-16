@@ -7,6 +7,8 @@ import { env } from "@/lib/env";
 export async function createClient() {
   const cookieStore = await cookies();
   return createServerClient(env.supabaseUrl, env.supabaseKey, {
+    // Never let a slow backend hang a page render.
+    global: { fetch: (input, init) => fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(8000) }) },
     cookies: {
       getAll() {
         return cookieStore.getAll();

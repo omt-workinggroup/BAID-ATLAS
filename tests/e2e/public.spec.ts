@@ -21,7 +21,7 @@ test.describe("public pages", () => {
   test("home renders with mobile navigation and no fake listings", async ({ page }, info) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Find property in Ghana");
-    await expect(page.getByText("Search East Legon, Kumasi…")).toBeVisible();
+    await expect(page.getByPlaceholder("Search East Legon, Kumasi…")).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Primary" }).last();
     await expect(nav).toBeVisible();
     await expectNoHorizontalScroll(page);
@@ -73,7 +73,7 @@ test.describe("public pages", () => {
 });
 
 test.describe("access control", () => {
-  for (const path of ["/account", "/onboarding", "/portal", "/portal/new", "/portal/some-org/team", "/invitations/accept?token=x"]) {
+  for (const path of ["/account", "/account/saved", "/onboarding", "/portal", "/portal/new", "/portal/some-org/team", "/portal/some-org/listings/new", "/ops", "/invitations/accept?token=x"]) {
     test(`anonymous visit to ${path} redirects to sign-in`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/sign-in\?next=/);
@@ -134,6 +134,74 @@ test.describe("social preview", () => {
     if (info.project.name === "pixel-7") {
       const fs = await import("node:fs");
       fs.writeFileSync(`${shotDir}/00-social-preview.png`, await res.body());
+    }
+  });
+});
+
+test.describe("discovery", () => {
+  test("home search submits to Explore", async ({ page }) => {
+    await page.goto("/");
+    await page.getByPlaceholder("Search East Legon, Kumasi…").fill("Kumasi");
+    await page.getByPlaceholder("Search East Legon, Kumasi…").press("Enter");
+    await expect(page).toHaveURL(/\/explore\?q=Kumasi/);
+    await expect(page.locator("#q")).toHaveValue("Kumasi");
+  });
+
+  test("explore renders with purpose chips and a filter sheet", async ({ page }, info) => {
+    await page.goto("/explore?purpose=long_term_rent");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("For rent");
+    await expect(page.getByRole("link", { name: "For rent" })).toHaveAttribute("aria-current", "page");
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    const dialog = page.getByRole("dialog", { name: "Filters" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText("Prices are matched in the listing's own currency")).toBeVisible();
+    await page.waitForTimeout(500); // let the sheet finish sliding in
+    await shot(page, "20-explore-filters", info.project.name);
+    await dialog.getByText("3+").click();
+    await dialog.getByRole("button", { name: "Show results" }).click();
+    await expect(page).toHaveURL(/beds=3/);
+    await expectNoHorizontalScroll(page);
+  });
+
+  for (const [path, query] of [["/rentals", "purpose=long_term_rent"], ["/land", "type=land"], ["/short-stays", "purpose=short_stay"], ["/commercial", "type=commercial"]]) {
+    test(`category hub ${path} opens Explore`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page).toHaveURL(new RegExp(`/explore\\?${query}`));
+    });
+  }
+
+  test("hostile search input is neutralised", async ({ page }) => {
+    await page.goto("/explore?q=accra),title.eq.x&purpose=steal&min=-1");
+    await expect(page.locator("#q")).toHaveValue("accra title eq x");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Explore property");
+  });
+
+  test("unknown properties show a friendly, non-indexable not-found page", async ({ page, request }) => {
+    // Streaming responses keep HTTP 200; Next marks the page noindex and renders the not-found UI.
+    const html = await (await request.get("/properties/does-not-exist-123")).text();
+    expect(html).toContain('<meta name="robots" content="noindex"/>');
+    await page.goto("/properties/does-not-exist-123");
+    await expect(page.getByRole("heading", { name: "This property isn't available" })).toBeVisible();
+  });
+
+  test("design gallery is off unless explicitly enabled", async ({ page }) => {
+    const res = await page.goto("/design");
+    if (process.env.NEXT_PUBLIC_DESIGN_GALLERY === "1") {
+      expect(res?.status()).toBe(200);
+    } else {
+      expect(res?.status()).toBe(404);
+    }
+  });
+});
+
+test.describe("design gallery screenshots", () => {
+  test.skip(process.env.NEXT_PUBLIC_DESIGN_GALLERY !== "1", "gallery disabled");
+  test("cards, rails and statuses", async ({ page }, info) => {
+    await page.goto("/design");
+    await expect(page.getByText("Design samples — not real listings")).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    if (info.project.name === "pixel-7") {
+      await page.screenshot({ path: `${shotDir}/21-listing-cards.png`, fullPage: true });
     }
   });
 });
