@@ -178,7 +178,7 @@ function headerView(signedIn, path) {
     <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
-        <a href="/" class="logo" aria-label="Propertiq home"><img src="/brand/propertiq.svg" alt="Propertiq" width="121" height="32" /></a>
+        <a href="/" class="logo" aria-label="Propertiq home"><img src="/brand/propertiq-logo.png" alt="Propertiq" height="36" data-logo /></a>
         <nav class="top-nav" aria-label="Primary">
           <ul>
             ${navItems(signedIn).map(
@@ -215,7 +215,7 @@ function footerView() {
     <footer class="site-footer">
       <div class="site-footer__inner">
         <div class="site-footer__about">
-          <img src="/brand/propertiq.svg" alt="Propertiq" width="91" height="24" loading="lazy" />
+          <img src="/brand/propertiq-logo.png" alt="Propertiq" height="32" loading="lazy" data-logo />
           <p>Property listings for Ghana, reviewed before they go live, with verification you can read in full.</p>
         </div>
         <div class="footer-cols">
@@ -235,6 +235,12 @@ export async function boot() {
   document.body.classList.add("app");
   document.body.insertAdjacentHTML("afterbegin", part(headerView(Boolean(user), path)));
   document.body.insertAdjacentHTML("beforeend", part(footerView()) + part(bottomNavView(Boolean(user), path)));
+  // The logo is the supplied artwork, used unchanged. If the file is missing, show the name in text instead.
+  document.querySelectorAll("img[data-logo]").forEach((img) => {
+    const fallback = () => img.replaceWith(Object.assign(document.createElement("span"), { className: "logo-text", textContent: "Propertiq" }));
+    if (img.complete && img.naturalWidth === 0) fallback();
+    else img.addEventListener("error", fallback, { once: true });
+  });
   if (user) refreshUnread();
   if ("serviceWorker" in navigator && location.hostname !== "localhost") navigator.serviceWorker.register("/sw.js").catch(() => {});
 }

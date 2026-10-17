@@ -224,13 +224,13 @@ body.app {
 }
 
 /* ---- Header and navigation ------------------------------------------------ */
+/* Black, so the supplied white-on-black logo sits on its own background, unchanged. */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgb(255 255 255 / 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  background: #000;
+  color: #fff;
   padding-top: env(safe-area-inset-top);
 }
 .site-header__inner {
@@ -243,9 +243,19 @@ body.app {
   justify-content: space-between;
   gap: 1rem;
 }
+.logo {
+  display: flex;
+  align-items: center;
+}
 .logo img {
-  height: 32px;
+  height: 36px;
   width: auto;
+}
+.logo-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
 }
 .top-nav {
   display: none;
@@ -257,13 +267,13 @@ body.app {
   min-height: 2.5rem;
   padding: 0 0.875rem;
   font-size: 0.875rem;
-  color: var(--muted);
+  color: #a3a3a3;
 }
 .top-nav a:hover {
-  color: var(--text);
+  color: #fff;
 }
 .top-nav a[aria-current="page"] {
-  color: var(--text);
+  color: #fff;
   font-weight: 600;
 }
 .top-nav a[aria-current="page"]::after {
@@ -271,9 +281,9 @@ body.app {
   position: absolute;
   left: 0.875rem;
   right: 0.875rem;
-  bottom: -13px;
+  bottom: -12px;
   height: 2px;
-  background: var(--accent);
+  background: #fff;
 }
 .top-nav ul {
   display: flex;
@@ -284,8 +294,9 @@ body.app {
   align-items: center;
   min-height: 2.5rem;
   padding: 0 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid rgb(255 255 255 / 0.4);
   border-radius: var(--radius);
+  color: #fff;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -360,10 +371,10 @@ body.app {
   }
 }
 
-/* ---- Footer --------------------------------------------------------------- */
+/* ---- Footer (black, like the header) -------------------------------------- */
 .site-footer {
-  background: var(--surface-muted);
-  border-top: 1px solid var(--border);
+  background: #000;
+  color: #fff;
   padding-bottom: 7rem;
 }
 @media (min-width: 1024px) {
@@ -384,14 +395,14 @@ body.app {
   }
 }
 .site-footer__about img {
-  height: 24px;
+  height: 32px;
   width: auto;
 }
 .site-footer__about p {
   margin-top: 1rem;
   max-width: 20rem;
   font-size: 0.875rem;
-  color: var(--muted);
+  color: #a3a3a3;
 }
 .footer-cols {
   display: grid;
@@ -415,20 +426,20 @@ body.app {
 }
 .footer-cols a {
   font-size: 0.875rem;
-  color: var(--muted);
+  color: #a3a3a3;
 }
 .footer-cols a:hover {
-  color: var(--text);
+  color: #fff;
 }
 .site-footer__legal {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #262626;
 }
 .site-footer__legal p {
   max-width: var(--page);
   margin: 0 auto;
   padding: 1.25rem var(--gutter);
   font-size: 0.75rem;
-  color: var(--muted);
+  color: #8a8a8a;
 }
 
 /* ---- Buttons -------------------------------------------------------------- */
@@ -1381,6 +1392,7 @@ body.app {
 @media (min-width: 640px) {
   .gallery__track {
     aspect-ratio: 16 / 9;
+    max-height: 34rem;
   }
 }
 .gallery__track > * {

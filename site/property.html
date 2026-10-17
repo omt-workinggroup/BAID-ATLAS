@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en-GH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Property · BAID Atlas</title>
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/vendor/supabase.js" defer></script>
+    <script type="module" src="/js/pages/property.js"></script>
+  </head>
+  <body>
+    <main id="main" class="page">
+      <article class="stack-lg" id="property" aria-busy="true">
+        <div class="stack">
+          <div class="skeleton" style="height: 1rem; width: 40%"></div>
+          <div class="skeleton" style="aspect-ratio: 4/3; border-radius: 16px"></div>
+          <div class="skeleton" style="height: 2.5rem; width: 80%"></div>
+          <div class="skeleton" style="height: 1.5rem; width: 40%"></div>
+        </div>
+      </article>
+
+      <!-- Message the provider -->
+      <dialog class="sheet" id="inquiry-sheet" aria-labelledby="inquiry-title">
+        <form class="sheet__body" id="inquiry-form" novalidate>
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="row-between"><h2 id="inquiry-title" style="font-size: 1.4rem">Message the provider</h2><button type="button" class="btn btn--ghost btn--small" data-close>Close</button></div>
+          <p class="small muted" data-provider-line></p>
+          <div class="field">
+            <label for="f-message">Your message</label>
+            <textarea class="textarea" id="f-message" name="message" maxlength="2000" required aria-describedby="f-message-msg">Hi, is this property still available? I'd like to know more.</textarea>
+            <p class="hint" id="f-message-msg" data-hint="Replies arrive in your Propertiq inbox.">Replies arrive in your Propertiq inbox.</p>
+          </div>
+          <label class="choice"><input type="checkbox" name="share_phone" /><span class="small"><span class="bold">Share my phone number with this provider</span><br /><span class="muted">So they can call or text you about this property. Leave unticked to keep it private.</span></span></label>
+          <button type="submit" class="btn btn--full">Send message</button>
+          <p class="form-note">Never pay a deposit before you've viewed the property in person.</p>
+        </form>
+      </dialog>
+
+      <!-- Request a viewing -->
+      <dialog class="sheet" id="viewing-sheet" aria-labelledby="viewing-title">
+        <form class="sheet__body" id="viewing-form" novalidate>
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="row-between"><h2 id="viewing-title" style="font-size: 1.4rem">Request a viewing</h2><button type="button" class="btn btn--ghost btn--small" data-close>Close</button></div>
+          <div class="grid-2">
+            <div class="field"><label for="f-date">Date</label><input class="input" id="f-date" name="date" type="date" required aria-describedby="f-date-msg" /><p class="hint" id="f-date-msg" data-hint=""></p></div>
+            <div class="field"><label for="f-time">Time</label><select class="select" id="f-time" name="time" aria-describedby="f-time-msg"></select><p class="hint" id="f-time-msg" data-hint=""></p></div>
+          </div>
+          <div class="field"><label for="f-length">How long</label><select class="select" id="f-length" name="length" aria-describedby="f-length-msg"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="90">1 hour 30 minutes</option></select><p class="hint" id="f-length-msg" data-hint=""></p></div>
+          <div class="field"><label for="f-note">Note for the provider (optional)</label><textarea class="textarea" id="f-note" name="note" maxlength="500" style="min-height: 5rem" aria-describedby="f-note-msg"></textarea><p class="hint" id="f-note-msg" data-hint=""></p></div>
+          <p class="small muted" data-timezone></p>
+          <button type="submit" class="btn btn--full">Send request</button>
+          <p class="form-note">The provider confirms, or suggests another time. You'll see it in your inbox.</p>
+        </form>
+      </dialog>
+
+      <!-- Report the listing -->
+      <dialog class="sheet" id="report-sheet" aria-labelledby="report-title">
+        <form class="sheet__body" id="report-form" novalidate>
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="row-between"><h2 id="report-title" style="font-size: 1.4rem">Report this listing</h2><button type="button" class="btn btn--ghost btn--small" data-close>Close</button></div>
+          <fieldset class="stack-sm" style="border: 0; padding: 0; margin: 0"><legend class="bold small" style="margin-bottom: 0.5rem">What's wrong?</legend><div class="stack-sm" id="report-reasons"></div></fieldset>
+          <div class="field"><label for="f-details">Details</label><textarea class="textarea" id="f-details" name="details" maxlength="1000" style="min-height: 5rem" aria-describedby="f-details-msg"></textarea><p class="hint" id="f-details-msg" data-hint="Our moderators read every report. The provider doesn't see who reported.">Our moderators read every report. The provider doesn't see who reported.</p></div>
+          <button type="submit" class="btn btn--full">Send report</button>
+        </form>
+      </dialog>
+    </main>
+  </body>
+</html>
