@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui";
-import { requireActiveProfile } from "@/lib/auth/session";
+import { contactOf, requireActiveProfile } from "@/lib/auth/session";
 import { AcceptForm } from "./form";
 
 export const metadata: Metadata = { title: "Accept invitation" };
@@ -15,7 +15,7 @@ export default async function AcceptInvitationPage({ searchParams }: { searchPar
         description={
           <>
             You&apos;ve been invited to join a team on BAID Atlas. The invitation must have been sent to{" "}
-            <strong className="text-text">{profile.email}</strong>.
+            <strong className="text-text">{contactOf(profile)}</strong>.
           </>
         }
       />

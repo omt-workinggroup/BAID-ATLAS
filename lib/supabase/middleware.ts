@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/lib/env";
 
-const PROTECTED_PREFIXES = ["/account", "/onboarding", "/portal", "/invitations", "/reset-password/update", "/ops"];
+const PROTECTED_PREFIXES = ["/account", "/onboarding", "/portal", "/invitations", "/ops"];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

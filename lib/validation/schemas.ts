@@ -23,34 +23,46 @@ export const INVITABLE_ROLES = ORG_ROLES.filter((r) => r !== "owner");
 export const SUPPORTED_CURRENCIES = ["GHS", "USD", "EUR", "GBP"] as const;
 export const SUPPORTED_LOCALES = ["en-GH", "en-GB", "en-US"] as const;
 
-const email = z.string().trim().toLowerCase().email("Enter a valid email address.").max(254);
+// Phone numbers are stored in E.164. Ghanaian numbers may be typed locally ("024 123 4567") or with the
+// country code in any common form ("233…", "+233…", "00233…").
+export function normalisePhone(input: string): string {
+  let v = input.trim().replace(/[\s\-().]/g, "");
+  if (v.startsWith("00")) v = `+${v.slice(2)}`;
+  else if (/^0\d{9}$/.test(v)) v = `+233${v.slice(1)}`;
+  else if (/^233\d{9}$/.test(v)) v = `+${v}`;
+  return v;
+}
 
-export const passwordSchema = z
+const E164 = /^\+[1-9][0-9]{6,14}$/;
+
+export const phoneSchema = z
   .string()
-  .min(10, "Use at least 10 characters.")
-  .max(72, "Use 72 characters or fewer.")
-  .regex(/[A-Za-z]/, "Include at least one letter.")
-  .regex(/[0-9]/, "Include at least one number.");
+  .trim()
+  .min(1, "Enter your phone number.")
+  .transform(normalisePhone)
+  .refine((v) => E164.test(v), "Enter a valid phone number, e.g. 024 123 4567.");
 
-export const signUpSchema = z.object({ email, password: passwordSchema });
-export const signInSchema = z.object({ email, password: z.string().min(1, "Enter your password.").max(72) });
-export const resetRequestSchema = z.object({ email });
-export const newPasswordSchema = z
-  .object({ password: passwordSchema, confirm: z.string() })
-  .refine((v) => v.password === v.confirm, { message: "Passwords do not match.", path: ["confirm"] });
+export const phoneSignInSchema = z.object({ phone: phoneSchema });
+export const otpSchema = z.object({
+  token: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/\s/g, ""))
+    .refine((v) => /^\d{6}$/.test(v), "Enter the 6-digit code from the text message."),
+});
 
 export const displayNameSchema = z.string().trim().min(1, "Enter your name.").max(80, "Use 80 characters or fewer.");
 
 const optionalPhone = z
   .string()
   .trim()
-  .transform((v) => v.replace(/[\s-]/g, ""))
-  .refine((v) => v === "" || /^\+[1-9][0-9]{6,14}$/.test(v), "Use international format, e.g. +233201234567.")
+  .transform((v) => (v === "" ? "" : normalisePhone(v)))
+  .refine((v) => v === "" || E164.test(v), "Enter a valid phone number, e.g. 024 123 4567.")
   .transform((v) => (v === "" ? null : v));
 
+// The phone on a profile is the verified sign-in number and can't be edited here.
 export const profileSchema = z.object({
   display_name: displayNameSchema,
-  phone: optionalPhone,
   preferred_currency: z.enum(SUPPORTED_CURRENCIES),
   preferred_locale: z.enum(SUPPORTED_LOCALES),
 });
@@ -101,7 +113,7 @@ export const updateOrganizationSchema = z.object({
 });
 
 export const inviteSchema = z.object({
-  email,
+  phone: phoneSchema,
   role: z.enum(INVITABLE_ROLES as unknown as [string, ...string[]], { message: "Choose a role." }),
 });
 

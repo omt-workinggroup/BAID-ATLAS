@@ -11,7 +11,6 @@ export async function updateProfile(_: ProfileState, formData: FormData): Promis
   const profile = await requireActiveProfile("/account");
   const parsed = profileSchema.safeParse({
     display_name: formData.get("display_name"),
-    phone: formData.get("phone") ?? "",
     preferred_currency: formData.get("preferred_currency"),
     preferred_locale: formData.get("preferred_locale"),
   });

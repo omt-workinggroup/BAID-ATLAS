@@ -2,39 +2,47 @@ import { describe, expect, it } from "vitest";
 import {
   createOrganizationSchema,
   inviteSchema,
-  newPasswordSchema,
+  normalisePhone,
+  otpSchema,
+  phoneSignInSchema,
   profileSchema,
-  signUpSchema,
   slugify,
   updateOrganizationSchema,
 } from "@/lib/validation/schemas";
 
-describe("signUpSchema", () => {
-  it("normalises email and accepts a strong password", () => {
-    const r = signUpSchema.parse({ email: "  Ama@Example.COM ", password: "goldcoast2026" });
-    expect(r.email).toBe("ama@example.com");
+describe("phone numbers", () => {
+  it.each([
+    ["024 123 4567", "+233241234567"],
+    ["0241234567", "+233241234567"],
+    ["233241234567", "+233241234567"],
+    ["+233 24-123 4567", "+233241234567"],
+    ["00233241234567", "+233241234567"],
+    ["+44 7700 900123", "+447700900123"],
+  ])("normalises %j to E.164", (input, expected) => {
+    expect(normalisePhone(input)).toBe(expected);
+    expect(phoneSignInSchema.parse({ phone: input }).phone).toBe(expected);
   });
-  it.each(["short1", "allletterspassword", "1234567890"])("rejects weak password %j", (password) => {
-    expect(signUpSchema.safeParse({ email: "a@b.co", password }).success).toBe(false);
+  it.each(["", "12345", "024123", "phone", "+0241234567"])("rejects %j", (phone) => {
+    expect(phoneSignInSchema.safeParse({ phone }).success).toBe(false);
   });
 });
 
-describe("newPasswordSchema", () => {
-  it("requires matching confirmation", () => {
-    const r = newPasswordSchema.safeParse({ password: "goldcoast2026", confirm: "goldcoast2025" });
-    expect(r.success).toBe(false);
-    expect(r.error?.issues[0].path).toEqual(["confirm"]);
+describe("otpSchema", () => {
+  it("accepts six digits, ignoring spaces", () => {
+    expect(otpSchema.parse({ token: "123 456" }).token).toBe("123456");
+  });
+  it.each(["12345", "1234567", "abcdef", ""])("rejects %j", (token) => {
+    expect(otpSchema.safeParse({ token }).success).toBe(false);
   });
 });
 
 describe("profileSchema", () => {
-  it("normalises phone numbers and allows empty", () => {
-    expect(profileSchema.parse({ display_name: "Ama", phone: "+233 20-123 4567", preferred_currency: "GHS", preferred_locale: "en-GH" }).phone).toBe("+233201234567");
-    expect(profileSchema.parse({ display_name: "Ama", phone: "", preferred_currency: "GHS", preferred_locale: "en-GH" }).phone).toBeNull();
+  it("doesn't accept a phone change (the sign-in number is managed by verification)", () => {
+    const r = profileSchema.parse({ display_name: "Ama", phone: "+233201234567", preferred_currency: "GHS", preferred_locale: "en-GH" });
+    expect("phone" in r).toBe(false);
   });
-  it("rejects local-format phone and unsupported currency", () => {
-    expect(profileSchema.safeParse({ display_name: "Ama", phone: "0201234567", preferred_currency: "GHS", preferred_locale: "en-GH" }).success).toBe(false);
-    expect(profileSchema.safeParse({ display_name: "Ama", phone: "", preferred_currency: "XYZ", preferred_locale: "en-GH" }).success).toBe(false);
+  it("rejects unsupported currency", () => {
+    expect(profileSchema.safeParse({ display_name: "Ama", preferred_currency: "XYZ", preferred_locale: "en-GH" }).success).toBe(false);
   });
 });
 
@@ -55,8 +63,8 @@ describe("organisation schemas", () => {
     expect(updateOrganizationSchema.parse({ ...base, website: "" }).website).toBeNull();
   });
   it("never allows inviting an owner", () => {
-    expect(inviteSchema.safeParse({ email: "a@b.co", role: "owner" }).success).toBe(false);
-    expect(inviteSchema.safeParse({ email: "a@b.co", role: "listing_manager" }).success).toBe(true);
+    expect(inviteSchema.safeParse({ phone: "0241234567", role: "owner" }).success).toBe(false);
+    expect(inviteSchema.parse({ phone: "0241234567", role: "listing_manager" }).phone).toBe("+233241234567");
   });
 });
 

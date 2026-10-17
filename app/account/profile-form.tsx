@@ -25,17 +25,13 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       {state?.ok && <Alert tone="success">Saved.</Alert>}
       {state?.message && <Alert tone="error">{state.message}</Alert>}
       <Field label="Name" name="display_name" autoComplete="name" defaultValue={profile.display_name ?? ""} error={state?.errors?.display_name} />
-      <Field
-        label="Phone (optional)"
-        name="phone"
-        type="tel"
-        inputMode="tel"
-        autoComplete="tel"
-        placeholder="+233…"
-        defaultValue={profile.phone ?? ""}
-        hint="Not shown publicly."
-        error={state?.errors?.phone}
-      />
+      {profile.phone && (
+        <div className="grid gap-1 rounded-xl bg-surface-muted px-4 py-3">
+          <span className="text-sm font-semibold">Phone number</span>
+          <span>{profile.phone}</span>
+          <span className="text-xs text-muted">Used to sign in. Not shown publicly.</span>
+        </div>
+      )}
       <SelectField
         label="Display prices in"
         name="preferred_currency"

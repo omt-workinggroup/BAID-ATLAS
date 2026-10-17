@@ -3,7 +3,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { safeRedirectPath } from "@/lib/auth/redirect";
 
-// Handles email verification, password recovery and magic links (PKCE code or token hash).
+// Handles links from Supabase emails (PKCE code or token hash). Sign-in itself is by SMS code.
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const next = safeRedirectPath(searchParams.get("next"));

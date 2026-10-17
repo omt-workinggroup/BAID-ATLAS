@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Alert, PageHeader } from "@/components/ui";
-import { requireActiveProfile } from "@/lib/auth/session";
+import { requireActiveProfile, isVerified } from "@/lib/auth/session";
 import { CreateOrganizationForm } from "./form";
 
 export const metadata: Metadata = { title: "Create organisation" };
@@ -14,8 +14,8 @@ export default async function NewOrganizationPage() {
         description="You'll be the owner. You can invite your team next."
         back={{ href: "/portal", label: "Provider portal" }}
       />
-      {!profile.email_verified_at ? (
-        <Alert tone="warning">Verify your email address before creating an organisation.</Alert>
+      {!isVerified(profile) ? (
+        <Alert tone="warning">Verify your phone number before creating an organisation.</Alert>
       ) : (
         <CreateOrganizationForm />
       )}

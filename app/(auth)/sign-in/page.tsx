@@ -5,8 +5,7 @@ import { Alert } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth/session";
 import { safeRedirectPath } from "@/lib/auth/redirect";
 import { AuthCard } from "../auth-card";
-import { SignInForm } from "../forms";
-import { GoogleButton } from "../google-button";
+import { PhoneForm } from "../forms";
 
 export const metadata: Metadata = { title: "Sign in" };
 
@@ -21,6 +20,7 @@ export default async function SignInPage({
   return (
     <AuthCard
       title="Sign in"
+      description="Use the phone number on your account."
       footer={
         <>
           New to BAID Atlas?{" "}
@@ -32,14 +32,9 @@ export default async function SignInPage({
     >
       <div className="grid gap-4">
         {signed_out && <Alert tone="success">You have been signed out.</Alert>}
-        {error === "link" && (
-          <Alert tone="error">That link is invalid or has expired. Sign in, or request a new link.</Alert>
-        )}
-        {error === "google" && (
-          <Alert tone="error">Google sign-in isn&apos;t available right now. Please use your email instead.</Alert>
-        )}
-        <GoogleButton next={target} />
-        <SignInForm next={target} />
+        {error === "expired" && <Alert tone="error">That code request has expired. Enter your number to get a new one.</Alert>}
+        {error === "link" && <Alert tone="error">That link is invalid or has expired. Please sign in again.</Alert>}
+        <PhoneForm next={target} mode="sign-in" />
       </div>
     </AuthCard>
   );

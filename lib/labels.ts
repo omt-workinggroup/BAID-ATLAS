@@ -38,8 +38,8 @@ export const VERIFICATION_LABELS: Record<string, string> = {
 export function friendlyDbError(error: { code?: string; message?: string } | null): string {
   switch (error?.code) {
     case "42501":
-      return error.message?.includes("email not verified")
-        ? "Please verify your email address first."
+      return error.message?.includes("not verified")
+        ? "Please verify your phone number first."
         : "You don't have permission to do that.";
     case "23505":
       return error.message?.includes("already a member")

@@ -40,7 +40,7 @@ export function InviteForm({ slug, canInviteAdmin }: { slug: string; canInviteAd
       )}
       {state?.message && <Alert tone="error">{state.message}</Alert>}
       <form action={action} className="grid gap-4" noValidate>
-        <Field label="Email" name="email" type="email" inputMode="email" autoComplete="off" error={state?.errors?.email} />
+        <Field label="Phone number" name="phone" type="tel" inputMode="tel" autoComplete="off" placeholder="024 123 4567" error={state?.errors?.phone} />
         <SelectField label="Role" name="role" defaultValue="viewer" options={roles.map((r) => ({ value: r, label: ORG_ROLE_LABELS[r] }))} error={state?.errors?.role} />
         <SubmitButton full pendingLabel="Creating invitation…">Create invitation</SubmitButton>
       </form>

@@ -1,104 +1,68 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { env } from "@/lib/env";
 import { safeRedirectPath } from "@/lib/auth/redirect";
-import {
-  fieldErrors,
-  newPasswordSchema,
-  resetRequestSchema,
-  signInSchema,
-  signUpSchema,
-  type FieldErrors,
-} from "@/lib/validation/schemas";
+import { PENDING, PENDING_MAX_AGE, readPending } from "@/lib/auth/pending";
+import { fieldErrors, otpSchema, phoneSignInSchema, type FieldErrors } from "@/lib/validation/schemas";
 
-export type AuthState = { errors?: FieldErrors; message?: string; email?: string } | undefined;
+export type AuthState = { errors?: FieldErrors; message?: string; phone?: string; sent?: boolean } | undefined;
 
-async function siteUrl() {
-  // Prefer the configured URL; fall back to the request origin for preview deploys.
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? "https";
-  return process.env.NEXT_PUBLIC_SITE_URL ? env.siteUrl : host ? `${proto}://${host}` : env.siteUrl;
-}
-
-export async function signUp(_: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = signUpSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), email: String(formData.get("email") ?? "") };
-
+async function sendSms(phone: string): Promise<string | null> {
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
-    options: { emailRedirectTo: `${await siteUrl()}/auth/callback?next=/onboarding` },
-  });
-  if (error) {
-    if (error.status === 429) return { message: "Too many attempts. Please wait a few minutes.", email: parsed.data.email };
-    if (error.code === "weak_password") return { errors: { password: error.message }, email: parsed.data.email };
-    // Don't reveal whether an account already exists.
-    if (error.code !== "user_already_exists") {
-      return { message: "We couldn't create your account. Please try again.", email: parsed.data.email };
-    }
+  const { error } = await supabase.auth.signInWithOtp({ phone, options: { shouldCreateUser: true, channel: "sms" } });
+  if (!error) return null;
+  if (error.status === 429 || error.code === "over_sms_send_rate_limit") return "Please wait a minute before asking for another code.";
+  if (error.code === "sms_send_failed" || error.code === "phone_provider_disabled") {
+    return "We couldn't send a text message right now. Please try again shortly.";
   }
-  redirect(`/verify-email?email=${encodeURIComponent(parsed.data.email)}`);
+  return "We couldn't send a code to that number. Check it and try again.";
 }
 
-export async function signIn(_: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = signInSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
-  const email = String(formData.get("email") ?? "");
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), email };
+// Step 1: send a one-time code. The same flow signs people up and signs them in.
+export async function sendCode(_: AuthState, formData: FormData): Promise<AuthState> {
+  const input = String(formData.get("phone") ?? "");
+  const parsed = phoneSignInSchema.safeParse({ phone: input });
+  if (!parsed.success) return { errors: fieldErrors(parsed.error), phone: input };
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) {
-    if (error.code === "email_not_confirmed") {
-      redirect(`/verify-email?email=${encodeURIComponent(parsed.data.email)}&unconfirmed=1`);
-    }
-    if (error.status === 429) return { message: "Too many attempts. Please wait a few minutes.", email };
-    return { message: "Email or password is incorrect.", email };
-  }
-  redirect(safeRedirectPath(String(formData.get("next") ?? "")));
-}
+  const failure = await sendSms(parsed.data.phone);
+  if (failure) return { message: failure, phone: input };
 
-export async function resendVerification(_: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = resetRequestSchema.safeParse({ email: formData.get("email") });
-  if (!parsed.success) return { errors: fieldErrors(parsed.error) };
-  const supabase = await createClient();
-  const { error } = await supabase.auth.resend({
-    type: "signup",
-    email: parsed.data.email,
-    options: { emailRedirectTo: `${await siteUrl()}/auth/callback?next=/onboarding` },
+  const next = safeRedirectPath(String(formData.get("next") ?? ""));
+  (await cookies()).set(PENDING, JSON.stringify({ phone: parsed.data.phone, next }), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: PENDING_MAX_AGE,
   });
-  if (error?.status === 429) return { message: "Please wait a minute before requesting another email." };
-  return { message: "If that address needs verifying, we've sent a new link." };
+  redirect("/verify-phone");
 }
 
-export async function requestPasswordReset(_: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = resetRequestSchema.safeParse({ email: formData.get("email") });
-  if (!parsed.success) return { errors: fieldErrors(parsed.error) };
-  const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${await siteUrl()}/auth/callback?next=/reset-password/update`,
-  });
-  // Same response whether or not the account exists.
-  return { message: "If an account exists for that email, we've sent a reset link. It expires in 1 hour." };
-}
+// Step 2: check the code. Supabase creates the session cookies on success.
+export async function verifyCode(_: AuthState, formData: FormData): Promise<AuthState> {
+  const pending = await readPending();
+  if (!pending) redirect("/sign-in?error=expired");
 
-export async function updatePassword(_: AuthState, formData: FormData): Promise<AuthState> {
-  const parsed = newPasswordSchema.safeParse({ password: formData.get("password"), confirm: formData.get("confirm") });
+  const parsed = otpSchema.safeParse({ token: formData.get("token") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error) };
+
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  const { error } = await supabase.auth.verifyOtp({ phone: pending.phone, token: parsed.data.token, type: "sms" });
   if (error) {
-    if (error.code === "same_password") return { errors: { password: "Choose a different password from your current one." } };
-    if (error.code === "weak_password") return { errors: { password: error.message } };
-    return { message: "We couldn't update your password. Request a new reset link and try again." };
+    if (error.status === 429) return { message: "Too many attempts. Please wait a few minutes." };
+    return { errors: { token: "That code is wrong or has expired. Check it, or send a new one." } };
   }
-  // Sign out other devices after a password change.
-  await supabase.auth.signOut({ scope: "others" });
-  redirect("/account?updated=password");
+  (await cookies()).delete(PENDING);
+  redirect(pending.next);
+}
+
+export async function resendCode(): Promise<AuthState> {
+  const pending = await readPending();
+  if (!pending) redirect("/sign-in?error=expired");
+  const failure = await sendSms(pending.phone);
+  return failure ? { message: failure } : { sent: true };
 }
 
 export async function signOut(formData: FormData) {
@@ -106,17 +70,4 @@ export async function signOut(formData: FormData) {
   const scope = formData.get("scope") === "global" ? "global" : "local";
   await supabase.auth.signOut({ scope });
   redirect("/sign-in?signed_out=1");
-}
-
-// Google sign-in through Supabase OAuth (PKCE). Supabase sends the user back to /auth/callback, which
-// exchanges the code for a session. If Google isn't enabled in Supabase, the user gets a clear message.
-export async function signInWithGoogle(formData: FormData) {
-  const next = safeRedirectPath(String(formData.get("next") ?? ""));
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: `${await siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`, skipBrowserRedirect: true },
-  });
-  if (error || !data.url) redirect(`/sign-in?error=google`);
-  redirect(data.url);
 }

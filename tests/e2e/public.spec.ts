@@ -36,39 +36,39 @@ test.describe("public pages", () => {
     });
   }
 
-  test("sign-up shows validation errors", async ({ page }, info) => {
+  test("sign-up asks for a phone number and validates it", async ({ page }, info) => {
     await page.goto("/sign-up");
-    await page.getByLabel("Email").fill("not-an-email");
-    await page.getByLabel("Password").fill("short");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page.getByText("Enter a valid email address.")).toBeVisible();
-    await expect(page.getByText("Use at least 10 characters.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
+    await expect(page.getByLabel("Email")).toHaveCount(0);
+    await expect(page.getByLabel("Password")).toHaveCount(0);
+    await page.getByLabel("Phone number").fill("12345");
+    await page.getByRole("button", { name: "Send code" }).click();
+    await expect(page.getByText("Enter a valid phone number, e.g. 024 123 4567.")).toBeVisible();
     await expectNoHorizontalScroll(page);
     await shot(page, "02-sign-up-errors", info.project.name);
   });
 
-  test("sign-in page", async ({ page }, info) => {
+  test("sign-in page requires a phone number", async ({ page }, info) => {
     await page.goto("/sign-in");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
-    await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page.getByText("Enter your password.")).toBeVisible();
+    await expect(page.getByText("Continue with Google")).toHaveCount(0);
+    await page.getByRole("button", { name: "Send code" }).click();
+    await expect(page.getByText("Enter your phone number.")).toBeVisible();
     await expectNoHorizontalScroll(page);
     await shot(page, "03-sign-in", info.project.name);
   });
 
-  test("reset password validates email without contacting the server", async ({ page }, info) => {
-    await page.goto("/reset-password");
-    await page.getByLabel("Email").fill("nope");
-    await page.getByRole("button", { name: "Send reset link" }).click();
-    await expect(page.getByText("Enter a valid email address.")).toBeVisible();
-    await shot(page, "04-reset-password", info.project.name);
+  test("code page without a pending number goes back to sign-in", async ({ page }) => {
+    await page.goto("/verify-phone");
+    await expect(page).toHaveURL(/\/sign-in\?error=expired/);
+    await expect(page.getByText("That code request has expired.")).toBeVisible();
   });
 
-  test("verify email page", async ({ page }, info) => {
-    await page.goto("/verify-email?email=ama%40example.test");
-    await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
-    await expect(page.getByText("ama@example.test").first()).toBeVisible();
-    await shot(page, "05-verify-email", info.project.name);
+  test("email and password pages are gone", async ({ page }) => {
+    for (const path of ["/reset-password", "/verify-email"]) {
+      const res = await page.goto(path);
+      expect(res?.status()).toBe(404);
+    }
   });
 });
 
@@ -83,19 +83,16 @@ test.describe("access control", () => {
   }
 
   test("open redirects are neutralised", async ({ page }) => {
-    // Both the Google and the email sign-in forms carry the redirect target; every copy must be neutralised.
     for (const url of ["/sign-in?next=https%3A%2F%2Fevil.example%2F", "/sign-in?next=%2F%2Fevil.example"]) {
       await page.goto(url);
-      const fields = page.locator('input[name="next"]');
-      await expect(fields).toHaveCount(2);
-      for (const field of await fields.all()) await expect(field).toHaveValue("/account");
+      await expect(page.locator('input[name="next"]')).toHaveValue("/account");
     }
   });
 
   test("invalid auth callback code is rejected", async ({ page }) => {
     await page.goto("/auth/callback?code=invalid-code&next=/account");
     await expect(page).toHaveURL(/\/sign-in\?error=link/);
-    await expect(page.getByText("That link is invalid or has expired.")).toBeVisible();
+    await expect(page.getByText("That link is invalid or has expired. Please sign in again.")).toBeVisible();
   });
 
   test("security headers are set", async ({ request }) => {

@@ -38,10 +38,10 @@ jobs:
       - run: pnpm test:e2e
         env:
           CI: "true"
-          # Authenticated flow runs only when QA credentials are configured as secrets.
-          E2E_OWNER_EMAIL: ${{ secrets.E2E_OWNER_EMAIL }}
-          E2E_MEMBER_EMAIL: ${{ secrets.E2E_MEMBER_EMAIL }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          # Authenticated flow runs only when Supabase test phone numbers are configured as secrets.
+          E2E_OWNER_PHONE: ${{ secrets.E2E_OWNER_PHONE }}
+          E2E_MEMBER_PHONE: ${{ secrets.E2E_MEMBER_PHONE }}
+          E2E_OTP: ${{ secrets.E2E_OTP }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
-import { canManageTeam, requireActiveProfile, requireMembership } from "@/lib/auth/session";
+import { canManageTeam, requireActiveProfile, requireMembership, isVerified } from "@/lib/auth/session";
 import { friendlyDbError } from "@/lib/labels";
 import {
   createOrganizationSchema,
@@ -19,7 +19,7 @@ export type FormState = { errors?: FieldErrors; message?: string; ok?: boolean; 
 
 export async function createOrganization(_: FormState, formData: FormData): Promise<FormState> {
   const profile = await requireActiveProfile("/portal/new");
-  if (!profile.email_verified_at) return { message: "Please verify your email address first." };
+  if (!isVerified(profile)) return { message: "Please verify your phone number first." };
 
   const parsed = createOrganizationSchema.safeParse({
     name: formData.get("name"),
@@ -71,18 +71,18 @@ export async function inviteMember(slug: string, _: FormState, formData: FormDat
   const { organization, role } = await requireMembership(slug, `/portal/${slug}/team`);
   if (!canManageTeam(role)) return { message: "Only owners and admins can invite people." };
 
-  const parsed = inviteSchema.safeParse({ email: formData.get("email"), role: formData.get("role") });
+  const parsed = inviteSchema.safeParse({ phone: formData.get("phone"), role: formData.get("role") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error) };
 
   const supabase = await createClient();
-  const { data: token, error } = await supabase.rpc("invite_member", {
+  const { data: token, error } = await supabase.rpc("invite_member_by_phone", {
     p_org: organization.id,
-    p_email: parsed.data.email,
+    p_phone: parsed.data.phone,
     p_role: parsed.data.role,
   });
   if (error || !token) {
     if (error?.code === "23505" && !error.message.includes("already a member")) {
-      return { errors: { email: "There's already an open invitation for this email." } };
+      return { errors: { phone: "There's already an open invitation for this number." } };
     }
     return { message: friendlyDbError(error) };
   }

@@ -8,7 +8,7 @@ import { changeRole, removeMember, revokeInvitation } from "../../actions";
 import { InviteForm } from "./invite-form";
 
 type Member = { user_id: string; display_name: string | null; email: string; role: string; joined_at: string };
-type Invitation = { id: string; email: string; role: string; expires_at: string };
+type Invitation = { id: string; email: string | null; phone: string | null; role: string; expires_at: string };
 
 export default async function TeamPage({
   params,
@@ -28,7 +28,7 @@ export default async function TeamPage({
   const { data: invitations } = manage
     ? await supabase
         .from("organization_invitations")
-        .select("id, email, role, expires_at")
+        .select("id, email, phone, role, expires_at")
         .eq("organization_id", organization.id)
         .is("accepted_at", null)
         .is("revoked_at", null)
@@ -97,7 +97,7 @@ export default async function TeamPage({
         <Card className="grid gap-4">
           <div>
             <h2 className="text-lg font-semibold">Invite someone</h2>
-            <p className="text-sm text-muted">They&apos;ll need a BAID Atlas account with this email address.</p>
+            <p className="text-sm text-muted">They&apos;ll sign in with this phone number to accept. Share the link with them by SMS or WhatsApp.</p>
           </div>
           <InviteForm slug={orgSlug} canInviteAdmin={isOwner} />
           <details className="text-sm">
@@ -121,7 +121,7 @@ export default async function TeamPage({
             {(invitations as Invitation[]).map((i) => (
               <li key={i.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <p className="truncate font-semibold">{i.email}</p>
+                  <p className="truncate font-semibold">{i.phone ?? i.email}</p>
                   <p className="text-sm text-muted">
                     {ORG_ROLE_LABELS[i.role]} · expires {new Date(i.expires_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                   </p>

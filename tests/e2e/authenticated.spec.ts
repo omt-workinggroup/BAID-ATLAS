@@ -1,24 +1,27 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// Runs the signed-in workflow against real accounts. Requires pre-confirmed QA users:
-// E2E_OWNER_EMAIL, E2E_MEMBER_EMAIL, E2E_PASSWORD. Skipped otherwise.
-const owner = process.env.E2E_OWNER_EMAIL;
-const member = process.env.E2E_MEMBER_EMAIL;
-const password = process.env.E2E_PASSWORD;
+// Runs the signed-in workflow against real accounts using Supabase test phone numbers, which accept a
+// fixed code without sending an SMS (Authentication -> Providers -> Phone -> "Test phone numbers").
+// Requires E2E_OWNER_PHONE, E2E_MEMBER_PHONE (E.164) and E2E_OTP. Skipped otherwise.
+const owner = process.env.E2E_OWNER_PHONE;
+const member = process.env.E2E_MEMBER_PHONE;
+const otp = process.env.E2E_OTP;
 const shotDir = "docs/screenshots/phase-1";
 
 test.describe.configure({ mode: "serial" });
-test.skip(!owner || !member || !password, "QA credentials not provided");
+test.skip(!owner || !member || !otp, "QA test phone numbers not provided");
 
 const slug = `qa-test-${Date.now().toString(36)}`;
 let inviteLink = "";
 
-async function signIn(page: Page, email: string) {
+async function signIn(page: Page, phone: string) {
   await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password!);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.waitForURL((u) => !u.pathname.startsWith("/sign-in"));
+  await page.getByLabel("Phone number").fill(phone);
+  await page.getByRole("button", { name: "Send code" }).click();
+  await page.waitForURL("**/verify-phone");
+  await page.getByLabel("6-digit code").fill(otp!);
+  await page.getByRole("button", { name: "Verify and continue" }).click();
+  await page.waitForURL((u) => !u.pathname.startsWith("/verify-phone"));
 }
 
 async function finishOnboarding(page: Page, name: string, intent: "discover" | "provide", shot?: string) {
@@ -52,7 +55,7 @@ test("owner onboards and creates an organisation", async ({ page }) => {
 test("owner invites a member and edits the profile", async ({ page }) => {
   await signIn(page, owner!);
   await page.goto(`/portal/${slug}/team`);
-  await page.getByLabel("Email").fill(member!);
+  await page.getByLabel("Phone number").fill(member!);
   await page.getByLabel("Role").selectOption("viewer");
   await page.getByRole("button", { name: "Create invitation" }).click();
   const link = page.getByLabel("Invitation link");
@@ -115,11 +118,12 @@ test("account page and sign-out", async ({ page }) => {
   await signIn(page, member!);
   await page.goto("/account");
   await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
-  await page.getByLabel("Phone (optional)").fill("0201234567");
+  await expect(page.getByText("Used to sign in. Not shown publicly.")).toBeVisible();
+  await page.getByLabel("Name").fill("");
   await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByText("Use international format")).toBeVisible();
+  await expect(page.getByText("Enter your name.")).toBeVisible();
   await page.screenshot({ path: `${shotDir}/15-account.png` });
-  await page.getByLabel("Phone (optional)").fill("");
+  await page.getByLabel("Name").fill("QA member");
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByText("Saved.")).toBeVisible();
 

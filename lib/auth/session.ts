@@ -6,14 +6,25 @@ import { createClient } from "@/lib/supabase/server";
 export type Profile = {
   id: string;
   display_name: string | null;
-  email: string;
+  email: string | null;
   phone: string | null;
   preferred_locale: string;
   preferred_currency: string;
   account_status: "active" | "suspended" | "closed";
   email_verified_at: string | null;
+  phone_verified_at: string | null;
   onboarded_at: string | null;
 };
+
+// A verified phone (SMS code) or a verified email both count.
+export function isVerified(profile: Pick<Profile, "email_verified_at" | "phone_verified_at">): boolean {
+  return Boolean(profile.phone_verified_at || profile.email_verified_at);
+}
+
+// What we show as "you": the sign-in phone, or the email for older email accounts.
+export function contactOf(profile: Pick<Profile, "phone" | "email">): string {
+  return profile.phone ?? profile.email ?? "";
+}
 
 // Cached per request so layouts and pages share one auth round trip.
 export const getCurrentUser = cache(async () => {
@@ -31,7 +42,7 @@ export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "id, display_name, email, phone, preferred_locale, preferred_currency, account_status, email_verified_at, onboarded_at",
+      "id, display_name, email, phone, preferred_locale, preferred_currency, account_status, email_verified_at, phone_verified_at, onboarded_at",
     )
     .eq("id", user.id)
     .single();

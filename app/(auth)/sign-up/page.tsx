@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/session";
 import { AuthCard } from "../auth-card";
-import { SignUpForm } from "../forms";
-import { GoogleButton } from "../google-button";
+import { PhoneForm } from "../forms";
 
 export const metadata: Metadata = { title: "Create account" };
 
@@ -13,7 +12,7 @@ export default async function SignUpPage() {
   return (
     <AuthCard
       title="Create your account"
-      description="Save properties, contact providers, or set up your organisation."
+      description="Save properties, contact providers, or set up your organisation. All you need is your phone."
       footer={
         <>
           Already have an account?{" "}
@@ -23,10 +22,7 @@ export default async function SignUpPage() {
         </>
       }
     >
-      <div className="grid gap-4">
-        <GoogleButton next="/onboarding" label="Sign up with Google" />
-        <SignUpForm />
-      </div>
+      <PhoneForm next="/onboarding" mode="sign-up" />
     </AuthCard>
   );
 }
