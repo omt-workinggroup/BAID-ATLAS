@@ -6,6 +6,7 @@
 //   SASUSYNC_SENDER       your approved sender ID, e.g. "BAIDAtlas"
 //   SEND_SMS_HOOK_SECRET  the secret Supabase shows when you enable the Send SMS hook ("v1,whsec_...")
 //   SASUSYNC_BASE_URL     optional, defaults to https://sms.sasusync.com
+//   SITE_DOMAIN           optional, defaults to baid-atlas.vercel.app (used for code auto-fill)
 // The code and the API key are never logged.
 import { Webhook } from "npm:standardwebhooks@1.0.0";
 
@@ -39,7 +40,11 @@ Deno.serve(async (req) => {
 
   // Supabase sends numbers without "+" (e.g. 233241234567), the usual format for Ghanaian SMS gateways.
   const recipient = payload.user.phone.replace(/^\+/, "");
-  const message = `${payload.sms.otp} is your BAID Atlas code. Don't share it with anyone, including BAID Atlas staff.`;
+  // The last line is the standard origin-bound format ("@domain #code"): Android fills the code in
+  // automatically and iOS offers it above the keyboard. Kept to one SMS part (under 160 characters).
+  const otp = payload.sms.otp;
+  const domain = Deno.env.get("SITE_DOMAIN") ?? "baid-atlas.vercel.app";
+  const message = `Your BAID Atlas code is ${otp}. Don't share it with anyone.\n\n@${domain} #${otp}`;
 
   let res: Response;
   try {
