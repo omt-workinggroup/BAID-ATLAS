@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-GH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Welcome · Propertiq</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/vendor/supabase.js" defer></script>
+    <script type="module" src="/js/pages/onboarding.js"></script>
+  </head>
+  <body>
+    <main id="main" class="page page--narrow">
+      <div class="stack-lg" style="padding-top: 1rem">
+        <div class="page-head">
+          <h1>Welcome to Propertiq</h1>
+          <p>Two quick questions and you're in.</p>
+        </div>
+        <form class="card card--lift stack" id="onboarding-form" novalidate>
+          <div class="field">
+            <label for="f-display_name">Your name</label>
+            <input class="input" id="f-display_name" name="display_name" autocomplete="name" required aria-describedby="f-display_name-msg" />
+            <p class="hint" id="f-display_name-msg" data-hint="Shown to providers when you contact them.">Shown to providers when you contact them.</p>
+          </div>
+          <fieldset class="stack-sm" style="border:0;padding:0;margin:0">
+            <legend class="bold small" style="margin-bottom:.5rem">What brings you here?</legend>
+            <label class="choice"><input type="radio" name="intent" value="discover" checked /><span><span class="bold">Find a property</span><br /><span class="small muted">Buy, rent or book a short stay</span></span></label>
+            <label class="choice"><input type="radio" name="intent" value="provide" /><span><span class="bold">List properties</span><br /><span class="small muted">For agencies, developers and landlords</span></span></label>
+          </fieldset>
+          <button type="submit" class="btn btn--full">Continue</button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-413 -372 1641 1641" role="img" aria-label="Propertiq"><rect x="-413" y="-372" width="1641" height="1641" fill="#0b0b0b"/>
+  <defs>
+    <linearGradient id="propertiq-mark-roof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9b9b9b"/></linearGradient>
+    <mask id="propertiq-mark-window"><rect x="-9999" y="-9999" width="99999" height="99999" fill="#fff"/><g fill="#000"><rect x="104" y="252" width="66" height="66" rx="8"/><rect x="188" y="252" width="66" height="66" rx="8"/><rect x="104" y="336" width="66" height="66" rx="8"/><rect x="188" y="336" width="66" height="66" rx="8"/></g></mask>
+  </defs>
+  <path fill="#ffffff" mask="url(#propertiq-mark-window)" d="M326 772Q245 772 178.5 735.0Q112 698 72.5 633.5Q33 569 33 487Q33 404 72.5 340.0Q112 276 178.5 239.0Q245 202 326 202Q407 202 473.0 239.0Q539 276 578.5 340.0Q618 404 618 487Q618 569 578.5 633.5Q539 698 473.0 735.0Q407 772 326 772ZM326 637Q367 637 397.5 618.0Q428 599 445.5 565.0Q463 531 463 487Q463 443 445.5 409.5Q428 376 397.5 356.5Q367 337 326 337Q285 337 254.0 356.5Q223 376 205.5 409.5Q188 443 188 487Q188 531 205.5 565.0Q223 599 254.0 618.0Q285 637 326 637Z"/>
+  <path d="M40,252 L378,-23 L574,242 L574,910 L664,995" fill="none" stroke="url(#propertiq-mark-roof)" stroke-width="150" stroke-linecap="round" stroke-linejoin="round" mask="url(#propertiq-mark-window)"/>
+</svg>

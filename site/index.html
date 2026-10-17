@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en-GH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Propertiq — Find property in Ghana you can trust</title>
+    <meta name="description" content="Find homes, land, rentals and commercial property in Ghana. Moderated listings, honest verification labels and tools for agencies, developers and landlords." />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Propertiq" />
+    <meta property="og:title" content="Propertiq — Find property in Ghana you can trust" />
+    <meta property="og:description" content="Homes, land, rentals and short stays, reviewed before they go live." />
+    <meta property="og:image" content="https://baid-atlas.vercel.app/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/vendor/supabase.js" defer></script>
+    <script type="module" src="/js/pages/home.js"></script>
+  </head>
+  <body>
+    <main id="main" class="page">
+      <div class="sections">
+        <!-- Hero and search -->
+        <section class="hero">
+          <div class="stack">
+            <h1>Find property in Ghana <em>without</em> the guesswork.</h1>
+            <p class="lead">Homes, land, rentals and short stays from agencies, developers and landlords. Every listing is read by our team before it goes live.</p>
+          </div>
+          <div class="stack">
+            <form class="search-panel" action="/explore" method="get" role="search">
+              <!-- The search box comes first in the page so a plain search sends ?q= first; the tabs are drawn above it. -->
+              <div class="search-panel__row">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg>
+                <label for="home-q" class="sr-only">Search by area, city or title</label>
+                <input id="home-q" name="q" placeholder="Search East Legon, Kumasi…" enterkeyhint="search" />
+                <button type="submit" class="btn btn--small" style="min-height: 3rem">Search</button>
+              </div>
+              <fieldset class="search-panel__tabs">
+                <legend class="sr-only">Looking to</legend>
+                <label><input type="radio" name="purpose" value="" checked /><span>Any</span></label>
+                <label><input type="radio" name="purpose" value="sale" /><span>Buy</span></label>
+                <label><input type="radio" name="purpose" value="long_term_rent" /><span>Rent</span></label>
+                <label><input type="radio" name="purpose" value="short_stay" /><span>Short stay</span></label>
+              </fieldset>
+            </form>
+            <div class="popular">
+              <span class="muted">Popular:</span>
+              <a href="/explore?q=East%20Legon">East Legon</a>
+              <a href="/explore?q=Cantonments">Cantonments</a>
+              <a href="/explore?q=Airport%20Residential">Airport Residential</a>
+              <a href="/explore?q=Spintex">Spintex</a>
+              <a href="/explore?q=Tema">Tema</a>
+              <a href="/explore?q=Kumasi">Kumasi</a>
+              <a href="/explore?q=Takoradi">Takoradi</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Latest listings (filled in by home.js), or an honest note while the first ones are reviewed -->
+        <section id="latest" aria-labelledby="latest-heading">
+          <div class="section-head">
+            <h2 id="latest-heading">Latest listings</h2>
+            <a href="/explore">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+          </div>
+          <div class="rail" id="latest-rail" aria-busy="true"></div>
+        </section>
+        <section id="latest-empty" class="ruled" hidden>
+          <div class="stack-sm">
+            <p class="overline">Now onboarding providers</p>
+            <h2>The first listings are being reviewed.</h2>
+            <p class="muted">We'd rather launch with a short list of properties we've checked than a long one we haven't. Listings appear here as soon as they pass review.</p>
+          </div>
+          <div class="row wrap">
+            <a class="btn btn--secondary" href="/explore">Browse Explore</a>
+            <a class="btn" href="/portal" data-provider-link>List a property</a>
+          </div>
+        </section>
+
+        <!-- Browse by type -->
+        <section aria-labelledby="types-heading">
+          <div class="section-head"><h2 id="types-heading">Browse by property type</h2></div>
+          <ul class="type-list">
+            <li><a href="/explore?type=house"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5M5 9v11h14V9M10 20v-5h4v5" /></svg></span><span class="txt"><span class="bold">Houses</span><span>Detached, semi-detached and townhouses</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="/explore?type=apartment"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4h9v17M15 9h3v12M9 7h3M9 11h3M9 15h3M3 21h18" /></svg></span><span class="txt"><span class="bold">Apartments</span><span>Flats, studios and serviced apartments</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="/explore?type=land"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18M4 19l5-8 4 5 3-4 4 7M8 4v4M6 6h4" /></svg></span><span class="txt"><span class="bold">Land</span><span>Plots and acreage with document status</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="/explore?purpose=short_stay"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v6M3 14h18M7 9V6h10v3" /></svg></span><span class="txt"><span class="bold">Short stays</span><span>Nightly and weekly, fully furnished</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="/explore?type=commercial"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6M2 21h20" /></svg></span><span class="txt"><span class="bold">Commercial</span><span>Shops, warehouses and mixed use</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="/explore?type=office"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V3h14v18M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M3 21h18" /></svg></span><span class="txt"><span class="bold">Offices</span><span>Office floors and small suites</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
+          </ul>
+        </section>
+
+        <!-- How a listing gets here -->
+        <section class="process" aria-labelledby="process-heading">
+          <div class="stack-sm">
+            <h2 id="process-heading">How a listing gets on Propertiq</h2>
+            <p class="muted">Three checks happen before you see anything. Paying for promotion doesn't skip any of them.</p>
+          </div>
+          <ol>
+            <li><span class="num">01</span><h3>The provider is checked</h3><p>Before an agency, developer or landlord can publish, we check who they are. We publish exactly what we checked and when the check expires.</p></li>
+            <li><span class="num">02</span><h3>The listing is reviewed</h3><p>A moderator reads every listing before it goes live: photos, price, size and location. Renders and staged photos must be labelled.</p></li>
+            <li><span class="num">03</span><h3>It goes live, clearly labelled</h3><p>Prices always show their currency, areas show their units, and the exact address stays private until you're in touch with the provider.</p></li>
+          </ol>
+        </section>
+
+        <!-- What a verification label means -->
+        <section class="specimen" aria-labelledby="label-heading">
+          <div class="stack">
+            <h2 id="label-heading">Verified means something specific here.</h2>
+            <p class="muted">Each verification label says what was checked and what it doesn't prove. Labels expire, and paid promotion is always marked sponsored. It never counts as verification.</p>
+          </div>
+          <figure class="card stack" style="box-shadow: 0 1px 2px rgb(0 0 0 / 0.05)">
+            <figcaption class="tiny muted">How a label appears on a provider's profile</figcaption>
+            <p class="verified small"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>Organisation identity checked</p>
+            <dl>
+              <dt>What we checked</dt><dd>Business registration matches the organisation's name</dd>
+              <dt>Doesn't prove</dt><dd>Ownership of any specific property</dd>
+              <dt>Expires</dt><dd>Every label shows its expiry date</dd>
+            </dl>
+          </figure>
+        </section>
+
+        <!-- Providers -->
+        <section class="panel-dark stack-lg">
+          <div class="stack">
+            <p class="small" style="color: var(--accent-light)">For agencies, developers and landlords</p>
+            <h2 style="max-width: 32rem">List where buyers already expect the facts.</h2>
+            <ul class="dash-list stack-sm small" style="color: rgb(255 255 255 / 0.75)">
+              <li>Inquiries and viewing requests in one inbox</li>
+              <li>Team roles and one-link invitations</li>
+              <li>Feedback from reviewers, not silence</li>
+              <li>Photos resized on the phone, location data removed</li>
+            </ul>
+          </div>
+          <div><a class="btn btn--inverse" href="/portal" data-provider-link>Start listing</a></div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

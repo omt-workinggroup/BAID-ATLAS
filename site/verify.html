@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-GH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Enter your code · Propertiq</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/vendor/supabase.js" defer></script>
+    <script type="module" src="/js/pages/verify.js"></script>
+  </head>
+  <body>
+    <main id="main" class="page page--narrow">
+      <div class="stack-lg" style="padding-top: 1rem">
+        <div class="page-head">
+          <h1>Enter your code</h1>
+          <p>We sent a 6-digit code to <strong class="bold" id="masked-phone" style="color: var(--text)">your phone</strong>.</p>
+        </div>
+        <form class="card card--lift stack" id="code-form" novalidate>
+          <div class="field">
+            <label for="f-token">6-digit code</label>
+            <input class="input input--code" id="f-token" name="token" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" required autofocus aria-describedby="f-token-msg" />
+            <p class="hint" id="f-token-msg" data-hint="It signs you in as soon as all 6 digits are in.">It signs you in as soon as all 6 digits are in.</p>
+          </div>
+          <button type="submit" class="btn btn--full">Verify and continue</button>
+        </form>
+        <div class="center stack-sm">
+          <p id="resend-msg" class="small" role="status"></p>
+          <button type="button" class="btn btn--ghost" id="resend">Send a new code</button>
+          <a class="link small" href="/sign-in">Use a different number</a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

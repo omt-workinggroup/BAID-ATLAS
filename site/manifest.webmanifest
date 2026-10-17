@@ -1,0 +1,18 @@
+{
+  "name": "Propertiq",
+  "short_name": "Propertiq",
+  "description": "Find property in Ghana you can trust.",
+  "start_url": "/",
+  "display": "standalone",
+  "shortcuts": [
+    { "name": "Inbox", "url": "/inbox", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Provider portal", "short_name": "Portal", "url": "/portal", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ],
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
