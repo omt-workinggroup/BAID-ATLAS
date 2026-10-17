@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SceneArt } from "@/components/illustrations";
 import { SaveButton } from "@/components/listings/save-button";
+import { NoPhoto } from "@/components/listings/no-photo";
 import {
   formatArea,
   formatLocation,
@@ -10,8 +10,6 @@ import {
   PURPOSE_LABELS,
 } from "@/lib/listings/format";
 import type { ListingCardData } from "@/lib/listings/types";
-
-const sceneFor = (type: string) => (type === "land" ? "land" : type === "apartment" ? "apartment" : "villa");
 
 export function ListingFacts({ l, className = "" }: { l: ListingCardData; className?: string }) {
   const area = formatArea(l.floor_area, l.floor_area_unit) ?? formatArea(l.land_area, l.land_area_unit);
@@ -22,10 +20,9 @@ export function ListingFacts({ l, className = "" }: { l: ListingCardData; classN
   ].filter(Boolean);
   if (facts.length === 0) return null;
   return (
-    <ul className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted ${className}`}>
+    <ul className={`flex flex-wrap items-center gap-y-1 text-sm text-muted [&>li+li]:before:mx-2 [&>li+li]:before:text-border [&>li+li]:before:content-['|'] ${className}`}>
       {facts.map((f) => (
-        <li key={f} className="flex items-center gap-1">
-          <span aria-hidden="true" className="size-1 rounded-full bg-gold" />
+        <li key={f} className="flex items-center">
           {f}
         </li>
       ))}
@@ -36,7 +33,7 @@ export function ListingFacts({ l, className = "" }: { l: ListingCardData; classN
 export function VerifiedPill({ scope, compact = false }: { scope: string | null; compact?: boolean }) {
   return (
     <span
-      className="inline-flex max-w-full items-center gap-1 rounded-full bg-verified/10 px-2 py-0.5 text-[0.7rem] font-semibold text-verified"
+      className="inline-flex max-w-full items-center gap-1 text-xs font-semibold text-verified"
       title={scope ? `Verified: ${scope}. This does not prove ownership of any specific property.` : undefined}
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
@@ -62,73 +59,63 @@ export function ListingCard({
 }) {
   const href = `/properties/${l.slug}`;
   const row = layout === "row";
+  const tag = "rounded-md px-2 py-1 text-[0.68rem] font-semibold tracking-wide";
   return (
-    <article
-      className={`group relative overflow-hidden rounded-3xl border border-border bg-surface shadow-sm transition-shadow hover:shadow-md ${
-        row ? "flex gap-3 p-2" : ""
-      } ${layout === "rail" ? "w-[17rem] flex-none snap-start" : ""}`}
-    >
-      <div className={`relative overflow-hidden rounded-[1.25rem] ${row ? "aspect-square w-32 flex-none" : "m-2 aspect-[16/11]"}`}>
+    <article className={`group relative ${row ? "flex gap-3 rounded-2xl border border-border bg-surface p-2" : "grid gap-3"} ${layout === "rail" ? "w-[17.5rem] flex-none snap-start" : ""}`}>
+      <div className={`relative overflow-hidden rounded-xl bg-surface-muted ${row ? "aspect-square w-28 flex-none" : "aspect-[4/3]"}`}>
         {l.cover_url ? (
           <Image
             src={l.cover_url}
             alt={l.cover_alt ?? l.title}
             fill
-            sizes={row ? "128px" : "(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"}
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
+            sizes={row ? "112px" : "(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"}
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
             priority={priority}
             unoptimized
           />
         ) : (
-          <SceneArt scene={sceneFor(l.property_type)} className="size-full" />
+          <NoPhoto compact={row} />
         )}
-        <div className="absolute inset-x-2 top-2 flex items-start justify-between gap-2">
-          <div className="flex flex-wrap gap-1">
-            {!row && (
-              <span className="rounded-full bg-black/55 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white backdrop-blur">
-                {PURPOSE_LABELS[l.purpose]}
-              </span>
-            )}
-            {l.is_sponsored && (
-              <span className="rounded-full bg-sponsored px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white">
-                Sponsored
-              </span>
-            )}
-            {(l.cover_is_render || l.cover_is_staged) && (
-              <span className="rounded-full bg-warning px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white">
-                {l.cover_is_render ? "Render" : "Staged"}
-              </span>
-            )}
+        {!row && (
+          <div className="absolute inset-x-2.5 top-2.5 flex items-start justify-between gap-2">
+            <div className="flex flex-wrap gap-1">
+              <span className={`${tag} bg-white/95 text-text shadow-sm`}>{PURPOSE_LABELS[l.purpose]}</span>
+              {l.is_sponsored && <span className={`${tag} bg-sponsored text-white`}>Sponsored</span>}
+              {(l.cover_is_render || l.cover_is_staged) && (
+                <span className={`${tag} bg-warning text-white`}>{l.cover_is_render ? "Render" : "Staged"}</span>
+              )}
+            </div>
+            <SaveButton listingId={l.id} initialSaved={Boolean(saved)} signedIn={Boolean(signedIn)} slug={l.slug} />
           </div>
-          {!row && <SaveButton listingId={l.id} initialSaved={Boolean(saved)} signedIn={Boolean(signedIn)} slug={l.slug} />}
-        </div>
+        )}
         {!row && l.image_count > 1 && (
-          <span className="absolute bottom-2 right-2 rounded-full bg-black/55 px-2 py-0.5 text-[0.65rem] font-semibold text-white backdrop-blur">
-            {l.image_count} photos
+          <span className="absolute bottom-2.5 right-2.5 flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[0.68rem] font-medium text-white backdrop-blur">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <circle cx="9" cy="11" r="2" />
+              <path d="m21 16-5-5-8 8" />
+            </svg>
+            {l.image_count}
           </span>
         )}
       </div>
 
-      <div className={`grid min-w-0 gap-1 ${row ? "content-center py-1 pr-2" : "px-4 pb-4 pt-1"}`}>
-        <div className="flex items-center gap-2">
-          <span className="rounded-md bg-surface-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted">
-            {PROPERTY_TYPE_LABELS[l.property_type]}
-          </span>
-          {l.organization_verification_status === "verified" && <VerifiedPill scope={l.organization_verification_scope} compact />}
-        </div>
-        <h3 className="truncate font-bold">
+      <div className={`grid min-w-0 gap-0.5 ${row ? "content-center py-1 pr-2" : "px-0.5"}`}>
+        <p className="text-[1.05rem] font-bold tracking-tight">{formatPrice(l.asking_price, l.currency, l.price_period)}</p>
+        <h3 className="truncate font-medium">
           <Link href={href} className="after:absolute after:inset-0 focus-visible:outline-none">
             {l.title}
           </Link>
         </h3>
-        <p className="flex items-center gap-1 truncate text-sm text-muted">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="flex-none">
-            <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
-          </svg>
-          <span className="truncate">{formatLocation(l.locality, l.city)}</span>
+        <p className="truncate text-sm text-muted">
+          {PROPERTY_TYPE_LABELS[l.property_type]} · {formatLocation(l.locality, l.city)}
         </p>
         <ListingFacts l={l} />
-        <p className="mt-1 text-lg font-extrabold tracking-tight">{formatPrice(l.asking_price, l.currency, l.price_period)}</p>
+        {l.organization_verification_status === "verified" && (
+          <div className="mt-1">
+            <VerifiedPill scope={l.organization_verification_scope} compact />
+          </div>
+        )}
       </div>
     </article>
   );

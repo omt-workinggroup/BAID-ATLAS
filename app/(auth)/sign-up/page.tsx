@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/auth/session";
 import { AuthCard } from "../auth-card";
 import { SignUpForm } from "../forms";
+import { GoogleButton } from "../google-button";
 
 export const metadata: Metadata = { title: "Create account" };
 
@@ -22,7 +23,10 @@ export default async function SignUpPage() {
         </>
       }
     >
-      <SignUpForm />
+      <div className="grid gap-4">
+        <GoogleButton next="/onboarding" label="Sign up with Google" />
+        <SignUpForm />
+      </div>
     </AuthCard>
   );
 }

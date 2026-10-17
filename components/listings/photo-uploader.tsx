@@ -75,7 +75,7 @@ export function PhotoUploader({ slug, orgId, listingId, remaining }: { slug: str
         type="button"
         disabled={!rights || busy || remaining <= 0}
         onClick={() => input.current?.click()}
-        className="grid min-h-32 place-items-center gap-1 rounded-3xl border-2 border-dashed border-gold/60 bg-gold-soft/40 px-4 py-6 text-center transition hover:bg-gold-soft disabled:cursor-not-allowed disabled:opacity-50"
+        className="grid min-h-32 place-items-center gap-1 rounded-2xl border-2 border-dashed border-gold/60 bg-gold-soft/40 px-4 py-6 text-center transition hover:bg-gold-soft disabled:cursor-not-allowed disabled:opacity-50"
       >
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" className="text-gold-strong">
           <path d="M4 16l4-4 3 3 5-5 4 4M4 4h16v16H4zM9 9h.01" strokeLinecap="round" strokeLinejoin="round" />

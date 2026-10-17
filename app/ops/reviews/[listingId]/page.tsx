@@ -72,7 +72,7 @@ export default async function ReviewPage({
     <div className="grid gap-4">
       {error && <Alert tone="error">{error}</Alert>}
       <div className="flex items-start justify-between gap-3">
-        <h1 className="text-2xl font-extrabold leading-tight">{l.title}</h1>
+        <h1 className="text-2xl font-semibold leading-tight">{l.title}</h1>
         <StatusChip status={l.status} />
       </div>
       <p className="text-sm text-muted">
@@ -104,7 +104,7 @@ export default async function ReviewPage({
 
       {l.status === "submitted" && (
         <Card className="grid gap-4">
-          <h2 className="text-lg font-extrabold">Decision</h2>
+          <h2 className="text-lg font-semibold">Decision</h2>
           <form action={reviewListing.bind(null, listingId)} className="grid gap-4">
             <fieldset className="grid grid-cols-3 gap-2">
               <legend className="sr-only">Decision</legend>
@@ -145,7 +145,7 @@ export default async function ReviewPage({
 
       {(history ?? []).length > 0 && (
         <Card className="grid gap-2">
-          <h2 className="font-extrabold">History</h2>
+          <h2 className="font-semibold">History</h2>
           <ul className="grid gap-2 text-sm">
             {(history ?? []).map((h: { id: string; status: string; reviewer_name: string | null; reviewed_at: string | null; submitted_at: string; provider_message: string | null; internal_notes: string | null }) => (
               <li key={h.id} className="rounded-2xl bg-surface-muted p-3">

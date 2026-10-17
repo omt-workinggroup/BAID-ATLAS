@@ -107,3 +107,16 @@ export async function signOut(formData: FormData) {
   await supabase.auth.signOut({ scope });
   redirect("/sign-in?signed_out=1");
 }
+
+// Google sign-in through Supabase OAuth (PKCE). Supabase sends the user back to /auth/callback, which
+// exchanges the code for a session. If Google isn't enabled in Supabase, the user gets a clear message.
+export async function signInWithGoogle(formData: FormData) {
+  const next = safeRedirectPath(String(formData.get("next") ?? ""));
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${await siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`, skipBrowserRedirect: true },
+  });
+  if (error || !data.url) redirect(`/sign-in?error=google`);
+  redirect(data.url);
+}

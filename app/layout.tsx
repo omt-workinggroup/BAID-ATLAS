@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
 import { ServiceWorker } from "@/components/service-worker";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -7,6 +7,8 @@ import { env } from "@/lib/env";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
+// Display serif for headlines; body copy, prices and UI stay in Jakarta.
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz", "SOFT"] });
 
 const description =
   "Find homes, land, rentals and commercial property in Ghana. Moderated listings, honest verification labels and tools for agencies, developers and landlords.";
@@ -44,7 +46,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const user = await getCurrentUser();
   return (
-    <html lang="en-GH" className={jakarta.variable}>
+    <html lang="en-GH" className={`${jakarta.variable} ${fraunces.variable}`}>
       <body className="antialiased">
         <AppShell signedIn={Boolean(user)}>{children}</AppShell>
         <ServiceWorker />

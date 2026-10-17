@@ -62,7 +62,7 @@ export default function DesignGallery() {
       </div>
 
       <section className="grid gap-3">
-        <h2 className="text-xl font-extrabold">Listing cards</h2>
+        <h2 className="text-xl font-semibold">Listing cards</h2>
         <ul className="grid gap-4 sm:grid-cols-2">
           {samples.map((l) => (
             <li key={l.id}>
@@ -73,7 +73,7 @@ export default function DesignGallery() {
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-xl font-extrabold">Rail and compact rows</h2>
+        <h2 className="text-xl font-semibold">Rail and compact rows</h2>
         <ul className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2">
           {samples.map((l) => (
             <li key={l.id}>
@@ -91,12 +91,12 @@ export default function DesignGallery() {
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-xl font-extrabold">Gallery (empty state)</h2>
+        <h2 className="text-xl font-semibold">Gallery (empty state)</h2>
         <Gallery media={[]} title="Sample" />
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-xl font-extrabold">Statuses, steps and trust</h2>
+        <h2 className="text-xl font-semibold">Statuses, steps and trust</h2>
         <div className="flex flex-wrap gap-2">
           {["draft", "submitted", "changes_requested", "approved", "published", "paused", "rejected", "sold"].map((s) => (
             <StatusChip key={s} status={s} />

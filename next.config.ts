@@ -12,7 +12,8 @@ const csp = [
   `connect-src 'self' ${supabaseOrigin} ${supabaseOrigin.replace("https://", "wss://")}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
-  "form-action 'self'",
+  // Google sign-in posts to our server, which redirects through Supabase to Google.
+  `form-action 'self' ${supabaseOrigin} https://accounts.google.com`,
   "object-src 'none'",
 ].join("; ");
 

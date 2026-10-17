@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { SceneArt } from "@/components/illustrations";
+import { NoPhoto } from "@/components/listings/no-photo";
 import type { MediaItem } from "@/lib/listings/types";
 
 // Swipeable, keyboard-accessible photo gallery with honest media labels.
@@ -27,9 +27,8 @@ export function Gallery({ media, title }: { media: MediaItem[]; title: string })
 
   if (media.length === 0) {
     return (
-      <div className="relative aspect-[4/3] overflow-hidden rounded-3xl sm:aspect-[16/9]">
-        <SceneArt scene="villa" className="size-full" />
-        <span className="absolute left-3 top-3 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white">Illustration</span>
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl sm:aspect-[16/9]">
+        <NoPhoto />
       </div>
     );
   }
@@ -44,7 +43,7 @@ export function Gallery({ media, title }: { media: MediaItem[]; title: string })
           if (e.key === "ArrowRight") go(index + 1);
           if (e.key === "ArrowLeft") go(index - 1);
         }}
-        className="flex aspect-[4/3] snap-x snap-mandatory overflow-x-auto rounded-3xl bg-surface-muted [scrollbar-width:none] sm:aspect-[16/9] [&::-webkit-scrollbar]:hidden"
+        className="flex aspect-[4/3] snap-x snap-mandatory overflow-x-auto rounded-2xl bg-surface-muted [scrollbar-width:none] sm:aspect-[16/9] [&::-webkit-scrollbar]:hidden"
       >
         {media.map((m, i) => (
           <div
@@ -65,7 +64,7 @@ export function Gallery({ media, title }: { media: MediaItem[]; title: string })
                 unoptimized
               />
             ) : (
-              <SceneArt scene="villa" className="size-full" />
+              <NoPhoto />
             )}
           </div>
         ))}
@@ -74,13 +73,13 @@ export function Gallery({ media, title }: { media: MediaItem[]; title: string })
       <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-between">
         <div className="flex gap-1.5">
           {current?.is_render && (
-            <span className="rounded-full bg-warning px-3 py-1 text-xs font-semibold text-white">Render — not a photo</span>
+            <span className="rounded-md bg-warning px-2.5 py-1 text-xs font-semibold text-white">Render — not a photo</span>
           )}
           {current?.is_virtually_staged && (
-            <span className="rounded-full bg-warning px-3 py-1 text-xs font-semibold text-white">Virtually staged</span>
+            <span className="rounded-md bg-warning px-2.5 py-1 text-xs font-semibold text-white">Virtually staged</span>
           )}
         </div>
-        <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur" aria-live="polite">
+        <span className="rounded-md bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur" aria-live="polite">
           {index + 1} / {media.length}
         </span>
       </div>

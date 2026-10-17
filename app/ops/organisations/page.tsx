@@ -23,7 +23,7 @@ export default async function OrganisationsPage({ searchParams }: { searchParams
     <div className="grid gap-4">
       {done && <Alert tone="success">Verification saved and audited.</Alert>}
       {error && <Alert tone="error">{error}</Alert>}
-      <h1 className="text-2xl font-extrabold">Organisations</h1>
+      <h1 className="text-2xl font-semibold">Organisations</h1>
       <p className="text-sm text-muted">
         Record only what you actually checked. The scope is shown publicly next to the &ldquo;Verified&rdquo; label and must
         not imply property ownership.

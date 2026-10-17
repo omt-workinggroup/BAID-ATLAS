@@ -34,11 +34,11 @@ export default async function OpsQueuePage({ searchParams }: { searchParams: Pro
     <div className="grid gap-4">
       {done && <p role="status" className="rounded-2xl border border-success/30 bg-success-soft px-4 py-3 text-sm">Decision recorded.</p>}
       <div className="flex items-end justify-between">
-        <h1 className="text-2xl font-extrabold">Review queue</h1>
+        <h1 className="text-2xl font-semibold">Review queue</h1>
         <span className="text-sm text-muted">{rows.length} waiting · oldest first</span>
       </div>
       {rows.length === 0 ? (
-        <p className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center text-muted">All caught up. 🎉</p>
+        <p className="rounded-2xl border border-dashed border-border bg-surface p-8 text-center text-muted">All caught up. 🎉</p>
       ) : (
         <ul className="grid gap-3">
           {rows.map((r) => {
@@ -47,7 +47,7 @@ export default async function OpsQueuePage({ searchParams }: { searchParams: Pro
             const hours = Math.round((Date.now() - new Date(r.submitted_at).getTime()) / 3_600_000);
             return (
               <li key={r.listing_id}>
-                <Link href={`/ops/reviews/${r.listing_id}`} className="grid gap-1 rounded-3xl border border-border bg-surface p-4 hover:border-primary">
+                <Link href={`/ops/reviews/${r.listing_id}`} className="grid gap-1 rounded-2xl border border-border bg-surface p-4 hover:border-primary">
                   <div className="flex items-center justify-between gap-3">
                     <span className="truncate font-bold">{l.title}</span>
                     <span className={`flex-none rounded-full px-2 py-0.5 text-xs font-semibold ${hours > 24 ? "bg-danger-soft text-danger" : "bg-surface-muted text-muted"}`}>

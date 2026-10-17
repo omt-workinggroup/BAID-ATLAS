@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ListingCard } from "@/components/listings/listing-card";
 import { FilterSheet } from "@/components/listings/filter-sheet";
-import { SceneArt } from "@/components/illustrations";
 import { getCurrentUser } from "@/lib/auth/session";
 import { savedListingIds, searchListings } from "@/lib/listings/queries";
 import { activeFilterCount, parseSearch, toQueryString } from "@/lib/listings/search";
@@ -29,9 +28,9 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <div className="grid gap-4">
-        <h1 className="text-[1.9rem] font-extrabold leading-tight tracking-tight">{heading}</h1>
+        <h1 className="text-[2.1rem] leading-tight sm:text-5xl">{heading}</h1>
         <div className="flex items-center gap-3">
-          <form action="/explore" method="get" role="search" className="flex min-h-13 flex-1 items-center gap-3 rounded-full border border-border bg-surface px-4 shadow-sm focus-within:border-primary">
+          <form action="/explore" method="get" role="search" className="flex min-h-13 flex-1 items-center gap-3 rounded-xl border border-border bg-surface px-4 transition-colors focus-within:border-text">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="flex-none text-muted">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5" strokeLinecap="round" />
@@ -57,12 +56,12 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
       </div>
 
       {result.error && (
-        <p role="alert" className="rounded-2xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm">
+        <p role="alert" className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm">
           We couldn&apos;t load listings right now. Please try again in a moment.
         </p>
       )}
 
-      {!result.error && result.rows.length === 0 ? (
+      {result.error ? null : result.rows.length === 0 ? (
         <EmptyState filtered={count > 0 || Boolean(filters.q)} />
       ) : (
         <>
@@ -70,7 +69,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
             Showing {result.rows.length} {result.rows.length === 1 ? "property" : "properties"}
             {result.nextCursor ? " — more below" : ""}
           </p>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
             {result.rows.map((l, i) => (
               <li key={l.id} className="animate-rise" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
                 <ListingCard l={l} saved={saved.has(l.id)} signedIn={Boolean(user)} priority={i < 2} />
@@ -80,7 +79,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
           {result.nextCursor && (
             <Link
               href={`/explore${toQueryString({ ...base, purpose: filters.purpose, cursor: result.nextCursor })}`}
-              className="mx-auto inline-flex min-h-12 items-center rounded-full border border-border bg-surface px-6 font-semibold"
+              className="mx-auto inline-flex min-h-12 items-center rounded-xl border border-border bg-surface px-6 font-semibold transition-colors hover:border-text"
             >
               Load more
             </Link>
@@ -92,31 +91,32 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
 }
 
 function pill(active: boolean) {
-  return `inline-flex min-h-10 flex-none items-center rounded-full border px-4 text-sm font-medium transition-colors ${
-    active ? "border-primary bg-primary text-primary-contrast" : "border-border bg-surface text-text hover:border-primary"
+  return `inline-flex min-h-10 flex-none items-center rounded-full border px-4 text-sm transition-colors ${
+    active ? "border-primary bg-primary font-semibold text-primary-contrast" : "border-border bg-surface text-text hover:border-text"
   }`;
 }
 
 function EmptyState({ filtered }: { filtered: boolean }) {
   return (
-    <div className="grid justify-items-center gap-4 rounded-3xl border border-dashed border-border bg-surface px-6 py-10 text-center">
-      <div className="relative h-36 w-56 overflow-hidden rounded-3xl">
-        <SceneArt scene="villa" className="size-full" />
-        <span className="absolute left-2 top-2 rounded-full bg-black/55 px-2 py-0.5 text-[0.6rem] font-semibold uppercase text-white">Illustration</span>
-      </div>
-      <h2 className="text-xl font-extrabold">{filtered ? "No matches yet" : "Listings are on their way"}</h2>
-      <p className="max-w-sm text-sm text-muted">
+    <div className="grid justify-items-start gap-4 border-y border-border py-12 sm:justify-items-center sm:text-center">
+      <span className="text-gold-strong">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5M5 9v11h14V9M10 20v-5h4v5" />
+        </svg>
+      </span>
+      <h2 className="text-3xl">{filtered ? "Nothing matches those filters" : "Listings are on their way"}</h2>
+      <p className="max-w-md text-muted">
         {filtered
-          ? "Try widening your filters or searching a nearby area."
-          : "Every listing is reviewed before it goes live, and providers are being verified now. Check back soon."}
+          ? "Try a nearby area, a wider price range or fewer bedrooms."
+          : "Every listing is reviewed before it goes live, and the first providers are being checked now."}
       </p>
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-wrap gap-3 sm:justify-center">
         {filtered && (
-          <Link href="/explore" className="inline-flex min-h-11 items-center rounded-full border border-border px-5 text-sm font-semibold">
+          <Link href="/explore" className="inline-flex min-h-11 items-center rounded-xl border border-border px-5 text-sm font-semibold transition-colors hover:border-text">
             Clear filters
           </Link>
         )}
-        <Link href="/portal" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-contrast">
+        <Link href="/portal" className="inline-flex min-h-11 items-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-contrast">
           List your property
         </Link>
       </div>

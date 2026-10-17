@@ -64,7 +64,7 @@ export default async function ListingEditorPage({
         ← All listings
       </Link>
       <div className="flex items-start justify-between gap-3">
-        <h2 className="text-xl font-extrabold leading-tight">{listing.title as string}</h2>
+        <h2 className="text-xl font-semibold leading-tight">{listing.title as string}</h2>
         <StatusChip status={status} />
       </div>
 
@@ -86,7 +86,7 @@ export default async function ListingEditorPage({
         <Card className="grid gap-3">
           {editable && (
             <>
-              <h3 className="font-extrabold">Ready to go?</h3>
+              <h3 className="font-semibold">Ready to go?</h3>
               <ul className="grid gap-1 text-sm">
                 <Check ok>Details saved</Check>
                 <Check ok={photos.length > 0}>At least one photo</Check>
@@ -134,7 +134,7 @@ export default async function ListingEditorPage({
 
       <Card className="grid gap-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-extrabold">Photos</h3>
+          <h3 className="text-lg font-semibold">Photos</h3>
           <span className="text-sm text-muted">{photos.length}/30</span>
         </div>
         {photos.length > 0 && (
@@ -145,7 +145,7 @@ export default async function ListingEditorPage({
                   <Image src={urls.get(m.storage_path)!} alt={m.alt_text ?? ""} fill sizes="(min-width: 640px) 30vw, 45vw" className="object-cover" unoptimized />
                 )}
                 <div className="absolute inset-x-1.5 top-1.5 flex flex-wrap gap-1">
-                  {i === 0 && <span className="bg-gold-gradient rounded-full px-2 py-0.5 text-[0.65rem] font-bold text-[#25272c]">Cover</span>}
+                  {i === 0 && <span className="rounded-md bg-primary px-2 py-0.5 text-[0.65rem] font-semibold text-primary-contrast">Cover</span>}
                   {m.is_render && <span className="rounded-full bg-warning px-2 py-0.5 text-[0.65rem] font-semibold text-white">Render</span>}
                   {m.is_virtually_staged && <span className="rounded-full bg-warning px-2 py-0.5 text-[0.65rem] font-semibold text-white">Staged</span>}
                 </div>

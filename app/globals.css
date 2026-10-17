@@ -52,16 +52,10 @@
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
-}
-
-@utility text-gold {
-  background: linear-gradient(100deg, #c9a06a 0%, #b38a56 50%, #86653b 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 @utility bg-gold-gradient {
@@ -70,6 +64,24 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headlines are set in the display serif. Unlayered on purpose: it wins over weight utilities, so every
+   page heading reads the same without touching each one. */
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 30;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--gold-soft);
+  color: var(--text);
 }
 
 body {

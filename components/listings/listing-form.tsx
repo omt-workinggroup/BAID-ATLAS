@@ -138,9 +138,9 @@ export function ListingForm({
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="grid gap-4 rounded-3xl border border-border bg-surface p-5">
+    <section className="grid gap-4 rounded-2xl border border-border bg-surface p-5">
       <div>
-        <h2 className="text-lg font-extrabold">{title}</h2>
+        <h2 className="text-lg font-semibold">{title}</h2>
         {hint && <p className="text-sm text-muted">{hint}</p>}
       </div>
       {children}

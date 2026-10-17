@@ -1,7 +1,12 @@
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  // The design gallery holds sample data; outside an explicit build flag it must be a real 404, not a
+  // streamed not-found page with status 200.
+  if (request.nextUrl.pathname.startsWith("/design") && process.env.NEXT_PUBLIC_DESIGN_GALLERY !== "1") {
+    return new NextResponse("Not found", { status: 404, headers: { "X-Robots-Tag": "noindex" } });
+  }
   return updateSession(request);
 }
 

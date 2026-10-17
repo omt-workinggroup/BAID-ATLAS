@@ -6,10 +6,10 @@ function cx(...classes: (string | false | null | undefined)[]) {
 }
 
 const buttonBase =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-[0.95rem] font-semibold transition-[background-color,border-color,transform] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none";
 const buttonVariants = {
   primary: "bg-primary text-primary-contrast hover:bg-primary-hover",
-  secondary: "border border-primary bg-surface text-primary hover:bg-primary-soft",
+  secondary: "border border-border bg-surface text-text hover:border-text",
   ghost: "text-primary hover:bg-primary-soft",
   danger: "border border-danger bg-surface text-danger hover:bg-danger-soft",
   inverse: "bg-surface text-primary hover:bg-primary-soft",
@@ -156,25 +156,28 @@ const alertTones = {
 
 export function Alert({ tone = "info", children }: { tone?: keyof typeof alertTones; children: ReactNode }) {
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={cx("rounded-md border px-4 py-3 text-sm", alertTones[tone])}>
+    <div role={tone === "error" ? "alert" : "status"} className={cx("rounded-xl border px-4 py-3 text-sm", alertTones[tone])}>
       {children}
     </div>
   );
 }
 
 export function Card({ className, ...props }: ComponentProps<"section">) {
-  return <section className={cx("rounded-3xl border border-border bg-surface p-5 sm:p-6", className)} {...props} />;
+  return <section className={cx("rounded-2xl border border-border bg-surface p-5 sm:p-6", className)} {...props} />;
 }
 
 export function PageHeader({ title, description, back }: { title: string; description?: ReactNode; back?: { href: string; label: string } }) {
   return (
     <div className="grid gap-1">
       {back && (
-        <Link href={back.href} className="mb-1 inline-flex min-h-11 w-fit items-center text-sm font-semibold text-gold-strong">
-          ← {back.label}
+        <Link href={back.href} className="mb-1 inline-flex min-h-11 w-fit items-center gap-1.5 text-sm font-medium text-muted hover:text-text">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          {back.label}
         </Link>
       )}
-      <h1 className="text-2xl font-bold leading-tight sm:text-3xl">{title}</h1>
+      <h1 className="text-[1.85rem] leading-tight sm:text-4xl">{title}</h1>
       {description && <p className="text-muted">{description}</p>}
     </div>
   );

@@ -8,29 +8,29 @@ type Tab = { href: string; label: string; icon: (active: boolean) => React.React
 const stroke = (active: boolean) => (active ? "var(--text)" : "currentColor");
 
 const HomeIcon = (a: boolean) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="1.7" aria-hidden="true">
     <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" strokeLinejoin="round" />
   </svg>
 );
 const PortalIcon = (a: boolean) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="1.7" aria-hidden="true">
     <rect x="3" y="7" width="18" height="13" rx="2" />
     <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
   </svg>
 );
 const ExploreIcon = (a: boolean) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="1.7" aria-hidden="true">
     <circle cx="11" cy="11" r="7" />
     <path d="m20 20-3.5-3.5" strokeLinecap="round" />
   </svg>
 );
 const SavedIcon = (a: boolean) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill={a ? "var(--text)" : "none"} stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill={a ? "var(--text)" : "none"} stroke={stroke(a)} strokeWidth="1.7" aria-hidden="true">
     <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" strokeLinejoin="round" />
   </svg>
 );
 const AccountIcon = (a: boolean) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="2" aria-hidden="true">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={stroke(a)} strokeWidth="1.7" aria-hidden="true">
     <circle cx="12" cy="8" r="4" />
     <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" strokeLinecap="round" />
   </svg>
@@ -56,7 +56,7 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5">
         {tabs(signedIn).map((t) => {
@@ -66,11 +66,11 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
               <Link
                 href={t.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-[0.7rem] ${
-                  active ? "font-bold text-text" : "text-muted"
+                className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-[0.68rem] tracking-wide ${
+                  active ? "font-semibold text-text" : "text-muted"
                 }`}
               >
-                {active && <span aria-hidden="true" className="bg-gold-gradient absolute top-0 h-1 w-8 rounded-b-full" />}
+                {active && <span aria-hidden="true" className="absolute top-0 h-0.5 w-6 bg-gold" />}
                 {t.icon(active)}
                 {t.label}
               </Link>
@@ -94,8 +94,10 @@ export function DesktopNav({ signedIn }: { signedIn: boolean }) {
               <Link
                 href={t.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-10 items-center rounded-full px-4 text-sm ${
-                  active ? "bg-primary text-primary-contrast font-semibold" : "text-muted hover:text-text"
+                className={`relative flex min-h-10 items-center px-3.5 text-sm transition-colors ${
+                  active
+                    ? "font-semibold text-text after:absolute after:inset-x-3.5 after:-bottom-[13px] after:h-0.5 after:bg-gold"
+                    : "text-muted hover:text-text"
                 }`}
               >
                 {t.label}

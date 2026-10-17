@@ -57,7 +57,7 @@ export function SaveButton({
         onClick={onClick}
         aria-pressed={saved}
         disabled={pending}
-        className={`relative z-10 inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors ${
+        className={`relative z-10 inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors ${
           saved ? "border-danger/30 bg-danger-soft text-danger" : "border-border bg-surface text-text"
         }`}
       >

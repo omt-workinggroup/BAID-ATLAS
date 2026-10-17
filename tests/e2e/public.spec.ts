@@ -83,10 +83,13 @@ test.describe("access control", () => {
   }
 
   test("open redirects are neutralised", async ({ page }) => {
-    await page.goto("/sign-in?next=https%3A%2F%2Fevil.example%2F");
-    await expect(page.locator('input[name="next"]')).toHaveValue("/account");
-    await page.goto("/sign-in?next=%2F%2Fevil.example");
-    await expect(page.locator('input[name="next"]')).toHaveValue("/account");
+    // Both the Google and the email sign-in forms carry the redirect target; every copy must be neutralised.
+    for (const url of ["/sign-in?next=https%3A%2F%2Fevil.example%2F", "/sign-in?next=%2F%2Fevil.example"]) {
+      await page.goto(url);
+      const fields = page.locator('input[name="next"]');
+      await expect(fields).toHaveCount(2);
+      for (const field of await fields.all()) await expect(field).toHaveValue("/account");
+    }
   });
 
   test("invalid auth callback code is rejected", async ({ page }) => {

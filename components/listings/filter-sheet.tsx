@@ -13,13 +13,13 @@ export function FilterSheet({ filters, count }: { filters: SearchFilters; count:
         type="button"
         onClick={() => dialog.current?.showModal()}
         aria-label={`Filters${count ? ` (${count} active)` : ""}`}
-        className="relative grid size-13 flex-none place-items-center rounded-full bg-primary text-primary-contrast shadow-md"
+        className="relative grid size-13 flex-none place-items-center rounded-xl border border-border bg-surface text-text transition-colors hover:border-text"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
           <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4" />
         </svg>
         {count > 0 && (
-          <span className="bg-gold-gradient absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full text-[0.65rem] font-bold text-[#25272c]">
+          <span className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-primary text-[0.65rem] font-bold text-primary-contrast">
             {count}
           </span>
         )}
@@ -28,7 +28,7 @@ export function FilterSheet({ filters, count }: { filters: SearchFilters; count:
       <dialog
         ref={dialog}
         aria-labelledby="filter-title"
-        className="m-0 mt-auto max-h-[90dvh] w-full max-w-none rounded-t-3xl bg-surface p-0 text-text backdrop:bg-black/50 sm:m-auto sm:max-w-lg sm:rounded-3xl"
+        className="m-0 mt-auto max-h-[90dvh] w-full max-w-none rounded-t-3xl bg-surface p-0 text-text backdrop:bg-black/50 sm:m-auto sm:max-w-lg sm:rounded-2xl"
         onClick={(e) => {
           if (e.target === dialog.current) dialog.current?.close();
         }}
@@ -36,7 +36,7 @@ export function FilterSheet({ filters, count }: { filters: SearchFilters; count:
         <form action="/explore" method="get" className="grid gap-6 p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
           <div className="mx-auto h-1.5 w-12 rounded-full bg-border sm:hidden" aria-hidden="true" />
           <div className="flex items-center justify-between">
-            <h2 id="filter-title" className="text-xl font-extrabold">Filters</h2>
+            <h2 id="filter-title" className="text-xl font-semibold">Filters</h2>
             <button type="button" onClick={() => dialog.current?.close()} className="min-h-11 px-2 text-sm font-semibold text-muted">
               Close
             </button>
@@ -99,7 +99,7 @@ export function FilterSheet({ filters, count }: { filters: SearchFilters; count:
             <a href={`/explore${filters.q ? `?q=${encodeURIComponent(filters.q)}` : ""}`} className="inline-flex min-h-12 items-center px-3 font-semibold underline decoration-gold decoration-2 underline-offset-4">
               Clear all
             </a>
-            <button type="submit" className="min-h-12 rounded-full bg-primary font-semibold text-primary-contrast">
+            <button type="submit" className="min-h-12 rounded-xl bg-primary font-semibold text-primary-contrast">
               Show results
             </button>
           </div>

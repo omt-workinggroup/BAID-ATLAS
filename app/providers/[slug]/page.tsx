@@ -40,39 +40,34 @@ export default async function ProviderPage({ params }: Params) {
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
-      <section className="relative overflow-hidden rounded-3xl bg-primary p-6 text-primary-contrast sm:p-8">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-[radial-gradient(circle,rgba(196,138,69,0.55),transparent_70%)]" />
-        <div className="relative flex items-start gap-4">
-          <span className="bg-gold-gradient grid size-16 flex-none place-items-center rounded-2xl text-2xl font-extrabold text-[#25272c]">
+      <section className="grid gap-5 border-b border-border pb-8">
+        <div className="flex items-start gap-4">
+          <span className="grid size-16 flex-none place-items-center rounded-2xl bg-primary font-[family-name:var(--font-display)] text-3xl text-[#dbb17d]">
             {org.name.slice(0, 1)}
           </span>
-          <div className="min-w-0 grid gap-1">
-            <h1 className="text-2xl font-extrabold leading-tight">{org.name}</h1>
-            <p className="text-sm opacity-80">
+          <div className="grid min-w-0 gap-1">
+            <h1 className="text-[2rem] leading-tight sm:text-4xl">{org.name}</h1>
+            <p className="text-sm text-muted">
               {ORGANIZATION_TYPE_LABELS[org.type as string]} · On BAID Atlas since {since}
             </p>
-            {org.verification_status === "verified" && (
-              <div className="mt-1 w-fit rounded-full bg-white px-1 py-0.5">
-                <VerifiedPill scope={(extra?.verification_scope as string | null) ?? null} />
-              </div>
-            )}
           </div>
         </div>
-        {org.description && <p className="relative mt-4 max-w-2xl opacity-90">{org.description}</p>}
-        <div className="relative mt-4 flex flex-wrap gap-2 text-sm">
+        {org.verification_status === "verified" && <VerifiedPill scope={(extra?.verification_scope as string | null) ?? null} />}
+        {org.description && <p className="max-w-2xl leading-relaxed">{org.description}</p>}
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
           {org.website && (
-            <a href={org.website} rel="noopener noreferrer nofollow" target="_blank" className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5">
+            <a href={org.website} rel="noopener noreferrer nofollow" target="_blank" className="font-semibold underline decoration-border underline-offset-4 hover:decoration-gold">
               Website ↗
             </a>
           )}
-          <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5">{listings.length} live listings</span>
+          <span className="text-muted">{listings.length} live {listings.length === 1 ? "listing" : "listings"}</span>
         </div>
       </section>
 
       <section className="grid gap-4">
-        <h2 className="text-xl font-extrabold">Live listings</h2>
+        <h2 className="text-xl font-semibold">Live listings</h2>
         {listings.length === 0 ? (
-          <p className="rounded-3xl border border-dashed border-border bg-surface p-6 text-center text-muted">
+          <p className="rounded-2xl border border-dashed border-border bg-surface p-6 text-center text-muted">
             No live listings right now.
           </p>
         ) : (

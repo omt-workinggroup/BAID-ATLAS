@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui";
 import { StatusChip } from "@/components/listings/status-chip";
-import { SceneArt } from "@/components/illustrations";
+import { NoPhoto } from "@/components/listings/no-photo";
 import { createClient } from "@/lib/supabase/server";
 import { requireMembership } from "@/lib/auth/session";
 import { signPaths } from "@/lib/listings/queries";
@@ -46,7 +46,7 @@ export default async function ListingsPage({ params }: { params: Promise<{ orgSl
           { label: "Drafts", value: (counts.draft ?? 0) + (counts.changes_requested ?? 0) },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl border border-border bg-surface p-3 text-center">
-            <p className="text-2xl font-extrabold">{s.value}</p>
+            <p className="text-2xl font-semibold">{s.value}</p>
             <p className="text-xs text-muted">{s.label}</p>
           </div>
         ))}
@@ -59,19 +59,19 @@ export default async function ListingsPage({ params }: { params: Promise<{ orgSl
       )}
 
       {rows.length === 0 ? (
-        <p className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center text-muted">
+        <p className="rounded-2xl border border-dashed border-border bg-surface p-8 text-center text-muted">
           No listings yet. Create your first one — it takes about five minutes.
         </p>
       ) : (
         <ul className="grid gap-3">
           {rows.map((r) => (
             <li key={r.id}>
-              <Link href={`/portal/${orgSlug}/listings/${r.id}`} className="flex items-center gap-3 rounded-3xl border border-border bg-surface p-2 pr-4 hover:border-primary">
+              <Link href={`/portal/${orgSlug}/listings/${r.id}`} className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-2 pr-4 hover:border-primary">
                 <span className="relative size-20 flex-none overflow-hidden rounded-2xl bg-surface-muted">
                   {r.cover_path && urls.get(r.cover_path) ? (
                     <Image src={urls.get(r.cover_path)!} alt="" fill sizes="80px" className="object-cover" unoptimized />
                   ) : (
-                    <SceneArt scene="villa" className="size-full" />
+                    <NoPhoto compact />
                   )}
                 </span>
                 <span className="grid min-w-0 flex-1 gap-1">
