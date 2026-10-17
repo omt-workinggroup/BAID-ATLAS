@@ -14,10 +14,13 @@ async function sendSms(phone: string): Promise<string | null> {
   const { error } = await supabase.auth.signInWithOtp({ phone, options: { shouldCreateUser: true, channel: "sms" } });
   if (!error) return null;
   if (error.status === 429 || error.code === "over_sms_send_rate_limit") return "Please wait a minute before asking for another code.";
-  if (error.code === "sms_send_failed" || error.code === "phone_provider_disabled") {
-    return "We couldn't send a text message right now. Please try again shortly.";
+  // Only a rejected number is the user's to fix; delivery failures (gateway down, out of credit) are ours.
+  if ((error.status === 400 || error.status === 422) && error.code !== "phone_provider_disabled") {
+    if (error.code === "validation_failed" || error.code === "phone_invalid" || /phone/i.test(error.message)) {
+      return "We couldn't send a code to that number. Check it and try again.";
+    }
   }
-  return "We couldn't send a code to that number. Check it and try again.";
+  return "We couldn't send a text message right now. Please try again in a few minutes.";
 }
 
 // Step 1: send a one-time code. The same flow signs people up and signs them in.
