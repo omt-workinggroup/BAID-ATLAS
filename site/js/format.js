@@ -54,6 +54,13 @@ export const REPORT_REASON_LABELS = {
   offensive: "Offensive content",
   other: "Something else",
 };
+// Why a moderator sent a listing back. Unknown codes read as plain words ("photos_quality" -> "Photos quality").
+export const REVIEW_REASONS = {
+  photos: "Photos need work", description: "Description unclear or incomplete", price: "Price looks wrong",
+  location: "Location details inconsistent", misleading: "Misleading or unlabelled renders", duplicate: "Duplicate listing", prohibited: "Not allowed on Propertiq",
+};
+export const reviewReason = (code) => REVIEW_REASONS[code] ?? (code ? code[0].toUpperCase() + code.slice(1).replaceAll("_", " ") : "");
+
 export const GHANA_REGIONS = [
   "Greater Accra", "Ashanti", "Central", "Eastern", "Western", "Western North", "Volta", "Oti", "Northern", "Savannah",
   "North East", "Upper East", "Upper West", "Bono", "Bono East", "Ahafo",
