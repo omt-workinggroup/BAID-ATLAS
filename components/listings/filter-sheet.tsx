@@ -19,7 +19,7 @@ export function FilterSheet({ filters, count }: { filters: SearchFilters; count:
           <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4" />
         </svg>
         {count > 0 && (
-          <span className="bg-gold-gradient absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full text-[0.65rem] font-bold text-[#1f2126]">
+          <span className="bg-gold-gradient absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full text-[0.65rem] font-bold text-[#25272c]">
             {count}
           </span>
         )}

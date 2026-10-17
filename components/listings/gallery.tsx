@@ -92,7 +92,7 @@ export function Gallery({ media, title }: { media: MediaItem[]; title: string })
             onClick={() => go(index - 1)}
             disabled={index === 0}
             aria-label="Previous photo"
-            className="absolute left-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#1f2126] shadow disabled:opacity-0 sm:grid"
+            className="absolute left-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#25272c] shadow disabled:opacity-0 sm:grid"
           >
             ‹
           </button>
@@ -101,7 +101,7 @@ export function Gallery({ media, title }: { media: MediaItem[]; title: string })
             onClick={() => go(index + 1)}
             disabled={index === media.length - 1}
             aria-label="Next photo"
-            className="absolute right-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#1f2126] shadow disabled:opacity-0 sm:grid"
+            className="absolute right-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#25272c] shadow disabled:opacity-0 sm:grid"
           >
             ›
           </button>

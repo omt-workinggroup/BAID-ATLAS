@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 // Official BAID Atlas logo artwork (public/brand), extracted from the supplied brand file.
-// On dark backgrounds it sits on a cream chip so the charcoal "B" stays visible.
+// The site theme is always white, the background the charcoal-and-gold logo was drawn for.
 const assets = {
   horizontal: { src: "/brand/logo-horizontal.webp", w: 757, h: 220 },
   mark: { src: "/brand/logo-mark.webp", w: 480, h: 350 },

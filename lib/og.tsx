@@ -5,7 +5,7 @@ import { ImageResponse } from "next/og";
 export const ogAlt = "BAID Atlas — Discover more. Go further. Find property in Ghana you can trust.";
 export const ogSize = { width: 1200, height: 630 };
 
-const GOLD = "linear-gradient(100deg, #E6C08A 0%, #C48A45 50%, #8E6230 100%)";
+const GOLD = "linear-gradient(100deg, #C9A06A 0%, #B38A56 50%, #86653B 100%)";
 
 // Social preview shown when the site is shared (WhatsApp, X, LinkedIn, Facebook, iMessage).
 export async function renderSocialImage() {
@@ -19,7 +19,7 @@ export async function renderSocialImage() {
 
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", background: "#FBF8F0", color: "#1F2126", fontFamily: "Jakarta", position: "relative" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "#FFFFFF", color: "#25272C", fontFamily: "Jakarta", position: "relative" }}>
         <div style={{ position: "absolute", left: -120, top: -160, width: 640, height: 640, borderRadius: 9999, background: "radial-gradient(circle, rgba(196,138,69,0.20) 0%, rgba(196,138,69,0) 65%)" }} />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 470, paddingLeft: 40 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -36,7 +36,7 @@ export async function renderSocialImage() {
           </div>
           <div style={{ display: "flex", gap: 10 }}>
             {["Moderated", "Scoped verification", "Mobile first"].map((t) => (
-              <div key={t} style={{ display: "flex", padding: "9px 18px", borderRadius: 999, background: "#1F2126", color: "#F6EAD6", fontSize: 19, fontWeight: 500 }}>
+              <div key={t} style={{ display: "flex", padding: "9px 18px", borderRadius: 999, background: "#25272C", color: "#F7EFE2", fontSize: 19, fontWeight: 500 }}>
                 {t}
               </div>
             ))}

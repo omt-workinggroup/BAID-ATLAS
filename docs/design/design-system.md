@@ -1,10 +1,10 @@
 # Design system
 
-Status: **brand applied (15 Oct 2026).** Black + gold from the BAID Atlas logo; typeface Plus Jakarta Sans.
-The mark is redrawn as vector in `components/logo.tsx` (B with roof spine, gold towers, orbit, guiding star).
-Gold text uses `--gold-strong` (#9a6a12) on light backgrounds to meet 4.5:1 contrast; bright gold is for
-fills, icons and large display text. Illustrations on the home page are always labelled "Illustration". A visual preview lives in
-[`preview/tokens.html`](preview/tokens.html) (screenshot: [`preview/tokens-mobile.png`](preview/tokens-mobile.png)).
+Status: **white theme (17 Oct 2026).** Colours are sampled from the BAID Atlas logo: charcoal `#25272C` and
+bronze gold `#B38A56` (highlight `#DBB17D`, shadow `#936D3D`). The site is always white (no dark mode) so the
+charcoal-and-gold logo sits on the background it was designed for. Gold text uses `--gold-strong` (`#86653B`,
+5.3:1 on white); bright gold is for fills, icons and large display text. Typeface: Plus Jakarta Sans. Illustrations
+on the home page are always labelled "Illustration".
 
 ## Principles
 
@@ -16,31 +16,28 @@ fills, icons and large display text. Illustrations on the home page are always l
 
 ## Tokens
 
-### Colour (light)
+### Colour
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--color-bg` | `#FAFAF7` | Page background |
-| `--color-surface` | `#FFFFFF` | Cards, sheets |
-| `--color-text` | `#1C1B18` | Body text |
-| `--color-text-muted` | `#5E5B53` | Secondary text (≥ 4.5:1 on bg) |
-| `--color-border` | `#E4E1D8` | Dividers, inputs |
-| `--color-primary` | `#0F5B4A` | Primary actions, links (deep green) |
-| `--color-primary-contrast` | `#FFFFFF` | Text on primary |
-| `--color-accent` | `#C8862A` | Highlights (warm gold), never for text on white |
-| `--color-verified` | `#1D6FB8` | Verification scope labels |
-| `--color-sponsored` | `#6B4BA1` | "Sponsored" labels |
-| `--color-warning` | `#9A5B00` | Render / concept labels, cautions |
-| `--color-danger` | `#B3261E` | Errors, destructive actions |
-
-### Colour (dark)
-
-`--color-bg #121210`, `--color-surface #1C1B18`, `--color-text #F2F0EA`, `--color-text-muted #B5B1A6`,
-`--color-border #33312C`, `--color-primary #4FBF9F`, `--color-primary-contrast #08241D`.
+| `--bg` / `--surface` | `#FFFFFF` | Page and cards |
+| `--surface-muted` | `#F7F4EE` | Chips, inputs, quiet panels (warm white) |
+| `--text` / `--primary` | `#25272C` | Body text, primary buttons (logo charcoal) |
+| `--text-muted` | `#5E5F66` | Secondary text (6.3:1) |
+| `--border` | `#ECE6DA` | Dividers, inputs |
+| `--gold` / `--accent` | `#B38A56` | Logo gold: fills, icons, focus ring; not for small text |
+| `--gold-strong` | `#86653B` | Gold text on white (5.3:1) |
+| `--gold-soft` | `#F7EFE2` | Gold-tinted backgrounds |
+| Gold gradient | `#DBB17D → #B38A56 → #936D3D` | Badges, avatars, highlights (from the logo's lit and shaded gold) |
+| `--verified` | `#1D6FB8` | Verification scope labels |
+| `--sponsored` | `#6B4BA1` | "Sponsored" labels |
+| `--warning` | `#9A5B00` | Render / concept labels, cautions |
+| `--danger` | `#B3261E` | Errors, destructive actions |
+| `--success` | `#1E7B45` | Confirmations |
 
 ### Typography
 
-- Font: **Inter** (variable, self-hosted subset) with `system-ui` fallback.
+- Font: **Plus Jakarta Sans** (via `next/font`) with `system-ui` fallback.
 - Scale (mobile → ≥ 1024 px): `xs 12/16`, `sm 14/20`, `base 16/24`, `lg 18/26`, `xl 20/28`,
   `2xl 24/30 → 28/34`, `3xl 28/34 → 36/42`.
 - Prices use tabular numerals and always show the ISO code or symbol, e.g. `GHS 1,250,000`.

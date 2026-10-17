@@ -143,7 +143,7 @@ export default async function PropertyPage({ params }: Params) {
           <section className="grid gap-3 rounded-3xl border border-border bg-surface p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted">Listed by</p>
             <Link href={`/providers/${l.organization_slug}`} className="flex items-center gap-3">
-              <span className="bg-gold-gradient grid size-12 flex-none place-items-center rounded-2xl text-lg font-extrabold text-[#1f2126]">
+              <span className="bg-gold-gradient grid size-12 flex-none place-items-center rounded-2xl text-lg font-extrabold text-[#25272c]">
                 {l.organization_name.slice(0, 1)}
               </span>
               <span className="min-w-0">

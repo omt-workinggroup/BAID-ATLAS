@@ -18,14 +18,14 @@ export function SceneArt({ scene, className }: { scene: Scene; className?: strin
           <stop offset="1" stopColor={b} />
         </linearGradient>
         <linearGradient id={`gold-${scene}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#E6C08A" />
-          <stop offset="1" stopColor="#8E6230" />
+          <stop offset="0" stopColor="#DBB17D" />
+          <stop offset="1" stopColor="#936D3D" />
         </linearGradient>
       </defs>
       <rect width="320" height="200" fill={`url(#sky-${scene})`} />
       {scene === "villa" && (
         <>
-          <circle cx="212" cy="40" r="14" fill="#E6C08A" opacity="0.9" />
+          <circle cx="212" cy="40" r="14" fill="#DBB17D" opacity="0.9" />
           <rect x="0" y="160" width="320" height="40" fill="#2f3a22" />
           <path d="M70 160V96l70-40 70 40v64z" fill="#f2ede2" />
           <path d="M60 100 140 52l80 48" fill="none" stroke="#121212" strokeWidth="8" strokeLinejoin="round" />
@@ -62,12 +62,12 @@ export function SceneArt({ scene, className }: { scene: Scene; className?: strin
           <path d="M120 150v-34M200 156v-40" stroke="#121212" strokeWidth="3" />
           <path d="M120 116h22l-4 7 4 7h-22z" fill={`url(#gold-${scene})`} />
           <path d="M200 116h22l-4 7 4 7h-22z" fill={`url(#gold-${scene})`} />
-          <path d="M120 150 200 156" stroke="#E6C08A" strokeWidth="2" strokeDasharray="6 5" />
+          <path d="M120 150 200 156" stroke="#DBB17D" strokeWidth="2" strokeDasharray="6 5" />
         </>
       )}
       {scene === "stay" && (
         <>
-          <circle cx="80" cy="60" r="22" fill="#E6C08A" />
+          <circle cx="80" cy="60" r="22" fill="#DBB17D" />
           <path d="M0 150c80-14 160-14 320 0v50H0z" fill="#1c1626" />
           <rect x="140" y="96" width="120" height="58" rx="6" fill="#f2ede2" />
           <path d="M130 100 200 66l70 34" fill="none" stroke="#121212" strokeWidth="8" strokeLinejoin="round" />

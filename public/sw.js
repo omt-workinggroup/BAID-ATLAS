@@ -1,6 +1,6 @@
 // Minimal service worker: caches static assets and shows an offline page for failed navigations.
 // Authenticated pages are never cached.
-const CACHE = "baid-atlas-v3";
+const CACHE = "baid-atlas-v4";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {

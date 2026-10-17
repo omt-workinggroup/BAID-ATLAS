@@ -145,7 +145,7 @@ export default async function ListingEditorPage({
                   <Image src={urls.get(m.storage_path)!} alt={m.alt_text ?? ""} fill sizes="(min-width: 640px) 30vw, 45vw" className="object-cover" unoptimized />
                 )}
                 <div className="absolute inset-x-1.5 top-1.5 flex flex-wrap gap-1">
-                  {i === 0 && <span className="bg-gold-gradient rounded-full px-2 py-0.5 text-[0.65rem] font-bold text-[#1f2126]">Cover</span>}
+                  {i === 0 && <span className="bg-gold-gradient rounded-full px-2 py-0.5 text-[0.65rem] font-bold text-[#25272c]">Cover</span>}
                   {m.is_render && <span className="rounded-full bg-warning px-2 py-0.5 text-[0.65rem] font-semibold text-white">Render</span>}
                   {m.is_virtually_staged && <span className="rounded-full bg-warning px-2 py-0.5 text-[0.65rem] font-semibold text-white">Staged</span>}
                 </div>
@@ -154,7 +154,7 @@ export default async function ListingEditorPage({
                     {i !== 0 && (
                       <form action={makeCover.bind(null, orgSlug, listingId)}>
                         <input type="hidden" name="media_id" value={m.id} />
-                        <button className="min-h-9 rounded-full bg-white/90 px-3 text-xs font-semibold text-[#1f2126]">Make cover</button>
+                        <button className="min-h-9 rounded-full bg-white/90 px-3 text-xs font-semibold text-[#25272c]">Make cover</button>
                       </form>
                     )}
                     <form action={hideMedia.bind(null, orgSlug, listingId)} className="ml-auto">

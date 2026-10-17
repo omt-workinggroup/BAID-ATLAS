@@ -75,7 +75,7 @@ export function SaveButton({
       aria-label={saved ? "Remove from saved" : "Save property"}
       disabled={pending}
       className={`relative z-10 grid size-10 place-items-center rounded-full shadow-sm backdrop-blur transition-colors ${
-        saved ? "bg-white text-danger" : "bg-white/90 text-[#1f2126] hover:text-danger"
+        saved ? "bg-white text-danger" : "bg-white/90 text-[#25272c] hover:text-danger"
       }`}
     >
       {heart}

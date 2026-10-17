@@ -43,7 +43,7 @@ export default async function ProviderPage({ params }: Params) {
       <section className="relative overflow-hidden rounded-3xl bg-primary p-6 text-primary-contrast sm:p-8">
         <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-[radial-gradient(circle,rgba(196,138,69,0.55),transparent_70%)]" />
         <div className="relative flex items-start gap-4">
-          <span className="bg-gold-gradient grid size-16 flex-none place-items-center rounded-2xl text-2xl font-extrabold text-[#1f2126]">
+          <span className="bg-gold-gradient grid size-16 flex-none place-items-center rounded-2xl text-2xl font-extrabold text-[#25272c]">
             {org.name.slice(0, 1)}
           </span>
           <div className="min-w-0 grid gap-1">
