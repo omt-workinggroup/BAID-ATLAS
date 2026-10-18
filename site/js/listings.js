@@ -150,6 +150,7 @@ export function listingCard(l, { saved = false, eager = false } = {}) {
       ${facts.length ? html`<ul class="facts-inline">${facts.map((f) => html`<li>${f}</li>`)}</ul>` : ""}
       ${l.organization_verification_status === "verified" ? html`<div class="mt-1">${verifiedLabel(l.organization_verification_scope)}</div>` : ""}
       ${availabilityLine(l.availability_confirmed_at)}
+      <button type="button" class="compare-btn" data-compare="${l.id}" aria-pressed="false">${icon("check", 14, 2.4)} Compare</button>
     </div>
   </article>`;
 }

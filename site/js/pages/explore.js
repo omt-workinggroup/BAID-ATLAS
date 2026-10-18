@@ -1,6 +1,7 @@
 // Explore: search box, purpose chips, filter sheet and "Load more".
 import { boot, html, markup, params, raw, render, setTitle } from "../core.js";
 import { FURNISHING_LABELS, PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PURPOSES, PURPOSE_LABELS } from "../format.js";
+import { wireCompareButtons } from "../compare.js";
 import { activeFilterCount, listingCard, parseSearch, savedIds, searchListings, skeletonCards, toQueryString, wireSaveButtons } from "../listings.js";
 
 boot();
@@ -56,13 +57,57 @@ filterForm.max.value = f.max ?? "";
 document.getElementById("clear-all").href = `/explore${toQueryString({ q: f.q })}`;
 document.getElementById("open-filters").addEventListener("click", () => dialog.showModal());
 dialog.querySelector("[data-close]").addEventListener("click", () => dialog.close());
-dialog.addEventListener("click", (e) => e.target === dialog && dialog.close());
+dialog.addEventListener("click", (e) => e.target === dialog && dialog.matches(":modal") && dialog.close());
 filterForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const d = new FormData(filterForm);
   const v = (k) => String(d.get(k) ?? "").trim() || undefined;
   location.href = `/explore${toQueryString({ q: v("q"), purpose: v("purpose"), type: v("type"), currency: v("min") || v("max") ? v("currency") : undefined, min: v("min"), max: v("max"), beds: v("beds"), baths: v("baths"), furnishing: v("furnishing"), fresh: d.get("fresh") ? "1" : undefined, stage: f.stage, sort: v("sort") === "newest" ? undefined : v("sort") })}`;
 });
+
+// Wide screens: the same filter form stays open as a sidebar instead of a sheet.
+const wide = matchMedia("(min-width: 1024px)");
+function placeFilters() {
+  if (wide.matches) {
+    if (dialog.open && dialog.matches(":modal")) dialog.close();
+    if (!dialog.open) dialog.show();
+    dialog.classList.add("sheet--inline");
+  } else {
+    dialog.classList.remove("sheet--inline");
+    if (dialog.open && !dialog.matches(":modal")) dialog.close();
+  }
+}
+placeFilters();
+wide.addEventListener("change", placeFilters);
+
+// Sort menu above the results
+const sortSelect = document.getElementById("sort-select");
+sortSelect.value = f.sort ?? "newest";
+sortSelect.addEventListener("change", () => {
+  location.href = `/explore${toQueryString({ ...base, purpose: f.purpose, sort: sortSelect.value === "newest" ? undefined : sortSelect.value })}`;
+});
+
+// Active filters as removable chips
+const current = { ...base, purpose: f.purpose };
+const without = (key) => `/explore${toQueryString({ ...current, [key]: undefined, ...(key === "min" || key === "max" ? { currency: undefined } : {}) })}`;
+const activeChips = [
+  f.q && ["q", `“${f.q}”`],
+  f.purpose && ["purpose", PURPOSE_LABELS[f.purpose]],
+  f.type && ["type", PROPERTY_TYPE_LABELS[f.type]],
+  f.stage && ["stage", "New developments"],
+  f.min !== undefined && ["min", `From ${f.currency ?? ""} ${f.min.toLocaleString("en-GH")}`.replace("  ", " ")],
+  f.max !== undefined && ["max", `Up to ${f.currency ?? ""} ${f.max.toLocaleString("en-GH")}`.replace("  ", " ")],
+  f.beds && ["beds", `${f.beds}+ bedrooms`],
+  f.baths && ["baths", `${f.baths}+ bathrooms`],
+  f.furnishing && ["furnishing", FURNISHING_LABELS[f.furnishing]],
+  f.fresh && ["fresh", "Confirmed in last 30 days"],
+].filter(Boolean);
+render(
+  "#active-filters",
+  activeChips.length
+    ? html`${activeChips.map(([k, label]) => html`<a class="filter-chip" href="${without(k)}" aria-label="Remove filter: ${label}">${label}<span aria-hidden="true">×</span></a>`)}<a class="link small" href="/explore">Clear all</a>`
+    : "",
+);
 
 // Results
 const grid = document.getElementById("results");
@@ -87,6 +132,7 @@ async function load(append) {
   if (append) grid.insertAdjacentHTML("beforeend", markup(cards));
   else render(grid, cards);
   grid.removeAttribute("aria-busy");
+  markCompare?.();
   shown += result.rows.length;
   cursor = result.nextCursor;
   more.hidden = !cursor;
@@ -111,4 +157,5 @@ more.addEventListener("click", async () => {
 });
 
 wireSaveButtons(grid);
+const markCompare = wireCompareButtons(grid);
 await load(false);

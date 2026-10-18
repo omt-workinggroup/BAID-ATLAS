@@ -108,6 +108,19 @@ test("trust and verification page explains the limits of each check", async ({ p
   await expectNoHorizontalScroll(page);
 });
 
+test("compare page explains how to start when nothing is selected", async ({ page }) => {
+  await page.goto("/compare");
+  await expect(page.getByRole("heading", { name: "Nothing to compare yet" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Explore property" })).toHaveAttribute("href", "/explore");
+});
+
+test("explore shows filters as a sidebar on wide screens @desktop", async ({ page }) => {
+  await page.goto("/explore?purpose=sale&beds=3");
+  await expect(page.locator("#filters")).toBeVisible();
+  await expect(page.locator("#open-filters")).toBeHidden();
+  await expect(page.getByRole("link", { name: "Remove filter: 3+ bedrooms" })).toHaveAttribute("href", "/explore?purpose=sale");
+});
+
 test.describe("PWA and sharing", () => {
   test("manifest and icons are served", async ({ request }) => {
     const manifest = await (await request.get("/manifest.webmanifest")).json();

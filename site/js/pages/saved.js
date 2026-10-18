@@ -1,6 +1,7 @@
 // Saved (hearted) properties. Ones that are sold or paused drop out automatically.
 import { boot, html, render, requireProfile, sb } from "../core.js";
 import { CARD_COLUMNS, listingCard, wireSaveButtons, withCoverUrls } from "../listings.js";
+import { wireCompareButtons } from "../compare.js";
 
 boot();
 await requireProfile();
@@ -20,3 +21,4 @@ render(
 );
 root.removeAttribute("aria-busy");
 wireSaveButtons(root);
+wireCompareButtons(root);

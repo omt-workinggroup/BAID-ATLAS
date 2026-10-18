@@ -1,6 +1,7 @@
 // Home page: everything is static HTML except the "Recently added" grid (real published listings only).
 import { boot, getUser, render } from "../core.js";
 import { latestListings, listingCard, savedIds, skeletonCards, toQueryString, wireSaveButtons } from "../listings.js";
+import { wireCompareButtons } from "../compare.js";
 
 boot();
 // Send only the fields that were filled in, so links stay clean and shareable.
@@ -25,4 +26,5 @@ if (rows.length === 0) {
   render(rail, rows.map((l, i) => listingCard(l, { saved: saved.has(l.id), eager: i < 2 })));
   rail.removeAttribute("aria-busy");
   wireSaveButtons(rail);
+  wireCompareButtons(rail);
 }

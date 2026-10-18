@@ -2,6 +2,7 @@
 import { boot, html, render, sb, setTitle } from "../core.js";
 import { ORGANIZATION_TYPE_LABELS } from "../format.js";
 import { CARD_COLUMNS, PAGE_SIZE, listingCard, savedIds, verifiedLabel, wireSaveButtons, withCoverUrls } from "../listings.js";
+import { wireCompareButtons } from "../compare.js";
 
 boot();
 const slug = decodeURIComponent(location.pathname.split("/").filter(Boolean).pop() ?? "");
@@ -47,5 +48,6 @@ if (!org) {
       </section>`,
   );
   wireSaveButtons(root);
+  wireCompareButtons(root);
 }
 root.removeAttribute("aria-busy");
