@@ -42,6 +42,7 @@ Pushing to the branch deploys to Vercel; there is nothing to build.
 
 | Area | Document |
 | --- | --- |
+| Propertiq plan | [Phase 0 discovery and roadmap](docs/propertiq/phase-0-discovery.md) · [Competitor analysis](docs/product/competitor-analysis.md) |
 | Product | [Requirements](docs/product/requirements.md) · [Route map](docs/product/route-map.md) |
 | Architecture | [Technology decisions](docs/architecture/technology-decisions.md) · [System architecture](docs/architecture/system-architecture.md) · [Database design](docs/architecture/database-design.md) |
 | Security | [Threat model](docs/security/threat-model.md) · [Permissions matrix](docs/security/permissions-matrix.md) |
