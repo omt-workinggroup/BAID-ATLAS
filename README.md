@@ -4,7 +4,8 @@ Property listings for Ghana, reviewed before they go live, with verification lab
 was checked. Mobile first: buyers and renters browse, save, message providers and request viewings;
 agencies, developers and landlords manage listings, leads and teams; staff moderate listings and reports.
 
-Live site: https://baid-atlas.vercel.app
+Live site: https://propertiq-gh.vercel.app (the earlier address https://baid-atlas.vercel.app still works).
+Vercel project: `propertiq`.
 
 ## How the code is laid out
 
