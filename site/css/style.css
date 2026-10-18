@@ -243,13 +243,28 @@ body.app {
   justify-content: space-between;
   gap: 1rem;
 }
+/* The logo is the supplied 1280x720 artwork, unedited. This frame shows the part around the wordmark
+   (x 200-1090, y 230-500); the rest of the file is plain black like the header, so nothing is altered. */
+.logo-frame {
+  --h: 46px;
+  position: relative;
+  display: block;
+  width: calc(var(--h) * 890 / 270);
+  height: var(--h);
+  overflow: hidden;
+  flex: none;
+}
+.logo-frame img {
+  position: absolute;
+  max-width: none;
+  width: calc(var(--h) * 1280 / 270);
+  height: auto;
+  left: calc(var(--h) * -200 / 270);
+  top: calc(var(--h) * -230 / 270);
+}
 .logo {
   display: flex;
   align-items: center;
-}
-.logo img {
-  height: 36px;
-  width: auto;
 }
 .logo-text {
   font-size: 1.35rem;
@@ -394,9 +409,8 @@ body.app {
     grid-template-columns: 1.2fr 2fr;
   }
 }
-.site-footer__about img {
-  height: 32px;
-  width: auto;
+.site-footer__about .logo-frame {
+  --h: 54px;
 }
 .site-footer__about p {
   margin-top: 1rem;
