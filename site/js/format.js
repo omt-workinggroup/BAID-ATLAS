@@ -54,6 +54,14 @@ export const REPORT_REASON_LABELS = {
   offensive: "Offensive content",
   other: "Something else",
 };
+export const FURNISHING_LABELS = { unfurnished: "Unfurnished", semi_furnished: "Semi-furnished", furnished: "Furnished" };
+export const CONDITION_LABELS = { new: "New", excellent: "Excellent", good: "Good", fair: "Fair", needs_renovation: "Needs renovation" };
+export const COMPLETION_LABELS = { completed: "Completed", under_construction: "Under construction", off_plan: "Off-plan" };
+export const AMENITY_CATEGORY_LABELS = { utilities: "Utilities", security: "Security", comfort: "Comfort", facilities: "Facilities", access: "Access" };
+// Which fields make sense for each property type (the database applies the same rules).
+export const isResidential = (type) => type === "house" || type === "apartment";
+export const isLand = (type) => type === "land";
+
 // Why a moderator sent a listing back. Unknown codes read as plain words ("photos_quality" -> "Photos quality").
 export const REVIEW_REASONS = {
   photos: "Photos need work", description: "Description unclear or incomplete", price: "Price looks wrong",

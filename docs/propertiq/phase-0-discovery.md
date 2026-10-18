@@ -1,6 +1,6 @@
 # Propertiq: Phase 0 discovery and architecture
 
-Status: **for approval**. Written 18 October 2026 against the *Propertiq Master Build Prompt*. Nothing in this
+Status: **approved 18 October 2026, with the conditions in §2A**. Written 18 October 2026 against the *Propertiq Master Build Prompt*. Nothing in this
 document has been built yet unless it is marked **exists**.
 
 Companion documents:
@@ -79,6 +79,113 @@ Companion documents:
 **I need your yes or no on D1–D9 before Phase 1 work starts.** Each one is reversible except D6, which shapes the data model.
 
 ---
+
+
+## 2A. Approved decisions and conditions (18 October 2026)
+
+| # | Decision | Condition |
+| --- | --- | --- |
+| D1 | Keep HTML/CSS/JavaScript | No Next.js migration and no rebuild of working features without a documented technical reason. |
+| D2 | Serverless rendering and a sitemap | Must fit the current Vercel setup. Covers crawlable property pages, dynamic sitemap entries, canonical URLs, metadata, structured data and redirects. No existing URL may break. |
+| D3 | Keep phone + SMS-code sign-in | Rate limiting, secure sessions, account recovery and abuse protection. The user model must allow email sign-in to be added later without a rebuild. |
+| D4 | Keep the supplied logo exactly as provided, and black and white | Accessible status colours are allowed only for verification states, warnings, errors and success. |
+| D5 | Preserve current URLs | Add redirects and canonical URLs. Nothing already shared or indexed may break. |
+| D6 | **Replaced, see §2B** | Owners and agents must **not** be modelled permanently as one-person organisations. |
+| D7 | In-app notifications first | SMS through SasuSync only after its API, delivery reports, costs and requirements are verified. The provider must stay replaceable. |
+| D8 | No payments, subscriptions, paid promotion or checkout | Not until a Ghana provider is selected, approved and tested. The architecture may be prepared, but there must be no fake transactions and no misleading success states. |
+| D9 | OpenStreetMap-compatible maps | Approximate public locations only, with attribution. The tile and geocoding services must be confirmed suitable for production. |
+
+Standing rules:
+
+- Verification statuses are explicit and evidence-based.
+- An identity check never implies ownership.
+- A document review never implies legal title certification.
+- Payment never buys verification.
+- No mock data, fake reviews, invented verification records or buttons that don't work.
+- Stop if a migration risks existing data or authentication.
+
+## 2B. Proposal for approval: users, advertisers and organisations
+
+**Goal:**
+
+- A person can advertise on their own, as an owner or an independent agent.
+- They can later add team members, or create or join an organisation.
+- Agencies, property companies and developers can have many members and branches.
+
+**Today:** users (`profiles`), organisations and memberships are already separate tables. However, every listing belongs to an organisation (`property_listings.organization_id`), so a person cannot list without one.
+
+**Proposed model.** It is additive: no table is dropped and no column is removed.
+
+| Table | Purpose | Key columns |
+| --- | --- | --- |
+| `profiles` (exists) | The person. Phone now, email later (a second verified contact, no rebuild). | `id` = auth user |
+| `organizations` (exists) | A business: agency, property company, developer, property manager. Types gain `property_company`. | `parent_organization_id` (new, nullable) for branches |
+| `organization_members` (exists) | Person ↔ organisation with a role. A person can belong to several organisations. | unchanged |
+| **`advertisers`** (new) | Whoever a listing is advertised by. Either a person acting for themselves, or an organisation. | `id`, `kind` (`individual` or `organization`), `profile_id` (when individual), `organization_id` (when organisation), `advertiser_type` (owner, independent_agent, agency, property_company, developer, property_manager), `display_name`, `slug`, `status`, created/updated |
+| `property_listings` / `properties` | Gain `advertiser_id`. `organization_id` stays during the transition, so every existing query keeps working. | `advertiser_id` not null after backfill |
+
+**Rules**
+
+- An individual advertiser is managed only by its person.
+- An organisation advertiser is managed by members with the right role. This uses the existing role checks.
+- One helper, `private.can_act_for_advertiser(advertiser, roles)`, replaces the direct organisation checks in RLS and functions, step by step.
+- **Growing up:** a sole owner who creates an organisation moves their advertiser to it (`kind` becomes `organization`). Listings keep the same `advertiser_id`, so nothing about the listings has to move. The move is audited.
+- Identity verification attaches to the advertiser: a personal ID check for individuals, a business-registration check for organisations. Both use the same scoped and dated record as today.
+
+**Migration strategy**
+
+1. Create `advertisers` and backfill one `organization` advertiser per existing organisation (today: 1). Add `advertiser_id` to listings and backfill it (today: 1 listing).
+2. Switch the functions and RLS to the new helper one at a time, each with pgTAP tests proving existing access is unchanged.
+3. Allow individual advertisers: a new "Advertise as yourself" option in onboarding.
+4. Only once nothing reads it any more, consider making `organization_id` nullable. **Never drop it without a separate approval.**
+
+**Backward compatibility**
+
+- Every existing URL (`/portal/:org`) keeps working.
+- Individuals get `/portal/me`.
+- The storage path layout `<org>/<listing>/file` becomes `<advertiser>/<listing>/file` for new uploads only. Existing photos stay where they are, and the access rules accept both layouts.
+
+**Not started.** This needs your approval because it changes ownership rules.
+
+## 2C. Affected areas for the first Phase 1 slice (trust panel, availability, details, references)
+
+- **Tables:**
+  - `properties`: subtype, furnishing, condition, completion status, parking.
+  - `property_listings`: reference, negotiable, availability date and method.
+  - New: `property_subtypes`, `amenity_definitions`, `property_amenities`, `availability_checks`.
+- **Functions:**
+  - `create_listing` and `update_listing` (through `apply_listing_payload`)
+  - `get_listing_for_edit`
+  - `submit_listing`: now records an availability confirmation
+  - New: `confirm_listing_availability`
+- **View:** `listing_cards`, with new columns appended so existing queries are unchanged.
+- **Pages:** property page (trust panel, reference, details, amenities), listing form (fields per category), listing editor (availability), explore (filters, reference search), cards (availability line), new `/trust-and-verification`, homepage copy.
+
+**Protection**
+
+- Working state before the change: commit `4064f30` on the branch. A git tag could not be pushed from this environment.
+- Live data before the change: 4 accounts, 1 organisation, 1 property, 1 listing, 3 photos, 13 audit rows.
+- The migration is additive and each part runs in its own transaction.
+
+## 2D. Design references (Dribbble), reviewed 18 October 2026
+
+The reference pages were opened in a browser and are reachable. Patterns we will adapt in Propertiq's own black-and-white style, without copying any design:
+
+- **Property pages:**
+  - A photo mosaic on desktop (one large and four small images) with "show all photos"
+  - A row of key facts with icons
+  - A sticky contact panel
+  - Floor plans and the location map as their own sections
+- **Search:**
+  - A split list and map layout on desktop
+  - Compact cards with price first
+  - Filter chips that stay visible
+- **Dashboards:**
+  - A left sidebar on desktop
+  - A small number of number tiles
+  - Dense, scannable tables with status pills
+  - A recent-activity list
+- **Avoid:** heavy gradients, glass effects, oversized stat cards and decorative charts with no data.
 
 ## 3. Gap analysis against the brief
 

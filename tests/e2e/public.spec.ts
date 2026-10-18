@@ -20,7 +20,7 @@ async function shot(page: Page, name: string, project: string) {
 test.describe("public pages", () => {
   test("home renders with mobile navigation", async ({ page }, info) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Find property in Ghana");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Find property with more confidence");
     await expect(page.getByPlaceholder("Search East Legon, Kumasi…")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Primary" }).last()).toBeVisible();
     await expectNoHorizontalScroll(page);
@@ -100,6 +100,14 @@ test.describe("access control", () => {
   });
 });
 
+test("trust and verification page explains the limits of each check", async ({ page }) => {
+  await page.goto("/trust-and-verification");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("What Propertiq checks, and what it doesn't.");
+  await expect(page.getByText("A document review is not a title certification.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Payment never buys a check." })).toBeVisible();
+  await expectNoHorizontalScroll(page);
+});
+
 test.describe("PWA and sharing", () => {
   test("manifest and icons are served", async ({ request }) => {
     const manifest = await (await request.get("/manifest.webmanifest")).json();
@@ -142,9 +150,13 @@ test.describe("discovery", () => {
     await expect(dialog.getByText("Prices are matched in the listing's own currency")).toBeVisible();
     await page.waitForTimeout(400);
     await shot(page, "20-explore-filters", info.project.name);
-    await dialog.getByText("3+").click();
+    await dialog.locator("#f-beds").getByText("3+").click();
+    await dialog.locator("#f-baths").getByText("2+").click();
+    await dialog.getByText("Availability confirmed in the last 30 days").click();
     await dialog.getByRole("button", { name: "Show results" }).click();
     await expect(page).toHaveURL(/beds=3/);
+    await expect(page).toHaveURL(/baths=2/);
+    await expect(page).toHaveURL(/fresh=1/);
     await expectNoHorizontalScroll(page);
   });
 

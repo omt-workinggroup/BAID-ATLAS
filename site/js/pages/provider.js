@@ -1,7 +1,7 @@
 // Public provider profile with its live listings.
 import { boot, html, render, sb, setTitle } from "../core.js";
 import { ORGANIZATION_TYPE_LABELS } from "../format.js";
-import { CARD_COLUMNS, listingCard, savedIds, verifiedLabel, wireSaveButtons, withCoverUrls } from "../listings.js";
+import { CARD_COLUMNS, PAGE_SIZE, listingCard, savedIds, verifiedLabel, wireSaveButtons, withCoverUrls } from "../listings.js";
 
 boot();
 const slug = decodeURIComponent(location.pathname.split("/").filter(Boolean).pop() ?? "");
@@ -20,7 +20,7 @@ if (!org) {
   setTitle(org.name);
   const [{ data: extra }, { data: rows }] = await Promise.all([
     sb.from("organizations").select("verification_scope").eq("id", org.id).maybeSingle(),
-    sb.from("listing_cards").select(CARD_COLUMNS).eq("organization_id", org.id).eq("status", "published").order("published_at", { ascending: false }).limit(24),
+    sb.from("listing_cards").select(CARD_COLUMNS).eq("organization_id", org.id).eq("status", "published").order("published_at", { ascending: false }).limit(PAGE_SIZE),
   ]);
   const listings = await withCoverUrls(rows ?? []);
   const saved = await savedIds(listings.map((l) => l.id));

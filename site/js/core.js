@@ -207,6 +207,7 @@ function bottomNavView(signedIn, path) {
 const FOOTER_COLS = [
   ["Find property", [["/explore?purpose=sale", "For sale"], ["/explore?purpose=long_term_rent", "To rent"], ["/explore?purpose=short_stay", "Short stays"], ["/explore?type=land", "Land"], ["/explore?type=commercial", "Commercial"]]],
   ["Providers", [["/portal", "Provider portal"], ["/sign-up", "List a property"]]],
+  ["Trust", [["/trust-and-verification", "Trust and verification"]]],
   ["Your account", [["/saved", "Saved properties"], ["/inbox", "Inbox"], ["/account", "Account settings"]]],
 ];
 
@@ -263,7 +264,7 @@ export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 export function setTitle(title) {
-  document.title = title ? `${title} · Propertiq` : "Propertiq — Find property in Ghana you can trust";
+  document.title = title ? `${title} · Propertiq` : "Propertiq — Property, understood better";
 }
 
 export function toast(message) {

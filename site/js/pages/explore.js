@@ -1,11 +1,11 @@
 // Explore: search box, purpose chips, filter sheet and "Load more".
 import { boot, html, markup, params, raw, render, setTitle } from "../core.js";
-import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PURPOSES, PURPOSE_LABELS } from "../format.js";
+import { FURNISHING_LABELS, PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PURPOSES, PURPOSE_LABELS } from "../format.js";
 import { activeFilterCount, listingCard, parseSearch, savedIds, searchListings, skeletonCards, toQueryString, wireSaveButtons } from "../listings.js";
 
 boot();
 const f = parseSearch(params());
-const base = { q: f.q, type: f.type, min: f.min, max: f.max, beds: f.beds, currency: f.currency, sort: f.sort };
+const base = { q: f.q, type: f.type, min: f.min, max: f.max, beds: f.beds, baths: f.baths, furnishing: f.furnishing, fresh: f.fresh, currency: f.currency, sort: f.sort };
 
 // Heading and title
 const heading = f.purpose ? `${PURPOSE_LABELS[f.purpose]}${f.type ? ` · ${PROPERTY_TYPE_LABELS[f.type]}` : ""}` : f.type ? PROPERTY_TYPE_LABELS[f.type] : "Explore property";
@@ -39,6 +39,9 @@ const chip = (name, value, label, checked) =>
 render("#f-purpose", [chip("purpose", "", "Any", !f.purpose), ...PURPOSES.map((p) => chip("purpose", p, PURPOSE_LABELS[p], f.purpose === p))]);
 render("#f-type", [chip("type", "", "Any", !f.type), ...PROPERTY_TYPES.map((t) => chip("type", t, PROPERTY_TYPE_LABELS[t], f.type === t))]);
 render("#f-beds", [chip("beds", "", "Any", !f.beds), ...[1, 2, 3, 4, 5].map((b) => chip("beds", b, `${b}+`, f.beds === b))]);
+render("#f-baths", [chip("baths", "", "Any", !f.baths), ...[1, 2, 3, 4].map((b) => chip("baths", b, `${b}+`, f.baths === b))]);
+render("#f-furnishing", [chip("furnishing", "", "Any", !f.furnishing), ...Object.entries(FURNISHING_LABELS).map(([k, v]) => chip("furnishing", k, v, f.furnishing === k))]);
+document.getElementById("f-fresh").checked = Boolean(f.fresh);
 render("#f-sort", [
   chip("sort", "newest", "Newest", !f.sort || f.sort === "newest"),
   chip("sort", "price_asc", "Price: low to high", f.sort === "price_asc"),
@@ -58,7 +61,7 @@ filterForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const d = new FormData(filterForm);
   const v = (k) => String(d.get(k) ?? "").trim() || undefined;
-  location.href = `/explore${toQueryString({ q: v("q"), purpose: v("purpose"), type: v("type"), currency: v("min") || v("max") ? v("currency") : undefined, min: v("min"), max: v("max"), beds: v("beds"), sort: v("sort") === "newest" ? undefined : v("sort") })}`;
+  location.href = `/explore${toQueryString({ q: v("q"), purpose: v("purpose"), type: v("type"), currency: v("min") || v("max") ? v("currency") : undefined, min: v("min"), max: v("max"), beds: v("beds"), baths: v("baths"), furnishing: v("furnishing"), fresh: d.get("fresh") ? "1" : undefined, sort: v("sort") === "newest" ? undefined : v("sort") })}`;
 });
 
 // Results

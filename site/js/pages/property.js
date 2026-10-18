@@ -1,8 +1,11 @@
 // Property page: photos, facts, provider, and the three actions (message, viewing, report).
 import { boot, busy, friendlyDbError, getUser, html, icon, raw, render, sb, setTitle, showErrors, signedUrls, toast } from "../core.js";
 import {
-  PROPERTY_TYPE_LABELS, PURPOSE_LABELS, REPORT_REASON_LABELS, formatArea, formatLocation, formatPrice, listedAgo,
+  COMPLETION_LABELS, CONDITION_LABELS, FURNISHING_LABELS, PROPERTY_TYPE_LABELS, PURPOSE_LABELS, REPORT_REASON_LABELS,
+  formatArea, formatLocation, formatPrice, listedAgo,
 } from "../format.js";
+import { amenityLabel, loadCatalogue, subtypeLabel } from "../catalogue.js";
+import { trustItems, trustPanel } from "../trust.js";
 import { CARD_COLUMNS, noPhoto, savedIds, verifiedLabel, wireSaveButtons } from "../listings.js";
 
 boot();
@@ -28,11 +31,19 @@ if (!l) {
 }
 setTitle(l.title);
 
-const [{ data: listing }, { data: media }, user] = await Promise.all([
-  sb.from("property_listings").select("description").eq("id", l.id).maybeSingle(),
+const [{ data: listing }, { data: media }, user, { data: org }, catalogue] = await Promise.all([
+  sb.from("property_listings").select("description, property_id").eq("id", l.id).maybeSingle(),
   sb.from("property_media").select("id, storage_path, alt_text, is_render, is_virtually_staged").eq("listing_id", l.id).is("hidden_at", null).eq("media_type", "image").order("sort_order").order("created_at"),
   getUser(),
+  sb.from("organizations").select("verification_status, verification_scope, verified_at, verification_expires_at").eq("id", l.organization_id).maybeSingle(),
+  loadCatalogue(),
 ]);
+const [{ data: details }, { data: amenityRows }] = listing?.property_id
+  ? await Promise.all([
+      sb.from("properties").select("condition, parking_spaces").eq("id", listing.property_id).maybeSingle(),
+      sb.from("property_amenities").select("amenity_code").eq("property_id", listing.property_id),
+    ])
+  : [{ data: null }, { data: [] }];
 const urls = await signedUrls((media ?? []).map((m) => m.storage_path));
 const photos = (media ?? []).map((m) => ({ ...m, url: urls.get(m.storage_path) ?? null })).filter((m) => m.url);
 const saved = (await savedIds([l.id])).has(l.id);
@@ -41,12 +52,20 @@ const location_ = formatLocation(l.locality, l.city, l.region);
 
 // ---- Render ----------------------------------------------------------------------------------------------
 const facts = [
-  ["Type", PROPERTY_TYPE_LABELS[l.property_type]],
+  ["Reference", l.reference],
+  ["Type", subtypeLabel(catalogue, l.property_type, l.subtype) ?? PROPERTY_TYPE_LABELS[l.property_type]],
   l.bedrooms !== null && ["Bedrooms", l.bedrooms],
   l.bathrooms !== null && ["Bathrooms", l.bathrooms],
   formatArea(l.floor_area, l.floor_area_unit) && ["Floor area", formatArea(l.floor_area, l.floor_area_unit)],
   formatArea(l.land_area, l.land_area_unit) && ["Land area", formatArea(l.land_area, l.land_area_unit)],
-].filter(Boolean);
+  l.furnishing && ["Furnishing", FURNISHING_LABELS[l.furnishing]],
+  details?.condition && ["Condition", CONDITION_LABELS[details.condition]],
+  l.completion_status && ["Construction", COMPLETION_LABELS[l.completion_status]],
+  details?.parking_spaces != null && ["Parking", `${details.parking_spaces} ${details.parking_spaces === 1 ? "space" : "spaces"}`],
+  ["Price", l.negotiable ? "Negotiable" : "As listed"],
+].filter((x) => x && x[1] !== null && x[1] !== undefined && x[1] !== "");
+const amenities = (amenityRows ?? []).map((a) => amenityLabel(catalogue, a.amenity_code));
+const trust = trustItems(l, org, photos);
 const anyRender = photos.some((p) => p.is_render || p.is_virtually_staged);
 
 const gallery = photos.length
@@ -84,7 +103,10 @@ render(
           <h2 id="facts-h" style="font-size: 1.5rem">Key facts</h2>
           <dl class="facts-table">${facts.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>
         </section>
+        ${trustPanel(trust, { sponsored: l.is_sponsored })}
         ${listing?.description ? html`<section class="stack-sm"><h2 style="font-size: 1.5rem">About this property</h2><p class="prose">${listing.description}</p></section>` : ""}
+        ${amenities.length ? html`<section class="stack-sm"><h2 style="font-size: 1.5rem">Amenities</h2><ul class="amenity-list">${amenities.map((a) => html`<li>${icon("check", 16, 2)}${a}</li>`)}</ul><p class="tiny muted">As stated by the advertiser.</p></section>` : ""}
+        ${l.completion_status && l.completion_status !== "completed" ? html`<p class="alert alert--warning">${l.completion_status === "off_plan" ? "Off-plan: this property has not been built yet." : "Under construction: this property is not finished yet."} Ask the advertiser for the building permit and the expected completion date.</p>` : ""}
         ${anyRender ? html`<p class="alert alert--warning">Some images are renders or virtually staged. They don't show the property's current condition, completion or exact dimensions.</p>` : ""}
         <section class="stack-sm">
           <h2 style="font-size: 1.5rem">Location</h2>

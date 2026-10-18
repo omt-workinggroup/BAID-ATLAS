@@ -23,7 +23,7 @@
           <form class="search-box" action="/explore" method="get" role="search" id="search-form">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" style="color: var(--muted); flex: none"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg>
             <label for="q" class="sr-only">Search by place or title</label>
-            <input id="q" name="q" placeholder="East Legon, Kumasi, Takoradi…" enterkeyhint="search" />
+            <input id="q" name="q" placeholder="Area, city or reference (PQ-…)" enterkeyhint="search" />
           </form>
           <button type="button" class="icon-btn" id="open-filters" aria-haspopup="dialog" aria-label="Filters">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4" /></svg>
@@ -58,6 +58,9 @@
             <p class="tiny muted">Prices are matched in the listing's own currency — we never convert them.</p>
           </fieldset>
           <fieldset class="stack-sm" style="border: 0; padding: 0; margin: 0"><legend class="bold small" style="margin-bottom: 0.5rem">Bedrooms</legend><div class="row wrap" id="f-beds"></div></fieldset>
+          <fieldset class="stack-sm" style="border: 0; padding: 0; margin: 0"><legend class="bold small" style="margin-bottom: 0.5rem">Bathrooms</legend><div class="row wrap" id="f-baths"></div></fieldset>
+          <fieldset class="stack-sm" style="border: 0; padding: 0; margin: 0"><legend class="bold small" style="margin-bottom: 0.5rem">Furnishing</legend><div class="row wrap" id="f-furnishing"></div></fieldset>
+          <label class="check"><input type="checkbox" name="fresh" value="1" id="f-fresh" /><span>Availability confirmed in the last 30 days</span></label>
           <fieldset class="stack-sm" style="border: 0; padding: 0; margin: 0"><legend class="bold small" style="margin-bottom: 0.5rem">Sort by</legend><div class="row wrap" id="f-sort"></div></fieldset>
           <div class="row" style="position: sticky; bottom: 0; background: var(--surface); padding-top: 1rem; border-top: 1px solid var(--border)">
             <a class="link" href="/explore" id="clear-all">Clear all</a>

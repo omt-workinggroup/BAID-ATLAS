@@ -2,7 +2,9 @@
 import { boot, busy, formMessage, html, params, raw, render, sb, setTitle, showErrors, signedUrls, toast } from "../core.js";
 import { LISTING_STATUS_LABELS, reviewReason } from "../format.js";
 import { MEDIA_BUCKET } from "../config.js";
-import { listingDbMessage, listingFormView, readListingForm, wirePurpose } from "../listingform.js";
+import { loadCatalogue } from "../catalogue.js";
+import { listingDbMessage, listingFormView, readListingForm, wireListingForm } from "../listingform.js";
+import { STALE_AFTER_DAYS, availabilityState } from "../trust.js";
 import { prepareImage, randomName } from "../media.js";
 import { canEditListings, requireMembership } from "../portal.js";
 
@@ -10,15 +12,17 @@ boot();
 const { org, role } = await requireMembership();
 const listingId = location.pathname.split("/").filter(Boolean).pop();
 const root = document.getElementById("root");
+const catalogue = await loadCatalogue();
 const canEdit = canEditListings(role);
 const EDITABLE = ["draft", "changes_requested"];
 const DONE = {
   created: "Draft saved. Now add a few great photos.",
-  submitted: "Submitted! Our moderators usually review listings within one working day.",
+  submitted: "Submitted! Submitting also confirms it is available today. Our moderators usually review listings within one working day.",
   published: "Your listing is live.",
   paused: "Listing paused — it's hidden from search.",
   sold: "Marked as sold. Congratulations!",
   rented: "Marked as rented. Congratulations!",
+  availability: "Availability confirmed. The new date now shows on the listing.",
   archived: "Listing archived.",
 };
 let notice = params().get("created") ? DONE.created : null;
@@ -46,6 +50,7 @@ async function draw() {
     root,
     html`<a class="back-link" href="/portal/${org.slug}/listings">← All listings</a>
       <div class="row-between" style="align-items: flex-start"><h1 style="font-size: 1.75rem">${l.title}</h1><span class="status status--${l.status}">${LISTING_STATUS_LABELS[l.status]}</span></div>
+      ${l.reference ? html`<p class="tiny muted">Reference <span class="bold">${l.reference}</span></p>` : ""}
       ${notice ? html`<div class="alert alert--success">${notice}</div>` : ""}
       ${l.status === "changes_requested" && review
         ? html`<div class="alert alert--warning"><p class="bold">Our moderators asked for changes${review.reason_code ? `: ${reviewReason(review.reason_code)}` : ""}</p>${review.provider_message ? html`<p class="mt-1">${review.provider_message}</p>` : ""}</div>`
@@ -68,11 +73,11 @@ async function draw() {
           : html`<p class="small muted">No photos yet.</p>`}
         ${editable ? uploaderView(30 - photos.length) : ""}
       </section>
-      ${listingFormView(l, { locked: !editable, submitLabel: "Save changes" })}`,
+      ${listingFormView(l, { locked: !editable, submitLabel: "Save changes", catalogue })}`,
   );
   root.removeAttribute("aria-busy");
   const form = document.getElementById("listing-form");
-  if (editable) wirePurpose(form);
+  if (editable) wireListingForm(form, catalogue);
 }
 
 function actionsCard(l, photos, editable, descriptionOk, check) {
@@ -81,7 +86,8 @@ function actionsCard(l, photos, editable, descriptionOk, check) {
     ${editable
       ? html`<h2>Ready to go?</h2>
           <ul class="stack-sm">${check(true, "Details saved")}${check(photos.length > 0, "At least one photo")}${check(descriptionOk, "Description of 40+ characters")}</ul>
-          <button type="button" class="btn btn--full" data-action="submit" ${raw(photos.length === 0 || !descriptionOk ? "disabled" : "")}>Submit for review</button>`
+          <button type="button" class="btn btn--full" data-action="submit" ${raw(photos.length === 0 || !descriptionOk ? "disabled" : "")}>Submit for review</button>
+          <p class="tiny muted">Submitting also confirms the property is available today. That date is shown to buyers.</p>`
       : ""}
     ${l.status === "submitted" ? html`<p class="small muted">In review. You'll be able to publish once it's approved.</p>` : ""}
     ${["approved", "paused"].includes(l.status)
@@ -91,6 +97,7 @@ function actionsCard(l, photos, editable, descriptionOk, check) {
     ${l.status === "published"
       ? html`<a class="link" href="/properties/${l.slug}">View live listing ↗</a><p class="tiny muted">Live until ${new Date(l.expires_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>`
       : ""}
+    ${["approved", "published", "paused"].includes(l.status) ? availabilityView(l) : ""}
     ${["published", "paused"].includes(l.status)
       ? html`<div class="row wrap">
           ${l.status === "published" ? html`<button type="button" class="btn btn--secondary btn--small" data-status="paused">Pause</button>` : ""}
@@ -99,6 +106,20 @@ function actionsCard(l, photos, editable, descriptionOk, check) {
         </div>`
       : ""}
   </section>`;
+}
+
+// Dated availability: shown on the public listing. Confirming records who confirmed it and when.
+function availabilityView(l) {
+  const a = availabilityState(l.availability_confirmed_at);
+  const when = l.availability_confirmed_at
+    ? new Date(l.availability_confirmed_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+  return html`<div class="card--muted card stack-sm" style="padding: 1rem">
+    <p class="row-between"><span class="bold">Availability</span>
+      <span class="status ${a.state === "fresh" ? "status--live" : "status--changes_requested"}">${a.state === "fresh" ? "Confirmed" : a.state === "stale" ? "Needs reconfirming" : "Not confirmed"}</span></p>
+    <p class="small muted">${when ? `Last confirmed on ${when}.` : "Not confirmed yet."} Buyers see this date. After ${STALE_AFTER_DAYS} days it shows as needing reconfirmation.</p>
+    <button type="button" class="btn btn--secondary btn--small" data-action="confirm-availability">It's still available</button>
+  </div>`;
 }
 
 function uploaderView(remaining) {
@@ -166,6 +187,7 @@ root.addEventListener("click", async (e) => {
   if (t.dataset.cover) return call("set_listing_cover", { p_media: t.dataset.cover });
   if (t.dataset.hide) return confirm("Remove this photo?") && call("hide_listing_media", { p_media: t.dataset.hide });
   if (t.dataset.action === "submit") return call("submit_listing", { p_listing: listingId }, "submitted");
+  if (t.dataset.action === "confirm-availability") return call("confirm_listing_availability", { p_listing: listingId }, "availability");
   if (t.dataset.action === "publish") return call("publish_listing", { p_listing: listingId }, "published");
   if (t.dataset.status) return call("set_listing_status", { p_listing: listingId, p_status: t.dataset.status }, t.dataset.status);
 });

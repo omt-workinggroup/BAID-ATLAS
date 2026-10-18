@@ -1,11 +1,14 @@
 // Listing cards, search and saving. Used by Home, Explore, Saved and provider pages.
 import { $$, getUser, html, icon, raw, sb, signedUrls, toast } from "./core.js";
-import { PROPERTY_TYPES, PURPOSES, PURPOSE_LABELS, PROPERTY_TYPE_LABELS, formatLocation, formatPrice, listingFacts } from "./format.js";
+import { COMPLETION_LABELS, FURNISHING_LABELS, PROPERTY_TYPES, PURPOSES, PURPOSE_LABELS, PROPERTY_TYPE_LABELS, formatLocation, formatPrice, listingFacts } from "./format.js";
+import { STALE_AFTER_DAYS, availabilityState } from "./trust.js";
 
 export const CARD_COLUMNS =
-  "id, slug, title, purpose, asking_price, currency, price_period, status, published_at, is_sponsored, property_type, region, city, locality, bedrooms, bathrooms, floor_area, floor_area_unit, land_area, land_area_unit, organization_name, organization_slug, organization_verification_status, organization_verification_scope, cover_path, cover_alt, cover_is_render, cover_is_staged, image_count";
-export const PAGE_SIZE = 12;
+  "id, slug, title, purpose, asking_price, currency, price_period, status, published_at, is_sponsored, property_type, region, city, locality, bedrooms, bathrooms, floor_area, floor_area_unit, land_area, land_area_unit, organization_name, organization_slug, organization_verification_status, organization_verification_scope, cover_path, cover_alt, cover_is_render, cover_is_staged, image_count, reference, negotiable, availability_confirmed_at, availability_method, subtype, furnishing, completion_status";
+// At least 50 listings show before "Load more" (60 fills 2-, 3- and 4-column grids evenly).
+export const PAGE_SIZE = 60;
 export const SORTS = ["newest", "price_asc", "price_desc"];
+const FURNISHINGS = Object.keys(FURNISHING_LABELS);
 
 // ---- Search filters (from the address bar) ---------------------------------------------------------------
 const int = (v, max) => (v && /^\d+$/.test(v) ? Math.min(Number(v), max) : undefined);
@@ -22,6 +25,9 @@ export function parseSearch(p) {
     min: int(p.get("min"), 1e9),
     max: int(p.get("max"), 1e9),
     beds: int(p.get("beds"), 10),
+    baths: int(p.get("baths"), 10),
+    furnishing: FURNISHINGS.includes(p.get("furnishing")) ? p.get("furnishing") : undefined,
+    fresh: p.get("fresh") === "1" ? 1 : undefined,
     currency: currency && /^[A-Z]{3}$/.test(currency) ? currency : undefined,
     sort: SORTS.includes(sort) ? sort : undefined,
     cursor: p.get("cursor") || undefined,
@@ -29,7 +35,7 @@ export function parseSearch(p) {
 }
 
 export function activeFilterCount(f) {
-  return [f.purpose, f.type, f.min, f.max, f.beds].filter((v) => v !== undefined).length;
+  return [f.purpose, f.type, f.min, f.max, f.beds, f.baths, f.furnishing, f.fresh].filter((v) => v !== undefined).length;
 }
 
 export function toQueryString(f) {
@@ -66,12 +72,15 @@ export async function searchListings(f) {
   if (f.purpose) q = q.eq("purpose", f.purpose);
   if (f.type) q = q.eq("property_type", f.type);
   if (f.beds) q = q.gte("bedrooms", f.beds);
+  if (f.baths) q = q.gte("bathrooms", f.baths);
+  if (f.furnishing) q = q.eq("furnishing", f.furnishing);
+  if (f.fresh) q = q.gte("availability_confirmed_at", new Date(Date.now() - STALE_AFTER_DAYS * 86_400_000).toISOString());
   if (f.currency) q = q.eq("currency", f.currency);
   if (f.min !== undefined) q = q.gte("asking_price", f.min);
   if (f.max !== undefined) q = q.lte("asking_price", f.max);
   if (f.q) {
     const t = `%${f.q}%`;
-    q = q.or(`title.ilike.${t},city.ilike.${t},locality.ilike.${t},region.ilike.${t}`);
+    q = q.or(`title.ilike.${t},city.ilike.${t},locality.ilike.${t},region.ilike.${t},reference.ilike.${t}`);
   }
   const c = decodeCursor(f.cursor);
   if (sort === "newest") {
@@ -126,6 +135,7 @@ export function listingCard(l, { saved = false, eager = false } = {}) {
           <span class="tag tag--light">${PURPOSE_LABELS[l.purpose]}</span>
           ${l.is_sponsored ? html`<span class="tag tag--sponsored">Sponsored</span>` : ""}
           ${l.cover_is_render || l.cover_is_staged ? html`<span class="tag tag--warning">${l.cover_is_render ? "Render" : "Staged"}</span>` : ""}
+          ${l.completion_status && l.completion_status !== "completed" ? html`<span class="tag tag--warning">${COMPLETION_LABELS[l.completion_status]}</span>` : ""}
         </div>
         ${heartButton(l, saved)}
       </div>
@@ -137,8 +147,19 @@ export function listingCard(l, { saved = false, eager = false } = {}) {
       <p class="lcard__meta">${PROPERTY_TYPE_LABELS[l.property_type]} · ${formatLocation(l.locality, l.city)}</p>
       ${facts.length ? html`<ul class="facts-inline">${facts.map((f) => html`<li>${f}</li>`)}</ul>` : ""}
       ${l.organization_verification_status === "verified" ? html`<div class="mt-1">${verifiedLabel(l.organization_verification_scope)}</div>` : ""}
+      ${availabilityLine(l.availability_confirmed_at)}
     </div>
   </article>`;
+}
+
+// One quiet line on each card: when availability was last confirmed (or that it needs reconfirming).
+export function availabilityLine(confirmedAt) {
+  const a = availabilityState(confirmedAt);
+  if (a.state === "none") return "";
+  const when = a.days <= 0 ? "today" : a.days === 1 ? "yesterday" : `${a.days} days ago`;
+  return a.state === "fresh"
+    ? html`<p class="avail avail--fresh">Availability confirmed ${when}</p>`
+    : html`<p class="avail avail--stale">Availability not confirmed in ${STALE_AFTER_DAYS}+ days</p>`;
 }
 
 export function skeletonCards(n = 6) {
