@@ -2154,3 +2154,295 @@ details > summary {
   font-size: 1.125rem;
   color: var(--muted);
 }
+
+/* ---------- Header: category links (wide screens) ---------- */
+.cat-nav {
+  display: none;
+}
+@media (min-width: 1200px) {
+  .cat-nav {
+    display: block;
+    margin-right: auto;
+    margin-left: 1.5rem;
+  }
+  .cat-nav ul {
+    display: flex;
+  }
+  .cat-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    color: #d4d4d4;
+  }
+  .cat-nav a:hover,
+  .cat-nav a[aria-current="page"] {
+    color: #fff;
+  }
+}
+
+/* ---------- Homepage ---------- */
+.home-hero {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+  padding: 2.5rem 1.5rem 0;
+  border-radius: var(--radius-lg);
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+}
+.home-hero h1 {
+  font-size: clamp(2.4rem, 8vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  max-width: 13ch;
+}
+.home-hero h1 em {
+  font-style: italic;
+  font-weight: 400;
+}
+.home-hero .lead {
+  max-width: 34rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #cfcfcf;
+}
+.home-hero .hero-art {
+  align-self: end;
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
+  color: #fff;
+}
+.home-hero .hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.btn--ghost-light {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgb(255 255 255 / 0.45);
+}
+.btn--ghost-light:hover {
+  border-color: #fff;
+}
+@media (min-width: 1024px) {
+  .home-hero {
+    grid-template-columns: 1.05fr 1fr;
+    align-items: end;
+    padding: 4rem 3.5rem 0;
+    min-height: 32rem;
+  }
+  .home-hero .hero-copy {
+    align-self: center;
+    padding-bottom: 6rem;
+  }
+}
+/* The search card overlaps the bottom edge of the hero */
+.home-search {
+  position: relative;
+  z-index: 2;
+  margin: -2.25rem 0.75rem 0;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 18px 40px -18px rgb(0 0 0 / 0.35);
+}
+@media (min-width: 1024px) {
+  .home-search {
+    margin: -3rem 3.5rem 0;
+    padding: 1.25rem 1.5rem;
+  }
+}
+.home-search__fields {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+@media (min-width: 768px) {
+  .home-search__fields {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+.home-search label.lbl {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.home-search .btn {
+  min-height: 3rem;
+}
+
+/* Category tiles */
+.cat-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (min-width: 768px) {
+  .cat-tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1200px) {
+  .cat-tiles {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+.cat-tile {
+  display: grid;
+  gap: 0.75rem;
+  align-content: space-between;
+  min-height: 9rem;
+  padding: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  transition: border-color 0.15s, transform 0.15s;
+}
+.cat-tile:hover {
+  border-color: var(--text);
+  transform: translateY(-2px);
+}
+.cat-tile .bold {
+  font-size: 1rem;
+}
+.cat-tile .tiny {
+  color: var(--muted);
+}
+
+/* Listing grid (homepage "recently added") */
+.listing-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 640px) {
+  .listing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .listing-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Trust lines specimen on the homepage */
+.trust-specimen {
+  display: grid;
+  gap: 2rem;
+}
+@media (min-width: 1024px) {
+  .trust-specimen {
+    grid-template-columns: 1fr 1.1fr;
+    align-items: center;
+  }
+}
+
+/* How it works: five steps */
+.steps-5 {
+  display: grid;
+  gap: 1rem;
+  counter-reset: step;
+}
+@media (min-width: 768px) {
+  .steps-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+.steps-5 li {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding-top: 1rem;
+  border-top: 2px solid var(--text);
+}
+.steps-5 li::before {
+  counter-increment: step;
+  content: "0" counter(step);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+.steps-5 p {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Audience cards */
+.audience {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .audience {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1200px) {
+  .audience {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.audience > div {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.12);
+}
+.audience p {
+  font-size: 0.9rem;
+  color: #cfcfcf;
+}
+.top-nav a,
+.cat-nav a {
+  white-space: nowrap;
+}
+@media (min-width: 1200px) {
+  /* Categories cover browsing, so the header keeps only the personal links next to them */
+  .top-nav li:first-child {
+    display: none;
+  }
+  .top-nav a {
+    padding: 0 0.625rem;
+  }
+  .site-header__inner {
+    max-width: 84rem;
+  }
+}
+@media (min-width: 1024px) {
+  .home-hero {
+    padding-bottom: 4.5rem;
+  }
+  .home-hero .hero-art {
+    max-width: 34rem;
+  }
+}
+@media (max-width: 1023px) {
+  .home-hero {
+    padding-bottom: 3.5rem;
+  }
+  .home-hero .hero-art {
+    max-width: 24rem;
+    opacity: 0.9;
+  }
+}
+@media (max-width: 639px) {
+  /* On phones the search box matters more than the drawing */
+  .home-hero .hero-art {
+    display: none;
+  }
+  .home-hero {
+    padding: 2rem 1.25rem 3.25rem;
+  }
+}

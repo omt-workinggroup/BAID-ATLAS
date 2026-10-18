@@ -28,6 +28,7 @@ export function parseSearch(p) {
     baths: int(p.get("baths"), 10),
     furnishing: FURNISHINGS.includes(p.get("furnishing")) ? p.get("furnishing") : undefined,
     fresh: p.get("fresh") === "1" ? 1 : undefined,
+    stage: p.get("stage") === "new" ? "new" : undefined,
     currency: currency && /^[A-Z]{3}$/.test(currency) ? currency : undefined,
     sort: SORTS.includes(sort) ? sort : undefined,
     cursor: p.get("cursor") || undefined,
@@ -35,7 +36,7 @@ export function parseSearch(p) {
 }
 
 export function activeFilterCount(f) {
-  return [f.purpose, f.type, f.min, f.max, f.beds, f.baths, f.furnishing, f.fresh].filter((v) => v !== undefined).length;
+  return [f.purpose, f.type, f.min, f.max, f.beds, f.baths, f.furnishing, f.fresh, f.stage].filter((v) => v !== undefined).length;
 }
 
 export function toQueryString(f) {
@@ -74,6 +75,7 @@ export async function searchListings(f) {
   if (f.beds) q = q.gte("bedrooms", f.beds);
   if (f.baths) q = q.gte("bathrooms", f.baths);
   if (f.furnishing) q = q.eq("furnishing", f.furnishing);
+  if (f.stage === "new") q = q.in("completion_status", ["off_plan", "under_construction"]);
   if (f.fresh) q = q.gte("availability_confirmed_at", new Date(Date.now() - STALE_AFTER_DAYS * 86_400_000).toISOString());
   if (f.currency) q = q.eq("currency", f.currency);
   if (f.min !== undefined) q = q.gte("asking_price", f.min);

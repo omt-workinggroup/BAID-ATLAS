@@ -1,11 +1,17 @@
-// Home page: everything is static HTML except the "Latest listings" rail.
+// Home page: everything is static HTML except the "Recently added" grid (real published listings only).
 import { boot, getUser, render } from "../core.js";
-import { latestListings, listingCard, savedIds, skeletonCards, wireSaveButtons } from "../listings.js";
+import { latestListings, listingCard, savedIds, skeletonCards, toQueryString, wireSaveButtons } from "../listings.js";
 
 boot();
+// Send only the fields that were filled in, so links stay clean and shareable.
+document.querySelector(".home-search")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const d = new FormData(e.currentTarget);
+  location.href = `/explore${toQueryString({ q: String(d.get("q") ?? "").trim() || undefined, purpose: d.get("purpose") || undefined, type: d.get("type") || undefined })}`;
+});
 
 const rail = document.getElementById("latest-rail");
-render(rail, skeletonCards(3));
+render(rail, skeletonCards(4));
 
 const user = await getUser();
 if (!user) document.querySelectorAll("[data-provider-link]").forEach((a) => (a.href = "/sign-up"));

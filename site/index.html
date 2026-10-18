@@ -25,53 +25,83 @@
   <body>
     <main id="main" class="page">
       <div class="sections">
-        <!-- Hero and search -->
-        <section class="hero">
-          <div class="stack">
-            <h1>Find property with <em>more</em> confidence.</h1>
-            <p class="lead">Explore homes, land, rentals, commercial spaces and new developments. Understand what has been checked and connect with property advertisers more clearly.</p>
-          </div>
-          <div class="stack">
-            <form class="search-panel" action="/explore" method="get" role="search">
-              <!-- The search box comes first in the page so a plain search sends ?q= first; the tabs are drawn above it. -->
-              <div class="search-panel__row">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg>
-                <label for="home-q" class="sr-only">Search by area, city or title</label>
-                <input id="home-q" name="q" placeholder="Search East Legon, Kumasi…" enterkeyhint="search" />
-                <button type="submit" class="btn btn--small" style="min-height: 3rem">Search</button>
+        <!-- Hero with the search card overlapping its bottom edge -->
+        <section aria-labelledby="hero-h">
+          <div class="home-hero">
+            <div class="hero-copy stack">
+              <p class="overline" style="color: #a3a3a3">Property, understood better</p>
+              <h1 id="hero-h">Find property with <em>more</em> confidence.</h1>
+              <p class="lead">Explore homes, land, rentals, commercial spaces and new developments. Understand what has been checked and connect with property advertisers more clearly.</p>
+              <div class="hero-ctas">
+                <a class="btn btn--ghost-light" href="/portal" data-provider-link>List or market a property</a>
+                <a class="link" style="color: #fff; align-self: center" href="/trust-and-verification">How checks work →</a>
               </div>
-              <fieldset class="search-panel__tabs">
-                <legend class="sr-only">Looking to</legend>
-                <label><input type="radio" name="purpose" value="" checked /><span>Any</span></label>
-                <label><input type="radio" name="purpose" value="sale" /><span>Buy</span></label>
-                <label><input type="radio" name="purpose" value="long_term_rent" /><span>Rent</span></label>
-                <label><input type="radio" name="purpose" value="short_stay" /><span>Short stay</span></label>
-              </fieldset>
-            </form>
-            <div class="popular">
-              <span class="muted">Popular:</span>
-              <a href="/explore?q=East%20Legon">East Legon</a>
-              <a href="/explore?q=Cantonments">Cantonments</a>
-              <a href="/explore?q=Airport%20Residential">Airport Residential</a>
-              <a href="/explore?q=Spintex">Spintex</a>
-              <a href="/explore?q=Tema">Tema</a>
-              <a href="/explore?q=Kumasi">Kumasi</a>
-              <a href="/explore?q=Takoradi">Takoradi</a>
             </div>
+            <svg class="hero-art" viewBox="0 0 560 300" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Line drawing of a modern two-storey home">
+                <g stroke-width="1.4" opacity="0.92">
+                  <path d="M10 296h540" />
+                  <path d="M60 296V150h250v146" />
+                  <path d="M40 150h290" stroke-width="2.2" />
+                  <path d="M150 150V70h230v226" />
+                  <path d="M130 70h270" stroke-width="2.2" />
+                  <path d="M380 120h120v176" />
+                  <path d="M370 120h150" stroke-width="2.2" />
+                  <path d="M170 92h70v40h-70zM260 92h100v40H260z" />
+                  <path d="M181 92v40M193 92v40M205 92v40M217 92v40M229 92v40" opacity="0.6" />
+                  <path d="M80 175h60v90H80zM160 175h120v121" />
+                  <path d="M160 215h120M220 175v121" opacity="0.6" />
+                  <path d="M300 175h60v121" />
+                  <path d="M400 145h80v50h-80z" />
+                  <path d="M400 220h40v76" />
+                  <path d="M0 296c20-18 34-18 44 0M500 296c10-26 30-26 46 0" opacity="0.6" />
+                  <path d="M520 296V210M520 230l-14-14M520 245l16-16" opacity="0.6" />
+                </g>
+              </svg>
           </div>
+          <form class="home-search" action="/explore" method="get" role="search">
+            <fieldset class="search-panel__tabs">
+              <legend class="sr-only">Looking to</legend>
+              <label><input type="radio" name="purpose" value="" checked /><span>Any</span></label>
+              <label><input type="radio" name="purpose" value="sale" /><span>Buy</span></label>
+              <label><input type="radio" name="purpose" value="long_term_rent" /><span>Rent</span></label>
+              <label><input type="radio" name="purpose" value="short_stay" /><span>Short stay</span></label>
+            </fieldset>
+            <div class="home-search__fields">
+              <div><label class="lbl" for="home-q">Location or reference</label><input class="input" id="home-q" name="q" placeholder="East Legon, Kumasi, PQ-…" enterkeyhint="search" /></div>
+              <div><label class="lbl" for="home-type">Property type</label>
+                <select class="select" id="home-type" name="type">
+                  <option value="">Any type</option><option value="house">House</option><option value="apartment">Apartment</option><option value="land">Land</option>
+                  <option value="commercial">Commercial</option><option value="office">Office</option><option value="retail">Retail</option><option value="warehouse">Warehouse</option>
+                </select></div>
+              <button type="submit" class="btn">Search</button>
+            </div>
+          </form>
         </section>
 
-        <!-- Latest listings (filled in by home.js), or an honest note while the first ones are reviewed -->
-        <section id="latest" aria-labelledby="latest-heading">
+        <!-- Categories: every tile opens Explore with real filters -->
+        <section aria-labelledby="cat-h" class="stack">
+          <div class="section-head"><h2 id="cat-h">Explore by category</h2></div>
+          <nav class="cat-tiles" aria-labelledby="cat-h">
+            <a class="cat-tile" href="/explore?type=house"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5M5 9v11h14V9M10 20v-5h4v5" /></svg><span><span class="bold">Houses</span><br /><span class="tiny">Detached, townhouses, villas</span></span></a>
+            <a class="cat-tile" href="/explore?type=apartment"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4h9v17M15 9h3v12M9 7h3M9 11h3M9 15h3M3 21h18" /></svg><span><span class="bold">Apartments</span><br /><span class="tiny">Flats, studios, serviced</span></span></a>
+            <a class="cat-tile" href="/explore?type=land"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18M4 19l5-8 4 5 3-4 4 7M8 4v4M6 6h4" /></svg><span><span class="bold">Land</span><br /><span class="tiny">Residential to agricultural</span></span></a>
+            <a class="cat-tile" href="/explore?purpose=long_term_rent"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 7a4 4 0 1 1-3.9 4.9L4 19v2h3l1-1v-2h2v-2h2l1.1-1.1A4 4 0 0 1 15 7zM16 10h.01" /></svg><span><span class="bold">Rentals</span><br /><span class="tiny">Monthly and yearly</span></span></a>
+            <a class="cat-tile" href="/explore?type=commercial"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6M2 21h20" /></svg><span><span class="bold">Commercial</span><br /><span class="tiny">Shops, offices, warehouses</span></span></a>
+            <a class="cat-tile" href="/explore?stage=new"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V10l6-4v15M10 21V3l10 5v13M2 21h20M14 10h2M14 14h2" /></svg><span><span class="bold">New developments</span><br /><span class="tiny">Off-plan and under construction</span></span></a>
+          </nav>
+        </section>
+
+        <!-- Recently added: real published listings only -->
+        <section id="latest" aria-labelledby="latest-heading" class="stack">
           <div class="section-head">
-            <h2 id="latest-heading">Latest listings</h2>
+            <h2 id="latest-heading">Recently added</h2>
             <a href="/explore">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
           </div>
-          <div class="rail" id="latest-rail" aria-busy="true"></div>
+          <div class="listing-grid" id="latest-rail" aria-busy="true"></div>
         </section>
         <section id="latest-empty" class="ruled" hidden>
           <div class="stack-sm">
-            <p class="overline">Now onboarding providers</p>
+            <p class="overline">Now onboarding advertisers</p>
             <h2>The first listings are being reviewed.</h2>
             <p class="muted">We'd rather launch with a short list of properties we've checked than a long one we haven't. Listings appear here as soon as they pass review.</p>
           </div>
@@ -81,63 +111,51 @@
           </div>
         </section>
 
-        <!-- Browse by type -->
-        <section aria-labelledby="types-heading">
-          <div class="section-head"><h2 id="types-heading">Browse by property type</h2></div>
-          <ul class="type-list">
-            <li><a href="/explore?type=house"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5M5 9v11h14V9M10 20v-5h4v5" /></svg></span><span class="txt"><span class="bold">Houses</span><span>Detached, semi-detached and townhouses</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="/explore?type=apartment"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4h9v17M15 9h3v12M9 7h3M9 11h3M9 15h3M3 21h18" /></svg></span><span class="txt"><span class="bold">Apartments</span><span>Flats, studios and serviced apartments</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="/explore?type=land"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h18M4 19l5-8 4 5 3-4 4 7M8 4v4M6 6h4" /></svg></span><span class="txt"><span class="bold">Land</span><span>Plots and acreage with document status</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="/explore?purpose=short_stay"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v6M3 14h18M7 9V6h10v3" /></svg></span><span class="txt"><span class="bold">Short stays</span><span>Nightly and weekly, fully furnished</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="/explore?type=commercial"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6M2 21h20" /></svg></span><span class="txt"><span class="bold">Commercial</span><span>Shops, warehouses and mixed use</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="/explore?type=office"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V3h14v18M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M3 21h18" /></svg></span><span class="txt"><span class="bold">Offices</span><span>Office floors and small suites</span></span><span class="arrow" aria-hidden="true">→</span></a></li>
-          </ul>
-        </section>
-
-        <!-- How a listing gets here -->
-        <section class="process" aria-labelledby="process-heading">
-          <div class="stack-sm">
-            <h2 id="process-heading">How a listing gets on Propertiq</h2>
-            <p class="muted">Three checks happen before you see anything. Paying for promotion doesn't skip any of them.</p>
-          </div>
-          <ol>
-            <li><span class="num">01</span><h3>The provider is checked</h3><p>Before an agency, developer or landlord can publish, we check who they are. We publish exactly what we checked and when the check expires.</p></li>
-            <li><span class="num">02</span><h3>The listing is reviewed</h3><p>A moderator reads every listing before it goes live: photos, price, size and location. Renders and staged photos must be labelled.</p></li>
-            <li><span class="num">03</span><h3>It goes live, clearly labelled</h3><p>Prices always show their currency, areas show their units, and the exact address stays private until you're in touch with the provider.</p></li>
-          </ol>
-        </section>
-
-        <!-- What a verification label means -->
-        <section class="specimen" aria-labelledby="label-heading">
+        <!-- Trust explained -->
+        <section class="trust-specimen" aria-labelledby="trust-h">
           <div class="stack">
-            <h2 id="label-heading">Verified means something specific here.</h2>
-            <p class="muted">Every listing shows five separate lines: advertiser identity, property visit, documents, photos and availability. Each says what was recorded, when, and what it doesn't prove. Paid promotion is always marked sponsored and never counts as a check.</p>
-            <p><a class="link" href="/trust-and-verification">How checks work →</a></p>
+            <p class="overline">Trust and verification</p>
+            <h2 id="trust-h">Five separate lines. Never one vague badge.</h2>
+            <p class="muted">Every listing shows what was recorded about the advertiser's identity, a property visit, documents, photos and availability — each with a date and what it does <em>not</em> prove. Paid promotion is always labelled and never counts as a check.</p>
+            <p><a class="link" href="/trust-and-verification">Read how each check works →</a></p>
           </div>
-          <figure class="card stack" style="box-shadow: 0 1px 2px rgb(0 0 0 / 0.05)">
-            <figcaption class="tiny muted">How a label appears on a provider's profile</figcaption>
-            <p class="verified small"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>Organisation identity checked</p>
-            <dl>
-              <dt>What we checked</dt><dd>Business registration matches the organisation's name</dd>
-              <dt>Doesn't prove</dt><dd>Ownership of any specific property</dd>
-              <dt>Expires</dt><dd>Every label shows its expiry date</dd>
-            </dl>
+          <figure class="trust-panel" aria-label="How the trust panel appears on a listing">
+            <figcaption class="tiny muted">Example of the panel's layout. Each listing shows its own recorded values.</figcaption>
+            <ul class="trust-list">
+              <li class="trust-item trust-item--checked"><span class="trust-mark" aria-hidden="true">✓</span><div class="trust-body"><p class="row-between"><span class="bold">Advertiser identity</span><span class="trust-value">Checked</span></p><p class="small muted">Shows the scope, the date checked and when it expires.</p></div></li>
+              <li class="trust-item trust-item--none"><span class="trust-mark" aria-hidden="true">–</span><div class="trust-body"><p class="row-between"><span class="bold">Property visit</span><span class="trust-value">Not recorded</span></p><p class="small muted">A visit is dated and never a structural survey.</p></div></li>
+              <li class="trust-item trust-item--none"><span class="trust-mark" aria-hidden="true">–</span><div class="trust-body"><p class="row-between"><span class="bold">Documents</span><span class="trust-value">Not reviewed</span></p><p class="small muted">A review is never a legal title certification.</p></div></li>
+              <li class="trust-item trust-item--none"><span class="trust-mark" aria-hidden="true">–</span><div class="trust-body"><p class="row-between"><span class="bold">Photos</span><span class="trust-value">Uploaded by advertiser</span></p><p class="small muted">Renders and staged images are labelled.</p></div></li>
+              <li class="trust-item trust-item--checked"><span class="trust-mark" aria-hidden="true">✓</span><div class="trust-body"><p class="row-between"><span class="bold">Availability</span><span class="trust-value">Confirmed, with date</span></p><p class="small muted">Shows "needs reconfirming" after 30 days.</p></div></li>
+            </ul>
           </figure>
         </section>
 
-        <!-- Providers -->
-        <section class="panel-dark stack-lg">
+        <!-- How it works -->
+        <section class="stack-lg" aria-labelledby="how-h">
+          <div class="section-head"><h2 id="how-h">How Propertiq works</h2></div>
+          <ol class="steps-5">
+            <li><h3>Search</h3><p>Filter by area, type, price and the details that matter for that kind of property.</p></li>
+            <li><h3>Read the facts</h3><p>Prices always show their currency, areas their units, and a reference number.</p></li>
+            <li><h3>See what was checked</h3><p>Five dated trust lines, each saying what it does and doesn't prove.</p></li>
+            <li><h3>Contact the advertiser</h3><p>Message or request a viewing. Your number is only shared if you choose.</p></li>
+            <li><h3>View and check</h3><p>Visit in person and confirm documents before you pay anything.</p></li>
+          </ol>
+        </section>
+
+        <!-- For property professionals -->
+        <section class="panel-dark stack-lg" aria-labelledby="pro-h">
           <div class="stack">
-            <p class="small" style="color: var(--accent-light)">For agencies, developers and landlords</p>
-            <h2 style="max-width: 32rem">List where buyers already expect the facts.</h2>
-            <ul class="dash-list stack-sm small" style="color: rgb(255 255 255 / 0.75)">
-              <li>Inquiries and viewing requests in one inbox</li>
-              <li>Team roles and one-link invitations</li>
-              <li>Feedback from reviewers, not silence</li>
-              <li>Photos resized on the phone, location data removed</li>
-            </ul>
+            <p class="small" style="color: var(--accent-light)">For owners, agents, agencies and developers</p>
+            <h2 id="pro-h" style="max-width: 34rem">List where serious buyers expect the facts.</h2>
           </div>
-          <div><a class="btn btn--inverse" href="/portal" data-provider-link>Start listing</a></div>
+          <div class="audience">
+            <div><h3>Owners</h3><p>List your own property with clear details and dated availability.</p></div>
+            <div><h3>Agents</h3><p>Manage enquiries and viewing requests in one inbox.</p></div>
+            <div><h3>Agencies</h3><p>Team roles, phone invitations and listings in one place.</p></div>
+            <div><h3>Developers</h3><p>Off-plan and under-construction projects are labelled clearly.</p></div>
+          </div>
+          <div class="row wrap"><a class="btn btn--inverse" href="/portal" data-provider-link>Start listing</a><span class="small" style="color: #cfcfcf">Professional photography, video and campaigns are coming with Propertiq Studio.</span></div>
         </section>
       </div>
     </main>

@@ -159,11 +159,21 @@ export async function signOut(scope = "local") {
 
 // ---- Page shell ----------------------------------------------------------------------------------------
 const NAV = [
-  { href: "/", label: "Home", icon: "home", match: (p) => p === "/" },
+  { href: "/", label: "Home", icon: "home", match: (p) => p === "/", mobileOnly: true },
   { href: "/explore", label: "Explore", icon: "search", match: (p) => p.startsWith("/explore") || p.startsWith("/properties") },
-  { href: "/saved", label: "Saved", icon: "heart", match: (p) => p.startsWith("/saved") },
+  { href: "/saved", label: "Saved", icon: "heart", match: (p) => p.startsWith("/saved") || p.startsWith("/compare") },
   { href: "/inbox", label: "Inbox", icon: "inbox", match: (p) => p.startsWith("/inbox"), badge: true },
-  { href: "/portal", label: "Provider", icon: "briefcase", match: (p) => p.startsWith("/portal"), desktopOnly: true },
+  { href: "/portal", label: "For advertisers", icon: "briefcase", match: (p) => p.startsWith("/portal"), desktopOnly: true },
+];
+
+// Category links in the desktop header; each opens Explore with real filters.
+const CATEGORIES = [
+  ["/explore?purpose=sale", "Buy"],
+  ["/explore?purpose=long_term_rent", "Rent"],
+  ["/explore?type=land", "Land"],
+  ["/explore?type=commercial", "Commercial"],
+  ["/explore?purpose=short_stay", "Short stays"],
+  ["/explore?stage=new", "New developments"],
 ];
 
 function navItems(signedIn) {
@@ -174,16 +184,22 @@ function navItems(signedIn) {
 }
 
 function headerView(signedIn, path) {
+  const here = path + location.search;
   return html`
     <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
         <a href="/" class="logo" aria-label="Propertiq home"><span class="logo-frame"><img src="/brand/propertiq-logo.jpg" alt="Propertiq" width="1280" height="720" data-logo /></span></a>
+        <nav class="cat-nav" aria-label="Categories">
+          <ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}>${label}</a></li>`)}</ul>
+        </nav>
         <nav class="top-nav" aria-label="Primary">
           <ul>
-            ${navItems(signedIn).map(
-              (n) => html`<li><a href="${n.href}" ${raw(n.match(path) ? 'aria-current="page"' : "")}>${n.label}${n.badge ? raw('<span class="badge-count" data-unread hidden></span>') : ""}</a></li>`,
-            )}
+            ${navItems(signedIn)
+              .filter((n) => !n.mobileOnly)
+              .map(
+                (n) => html`<li><a href="${n.href}" ${raw(n.match(path) ? 'aria-current="page"' : "")}>${n.label}${n.badge ? raw('<span class="badge-count" data-unread hidden></span>') : ""}</a></li>`,
+              )}
           </ul>
         </nav>
         ${signedIn ? "" : html`<a href="/sign-in" class="header-signin">Sign in</a>`}

@@ -5,10 +5,10 @@ import { activeFilterCount, listingCard, parseSearch, savedIds, searchListings, 
 
 boot();
 const f = parseSearch(params());
-const base = { q: f.q, type: f.type, min: f.min, max: f.max, beds: f.beds, baths: f.baths, furnishing: f.furnishing, fresh: f.fresh, currency: f.currency, sort: f.sort };
+const base = { q: f.q, type: f.type, min: f.min, max: f.max, beds: f.beds, baths: f.baths, furnishing: f.furnishing, fresh: f.fresh, stage: f.stage, currency: f.currency, sort: f.sort };
 
 // Heading and title
-const heading = f.purpose ? `${PURPOSE_LABELS[f.purpose]}${f.type ? ` · ${PROPERTY_TYPE_LABELS[f.type]}` : ""}` : f.type ? PROPERTY_TYPE_LABELS[f.type] : "Explore property";
+const heading = f.stage === "new" ? "New developments" : f.purpose ? `${PURPOSE_LABELS[f.purpose]}${f.type ? ` · ${PROPERTY_TYPE_LABELS[f.type]}` : ""}` : f.type ? PROPERTY_TYPE_LABELS[f.type] : "Explore property";
 document.getElementById("heading").textContent = heading;
 setTitle(heading);
 
@@ -61,7 +61,7 @@ filterForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const d = new FormData(filterForm);
   const v = (k) => String(d.get(k) ?? "").trim() || undefined;
-  location.href = `/explore${toQueryString({ q: v("q"), purpose: v("purpose"), type: v("type"), currency: v("min") || v("max") ? v("currency") : undefined, min: v("min"), max: v("max"), beds: v("beds"), baths: v("baths"), furnishing: v("furnishing"), fresh: d.get("fresh") ? "1" : undefined, sort: v("sort") === "newest" ? undefined : v("sort") })}`;
+  location.href = `/explore${toQueryString({ q: v("q"), purpose: v("purpose"), type: v("type"), currency: v("min") || v("max") ? v("currency") : undefined, min: v("min"), max: v("max"), beds: v("beds"), baths: v("baths"), furnishing: v("furnishing"), fresh: d.get("fresh") ? "1" : undefined, stage: f.stage, sort: v("sort") === "newest" ? undefined : v("sort") })}`;
 });
 
 // Results
