@@ -6,7 +6,8 @@ import {
 } from "../format.js";
 import { amenityLabel, loadCatalogue, subtypeLabel } from "../catalogue.js";
 import { trustItems, trustPanel } from "../trust.js";
-import { CARD_COLUMNS, noPhoto, savedIds, verifiedLabel, wireSaveButtons } from "../listings.js";
+import { CARD_COLUMNS, listingCard, noPhoto, savedIds, verifiedLabel, wireSaveButtons, withCoverUrls } from "../listings.js";
+import { wireCompareButtons } from "../compare.js";
 
 boot();
 main();
@@ -68,8 +69,33 @@ const amenities = (amenityRows ?? []).map((a) => amenityLabel(catalogue, a.ameni
 const trust = trustItems(l, org, photos);
 const anyRender = photos.some((p) => p.is_render || p.is_virtually_staged);
 
+// Wide screens: one large photo and up to four small ones; phones keep the swipeable gallery.
+const mosaic = photos.length >= 3
+  ? html`<div class="mosaic mosaic--${Math.min(photos.length, 5)}">
+      ${photos.slice(0, 5).map((p, i) => html`<button type="button" class="mosaic__item" data-photo="${i}" aria-label="Open photo ${i + 1} of ${photos.length}">
+        <img src="${p.url}" alt="${p.alt_text ?? `${l.title}, photo ${i + 1}`}" loading="${i === 0 ? "eager" : "lazy"}" />
+        ${p.is_render || p.is_virtually_staged ? html`<span class="photo-tag">${p.is_render ? "Render" : "Staged"}</span>` : ""}
+      </button>`)}
+      <button type="button" class="btn btn--small mosaic__all" data-photo="0">${icon("grid", 16)} Show all ${photos.length} photos</button>
+    </div>`
+  : "";
+const photosDialog = photos.length
+  ? html`<dialog class="photos-dialog" id="photos-dialog" aria-label="All photos">
+      <div class="photos-dialog__bar"><span class="bold">${photos.length} photos</span><button type="button" class="btn btn--secondary btn--small" data-close>Close</button></div>
+      <div class="photos-dialog__list">${photos.map((p, i) => html`<figure id="photo-${i}"><img src="${p.url}" alt="${p.alt_text ?? `${l.title}, photo ${i + 1}`}" loading="lazy" />${p.is_render ? html`<figcaption>Render — not a photo</figcaption>` : p.is_virtually_staged ? html`<figcaption>Virtually staged</figcaption>` : ""}</figure>`)}</div>
+    </dialog>`
+  : "";
+// The most useful facts at a glance, with icons; the full table follows below.
+const keyFacts = [
+  l.bedrooms !== null && l.bedrooms !== undefined && ["bed", `${l.bedrooms} ${l.bedrooms === 1 ? "bedroom" : "bedrooms"}`],
+  l.bathrooms !== null && l.bathrooms !== undefined && ["bath", `${l.bathrooms} ${l.bathrooms === 1 ? "bathroom" : "bathrooms"}`],
+  formatArea(l.floor_area, l.floor_area_unit) && ["area", `${formatArea(l.floor_area, l.floor_area_unit)} floor`],
+  formatArea(l.land_area, l.land_area_unit) && ["plot", `${formatArea(l.land_area, l.land_area_unit)} land`],
+  ["house", subtypeLabel(catalogue, l.property_type, l.subtype) ?? PROPERTY_TYPE_LABELS[l.property_type]],
+].filter(Boolean);
+
 const gallery = photos.length
-  ? html`<section class="gallery" aria-roledescription="carousel" aria-label="Photos of ${l.title}">
+  ? html`<section class="gallery${mosaic ? " gallery--has-mosaic" : ""}" aria-roledescription="carousel" aria-label="Photos of ${l.title}">
       <div class="gallery__track" id="track" tabindex="0">
         ${photos.map((p, i) => html`<figure><img src="${p.url}" alt="${p.alt_text ?? `${l.title}, photo ${i + 1}`}" loading="${i === 0 ? "eager" : "lazy"}" /></figure>`)}
       </div>
@@ -82,7 +108,9 @@ render(
   root,
   html`
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/explore">Explore</a><span aria-hidden="true">/</span><a href="/explore?purpose=${l.purpose}">${PURPOSE_LABELS[l.purpose]}</a></nav>
+    ${mosaic}
     ${gallery}
+    ${photosDialog}
     <div class="property-layout">
       <div class="stack-lg">
         <header class="stack">
@@ -93,7 +121,9 @@ render(
           </div>
           <h1>${l.title}</h1>
           <p class="row muted" style="gap: 0.375rem">${icon("pin", 16)}${location_}</p>
-          <p class="price-big">${price}</p>
+          <p class="price-big">${price}${l.negotiable ? html` <span class="tag tag--light" style="vertical-align: middle">Negotiable</span>` : ""}</p>
+          <p class="tiny muted">Reference ${l.reference}</p>
+          <ul class="keyfacts">${keyFacts.map(([ic, t]) => html`<li>${icon(ic, 20)}<span>${t}</span></li>`)}</ul>
           <div class="row wrap">
             <button type="button" class="btn btn--secondary btn--small" data-save="${l.id}" data-slug="${l.slug}" data-label="text" aria-pressed="${saved}">${icon("heart", 18, 2)}<span> ${saved ? "Saved" : "Save"}</span></button>
             <button type="button" class="btn btn--secondary btn--small" id="share">${icon("share", 18)} Share</button>
@@ -132,6 +162,10 @@ render(
         </section>
       </aside>
     </div>
+    <section class="stack" id="similar" hidden aria-labelledby="similar-h">
+      <div class="section-head"><h2 id="similar-h">Similar properties</h2><a href="/explore?type=${l.property_type}&purpose=${l.purpose}">See more</a></div>
+      <div class="listing-grid" id="similar-grid"></div>
+    </section>
     <div class="action-bar"><div class="action-bar__inner">
       <div style="flex: 1; min-width: 0"><p class="bold truncate">${price}</p><p class="tiny muted truncate">${l.organization_name}</p></div>
       <button type="button" class="btn" data-open="inquiry-sheet">Message</button>
@@ -140,6 +174,37 @@ render(
 root.removeAttribute("aria-busy");
 root.style.paddingBottom = "5rem";
 wireSaveButtons(root);
+
+// ---- All photos ------------------------------------------------------------------------------------------
+root.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-photo]");
+  if (!b) return;
+  const dlg = document.getElementById("photos-dialog");
+  dlg.showModal();
+  document.getElementById(`photo-${b.dataset.photo}`)?.scrollIntoView({ block: "start" });
+});
+
+// ---- Similar properties: same type and purpose, nearest first by city; real published listings only -------
+(async () => {
+  const { data } = await sb
+    .from("listing_cards")
+    .select(CARD_COLUMNS)
+    .eq("status", "published")
+    .eq("property_type", l.property_type)
+    .eq("purpose", l.purpose)
+    .neq("id", l.id)
+    .order("published_at", { ascending: false })
+    .limit(12);
+  const rows = (data ?? []).sort((a, b) => (b.city === l.city) - (a.city === l.city)).slice(0, 4);
+  if (!rows.length) return;
+  const list = await withCoverUrls(rows);
+  const savedSet = await savedIds(list.map((r) => r.id));
+  const grid = document.getElementById("similar-grid");
+  render(grid, list.map((r) => listingCard(r, { saved: savedSet.has(r.id) })));
+  document.getElementById("similar").hidden = false;
+  wireSaveButtons(grid);
+  wireCompareButtons(grid);
+})();
 
 // JSON-LD for search engines
 const ld = document.createElement("script");

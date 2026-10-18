@@ -61,6 +61,11 @@ const PATHS = {
   calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
   send: "M4 12 20 4l-6 16-2.5-6.5z",
   chat: "M4 5h16v11H8l-4 4z",
+  bed: "M3 19v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 15h18M6 9V6h5v3",
+  bath: "M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM6 12V5a2 2 0 0 1 4 0M7 20l-1 2M17 20l1 2",
+  area: "M4 4h16v16H4zM4 9h4M4 14h2M9 4v4M14 4v2",
+  plot: "M3 20 8 4h8l5 16zM6 14h12M9.5 9h5",
+  grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
 };
 export function icon(name, size = 22, stroke = 1.6) {
   return raw(
