@@ -14,14 +14,10 @@ concurrency:
 
 env:
   NETLIFY_SITE_ID: af6bc06f-ab2c-48e8-b9c4-ff49b2afcf94
-  # Public values only (also set on the Netlify site).
-  NEXT_PUBLIC_SUPABASE_URL: https://ecikayrsbjzgdjkehnhl.supabase.co
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_PvFo2yR2L05I89ToXMBp0A_U3HzZ8l0
-  NEXT_PUBLIC_SITE_URL: https://baid-atlas.netlify.app
 
 jobs:
   deploy:
-    name: Build and deploy (production)
+    name: Deploy the static site (production)
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -40,17 +36,12 @@ jobs:
           fi
       - uses: actions/checkout@v4
         if: steps.token.outputs.ready == 'true'
-      - uses: pnpm/action-setup@v4
-        if: steps.token.outputs.ready == 'true'
       - uses: actions/setup-node@v4
         if: steps.token.outputs.ready == 'true'
         with:
           node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-        if: steps.token.outputs.ready == 'true'
-      - name: Build and deploy with Netlify CLI
+      - name: Deploy site/ with Netlify CLI
         if: steps.token.outputs.ready == 'true'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        run: pnpm dlx netlify-cli@23 deploy --build --prod --site "$NETLIFY_SITE_ID" --message "GitHub ${{ github.sha }}"
+        run: npx --yes netlify-cli@23 deploy --dir site --prod --site "$NETLIFY_SITE_ID" --message "GitHub ${{ github.sha }}"

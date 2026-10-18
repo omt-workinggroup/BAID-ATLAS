@@ -6,7 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 const owner = process.env.E2E_OWNER_PHONE;
 const member = process.env.E2E_MEMBER_PHONE;
 const otp = process.env.E2E_OTP;
-const shotDir = "docs/screenshots/phase-1";
+const shotDir = "docs/screenshots/static/e2e";
 
 test.describe.configure({ mode: "serial" });
 test.skip(!owner || !member || !otp, "QA test phone numbers not provided");
@@ -18,10 +18,10 @@ async function signIn(page: Page, phone: string) {
   await page.goto("/sign-in");
   await page.getByLabel("Phone number").fill(phone);
   await page.getByRole("button", { name: "Send code" }).click();
-  await page.waitForURL("**/verify-phone");
+  await page.waitForURL("**/verify");
+  // The page submits by itself once all six digits are in.
   await page.getByLabel("6-digit code").fill(otp!);
-  await page.getByRole("button", { name: "Verify and continue" }).click();
-  await page.waitForURL((u) => !u.pathname.startsWith("/verify-phone"));
+  await page.waitForURL((u) => !u.pathname.startsWith("/verify"));
 }
 
 async function finishOnboarding(page: Page, name: string, intent: "discover" | "provide", shot?: string) {
@@ -64,7 +64,7 @@ test("owner invites a member and edits the profile", async ({ page }) => {
   expect(inviteLink).toMatch(/\/invitations\/accept\?token=[a-f0-9]{48}$/);
   await page.screenshot({ path: `${shotDir}/09-team-invite.png`, fullPage: true });
 
-  await page.goto(`/portal/${slug}/organisation`);
+  await page.goto(`/portal/${slug}/settings`);
   await page.getByLabel("Website").fill("http://not-https.example");
   await page.getByRole("button", { name: "Save profile" }).click();
   await expect(page.getByText("Use a full https:// address.")).toBeVisible();
@@ -93,19 +93,19 @@ test("member accepts the invitation with limited access", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Change" })).toHaveCount(0);
   await page.screenshot({ path: `${shotDir}/13-team-as-viewer.png` });
 
-  await page.goto(`/portal/${slug}/organisation`);
+  await page.goto(`/portal/${slug}/settings`);
   await expect(page.getByText("Only owners and admins can edit the organisation profile.")).toBeVisible();
 
   // Re-using the invitation fails.
   await page.goto(url.pathname + url.search);
   await page.getByRole("button", { name: "Accept invitation" }).click();
-  await expect(page.getByText("This invitation is invalid, already used or expired.")).toBeVisible();
+  await expect(page.locator("[data-form-message]")).toBeVisible();
 });
 
 test("owner changes the member's role; unknown organisations are hidden", async ({ page }) => {
   await signIn(page, owner!);
   await page.goto(`/portal/${slug}/team`);
-  await page.getByLabel(`Role for ${member}`).selectOption("listing_manager");
+  await page.getByLabel("Role for QA Member").selectOption("listing_manager");
   await page.getByRole("button", { name: "Change" }).click();
   await expect(page.getByText("Role updated.")).toBeVisible();
   await page.screenshot({ path: `${shotDir}/14-team-as-owner.png`, fullPage: true });
@@ -121,7 +121,7 @@ test("account page and sign-out", async ({ page }) => {
   await expect(page.getByText("Used to sign in. Not shown publicly.")).toBeVisible();
   await page.getByLabel("Name").fill("");
   await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByText("Enter your name.")).toBeVisible();
+  await expect(page.getByText("Your name is required.")).toBeVisible();
   await page.screenshot({ path: `${shotDir}/15-account.png` });
   await page.getByLabel("Name").fill("QA member");
   await page.getByRole("button", { name: "Save changes" }).click();

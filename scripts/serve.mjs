@@ -18,6 +18,20 @@ const types = {
 // Turns "/properties/:slug" into a regular expression.
 const toRegex = (source) => new RegExp(`^${source.replace(/:[a-zA-Z]+/g, "[^/]+")}/?$`);
 const rewrites = (config.rewrites ?? []).map((r) => ({ re: toRegex(r.source), dest: r.destination }));
+// Redirects with ":name" placeholders; host-specific ones only apply on Vercel.
+const redirects = (config.redirects ?? [])
+  .filter((r) => !r.has)
+  .map((r) => ({ re: new RegExp(`^${r.source.replace(/:([a-zA-Z]+)/g, "(?<$1>[^/]+)")}/?$`), dest: r.destination, permanent: r.permanent }));
+function redirectFor(url) {
+  for (const r of redirects) {
+    const m = r.re.exec(url.pathname);
+    if (!m) continue;
+    const to = new URL(r.dest.replace(/:([a-zA-Z]+)/g, (_, k) => m.groups?.[k] ?? ""), url);
+    for (const [k, v] of url.searchParams) if (!to.searchParams.has(k)) to.searchParams.set(k, v);
+    return { location: to.pathname + to.search, status: r.permanent ? 308 : 307 };
+  }
+  return null;
+}
 
 async function file(path) {
   try {
@@ -41,6 +55,11 @@ async function resolve(pathname) {
 
 createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
+  const redirect = redirectFor(url);
+  if (redirect) {
+    res.writeHead(redirect.status, { Location: redirect.location });
+    return res.end();
+  }
   const found = await resolve(decodeURIComponent(url.pathname));
   const path = found ?? join(root, "404.html");
   const headers = { "Content-Type": types[extname(path)] ?? "application/octet-stream", "Cache-Control": "no-store" };
@@ -53,4 +72,4 @@ createServer(async (req, res) => {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not found");
   }
-}).listen(Number(process.env.PORT ?? 3000), () => console.log(`BAID Atlas on http://localhost:${process.env.PORT ?? 3000}`));
+}).listen(Number(process.env.PORT ?? 3000), () => console.log(`Propertiq on http://localhost:${process.env.PORT ?? 3000}`));

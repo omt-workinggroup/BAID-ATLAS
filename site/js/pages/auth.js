@@ -11,12 +11,14 @@ if (await getUser()) location.replace(next);
 const notices = {
   signed_out: ["success", "You have been signed out."],
   expired: ["error", "That code request has expired. Enter your number to get a new one."],
+  link: ["error", "That link is invalid or has expired. Please sign in again."],
 };
 const p = params();
-const notice = p.get("signed_out") ? notices.signed_out : p.get("error") === "expired" ? notices.expired : null;
+const notice = p.get("signed_out") ? notices.signed_out : ["expired", "link"].includes(p.get("error")) ? notices[p.get("error")] : null;
 if (notice) render("#notice", alertBox(...notice));
 
 const form = document.getElementById("phone-form");
+form.next.value = next; // the checked destination after the code is verified
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const r = phoneRule(form.phone.value);

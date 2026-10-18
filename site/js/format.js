@@ -77,7 +77,7 @@ export function formatPrice(amount, currency, period = "total", locale = "en-GH"
   } catch {
     formatted = `${currency} ${value.toLocaleString(locale)}`;
   }
-  return `${formatted.replace(/ /g, " ")}${PERIOD_SUFFIX[period] ?? ""}`;
+  return `${formatted.replace(/\u00a0/g, " ")}${PERIOD_SUFFIX[period] ?? ""}`;
 }
 
 export function formatArea(value, unit) {

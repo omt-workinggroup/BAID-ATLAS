@@ -1,6 +1,0 @@
-import { redirect } from "next/navigation";
-
-// Category hub: a shareable short link into Explore with a preset filter.
-export default function Page() {
-  redirect("/explore?purpose=long_term_rent");
-}

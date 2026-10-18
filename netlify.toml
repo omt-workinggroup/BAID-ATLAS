@@ -1,8 +1,134 @@
+# Netlify mirror of vercel.json (Vercel is the main host). No build: the site/ folder is published as-is.
 [build]
-  command = "pnpm build"
-  publish = ".next"
+  publish = "site"
+  command = ""
 
-[build.environment]
-  NODE_VERSION = "22"
+[[redirects]]
+  from = "/rentals"
+  to = "/explore?purpose=long_term_rent"
+  status = 302
 
-# Netlify's Next.js runtime is detected automatically.
+[[redirects]]
+  from = "/land"
+  to = "/explore?type=land"
+  status = 302
+
+[[redirects]]
+  from = "/short-stays"
+  to = "/explore?purpose=short_stay"
+  status = 302
+
+[[redirects]]
+  from = "/commercial"
+  to = "/explore?type=commercial"
+  status = 302
+
+[[redirects]]
+  from = "/account/saved"
+  to = "/saved"
+  status = 301
+
+[[redirects]]
+  from = "/verify-phone"
+  to = "/verify"
+  status = 301
+
+[[redirects]]
+  from = "/portal/:org/organisation"
+  to = "/portal/:org/settings"
+  status = 301
+
+[[redirects]]
+  from = "/account/suspended"
+  to = "/suspended"
+  status = 301
+
+[[redirects]]
+  from = "/auth/callback"
+  to = "/sign-in?error=link"
+  status = 302
+
+[[redirects]]
+  from = "/properties/:slug"
+  to = "/property.html"
+  status = 200
+
+[[redirects]]
+  from = "/providers/:slug"
+  to = "/provider.html"
+  status = 200
+
+[[redirects]]
+  from = "/inbox/:id"
+  to = "/conversation.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/new"
+  to = "/portal-new.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org/team"
+  to = "/team.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org/settings"
+  to = "/org-settings.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org/leads/:id"
+  to = "/lead.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org/leads"
+  to = "/leads.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org/listings/new"
+  to = "/listing-new.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org/listings/:id"
+  to = "/listing-edit.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org/listings"
+  to = "/listings.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal/:org"
+  to = "/org.html"
+  status = 200
+
+[[redirects]]
+  from = "/ops/reviews/:id"
+  to = "/ops-review.html"
+  status = 200
+
+[[redirects]]
+  from = "/ops/organisations"
+  to = "/ops-orgs.html"
+  status = 200
+
+[[redirects]]
+  from = "/ops/reports"
+  to = "/ops-reports.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ecikayrsbjzgdjkehnhl.supabase.co; font-src 'self'; connect-src 'self' https://ecikayrsbjzgdjkehnhl.supabase.co wss://ecikayrsbjzgdjkehnhl.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"

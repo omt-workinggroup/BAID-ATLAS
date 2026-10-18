@@ -1,24 +1,44 @@
-# BAID Atlas
+# Propertiq
 
-Mobile-first property discovery, listing, verification and marketing platform, launching in Ghana first.
+Property listings for Ghana, reviewed before they go live, with verification labels that say exactly what
+was checked. Mobile first: buyers and renters browse, save, message providers and request viewings;
+agencies, developers and landlords manage listings, leads and teams; staff moderate listings and reports.
 
-**Status: Phase 2 (listings and discovery) complete** — explore, property pages, provider listings, moderation. See the [Phase 2 report](docs/implementation/phase-2-report.md).
+Live site: https://baid-atlas.vercel.app
 
-**Live:** https://baid-atlas.vercel.app (Vercel, deployed from this branch on every push).
+## How the code is laid out
+
+The website is plain **HTML, CSS and JavaScript**. There is no framework and no build step: edit a file,
+refresh the browser.
+
+| Folder | What's in it |
+| --- | --- |
+| `site/*.html` | One file per page (home, explore, property, inbox, portal, ops…). |
+| `site/css/style.css` | Every style, starting with the colour and spacing tokens at the top. |
+| `site/js/core.js` | Shared engine: Supabase connection, safe HTML (`html```), header/footer/navigation, sign-in checks, form helpers. |
+| `site/js/pages/*.js` | The script for each page, named like the page. |
+| `site/js/format.js`, `validate.js` | Labels, price/area formatting and form rules. |
+| `site/js/config.js` | Public Supabase URL and publishable key (safe to publish; never put a secret key here). |
+| `vercel.json` | Clean URLs, routes such as `/properties/:slug`, redirects and security headers. |
+| `supabase/` | Database migrations, row-level security, tests and the `send-sms` function (SasuSync). |
+
+Security is enforced by the database (row-level security and checked functions), not by the browser code.
 
 ## Development
 
 ```bash
-pnpm install
-cp .env.example .env.local   # fill in public Supabase URL and publishable key
-pnpm dev                     # http://localhost:3000
-pnpm lint && pnpm typecheck && pnpm test
-pnpm build && pnpm test:e2e  # mobile-first Playwright suite
-pnpm db:test                 # pgTAP RLS tests on the Supabase stack (Docker)
-pnpm db:test:local           # same tests on a local Postgres without Docker
+pnpm install          # test and lint tools only
+pnpm dev              # http://localhost:3000, same routes as Vercel
+pnpm lint             # ESLint
+pnpm test             # unit tests (tests/site)
+pnpm test:e2e         # browser tests on phone and desktop sizes
+pnpm db:test:local    # database and RLS tests (pgTAP)
 ```
 
+Pushing to the branch deploys to Vercel; there is nothing to build.
+
 ## Documentation
+
 
 | Area | Document |
 | --- | --- |
@@ -26,7 +46,7 @@ pnpm db:test:local           # same tests on a local Postgres without Docker
 | Architecture | [Technology decisions](docs/architecture/technology-decisions.md) · [System architecture](docs/architecture/system-architecture.md) · [Database design](docs/architecture/database-design.md) |
 | Security | [Threat model](docs/security/threat-model.md) · [Permissions matrix](docs/security/permissions-matrix.md) |
 | Quality | [Acceptance criteria](docs/quality/acceptance-criteria.md) |
-| Delivery | [Phase plan](docs/implementation/phase-plan.md) · [Phase 0 report](docs/implementation/phase-0-report.md) · [Phase 1 report](docs/implementation/phase-1-report.md) |
+| Delivery | [Phase plan](docs/implementation/phase-plan.md) · [Phase 0 report](docs/implementation/phase-0-report.md) · [Phase 1 report](docs/implementation/phase-1-report.md) · [Phase 2 report](docs/implementation/phase-2-report.md) · [Phase 3 report](docs/implementation/phase-3-report.md) |
 | Design | [Design system](docs/design/design-system.md) |
 
 The source of truth for scope is the *BAID Atlas Full Platform Blueprint* (working specification dated

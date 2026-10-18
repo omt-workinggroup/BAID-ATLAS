@@ -12,15 +12,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # Public values only. Real project values come from repository variables when set.
-  NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321' }}
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'ci-placeholder-key' }}
-  NEXT_PUBLIC_SITE_URL: http://localhost:3100
-
 jobs:
   app:
-    name: Lint, typecheck, unit, build, E2E
+    name: Lint, unit, E2E
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,9 +25,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
-      - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
         env:
@@ -48,7 +40,7 @@ jobs:
           name: playwright-report
           path: |
             playwright-report
-            docs/screenshots/phase-1
+            docs/screenshots/static/e2e
           retention-days: 14
 
   database:

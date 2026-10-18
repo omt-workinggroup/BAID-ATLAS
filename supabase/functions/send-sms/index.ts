@@ -3,7 +3,7 @@
 // Supabase calls this function with a signed payload whenever someone asks for a code. We verify the
 // signature, then send the code with SasuSync's send API. Secrets (Supabase -> Edge Functions -> Secrets):
 //   SASUSYNC_API_KEY      your SasuSync API key (never commit it or paste it anywhere else)
-//   SASUSYNC_SENDER       your approved sender ID, e.g. "BAIDAtlas"
+//   SASUSYNC_SENDER       your approved sender ID, e.g. "Propertiq"
 //   SEND_SMS_HOOK_SECRET  the secret Supabase shows when you enable the Send SMS hook ("v1,whsec_...")
 //   SASUSYNC_BASE_URL     optional, defaults to https://sms.sasusync.com
 //   SITE_DOMAIN           optional, defaults to baid-atlas.vercel.app (used for code auto-fill)
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
   // automatically and iOS offers it above the keyboard. Kept to one SMS part (under 160 characters).
   const otp = payload.sms.otp;
   const domain = Deno.env.get("SITE_DOMAIN") ?? "baid-atlas.vercel.app";
-  const message = `Your BAID Atlas code is ${otp}. Don't share it with anyone.\n\n@${domain} #${otp}`;
+  const message = `Your Propertiq code is ${otp}. Don't share it with anyone.\n\n@${domain} #${otp}`;
 
   let res: Response;
   try {

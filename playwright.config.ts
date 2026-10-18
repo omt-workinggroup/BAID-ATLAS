@@ -18,9 +18,9 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"] }, grep: /@desktop/ },
   ],
   webServer: {
-    command: `pnpm start -p ${port}`,
+    command: `PORT=${port} node scripts/serve.mjs`,
     port,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 30_000,
   },
 });

@@ -1,25 +1,20 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+// Lint rules for the plain-JavaScript site, scripts and tests.
+import js from "@eslint/js";
+import globals from "globals";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+export default [
+  { ignores: ["node_modules/**", ".next/**", "docs/**", "site/js/vendor/**", "playwright-report/**", "test-results/**", "supabase/functions/**", "**/*.ts"] },
+  js.configs.recommended,
   {
-    ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
-    ],
+    files: ["site/**/*.js"],
+    languageOptions: { ecmaVersion: 2024, sourceType: "module", globals: { ...globals.browser } },
+  },
+  {
+    files: ["site/sw.js"],
+    languageOptions: { sourceType: "script", globals: { ...globals.serviceworker } },
+  },
+  {
+    files: ["scripts/**/*.mjs", "tests/**/*.js", "*.mjs"],
+    languageOptions: { ecmaVersion: 2024, sourceType: "module", globals: { ...globals.node } },
   },
 ];
-
-export default eslintConfig;
