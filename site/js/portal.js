@@ -37,8 +37,12 @@ const TABS = [
   ["/settings", "Profile"],
 ];
 
+// The organisation header and section navigation. On wide screens it becomes a sticky sidebar
+// (see .portal-root in style.css); on phones it is a title with scrollable tabs.
 export function orgHeader(org, role, active) {
-  return html`<div class="stack-sm">
+  document.getElementById("root")?.classList.add("portal-root");
+  return html`<div class="portal-side">
+    <div class="stack-sm portal-head">
       <a class="back-link" href="/portal">← All organisations</a>
       <h1 style="font-size: 2rem">${org.name}</h1>
       <div class="row wrap">
@@ -47,9 +51,10 @@ export function orgHeader(org, role, active) {
         <span class="status ${org.verification_status === "verified" ? "status--approved" : ""}">${VERIFICATION_LABELS[org.verification_status]}</span>
       </div>
     </div>
-    <nav class="tabs" aria-label="Organisation">
+    <nav class="tabs portal-nav" aria-label="Organisation">
       ${TABS.filter(([p]) => p !== "/leads" || canReadLeads(role)).map(
         ([p, label]) => html`<a href="/portal/${org.slug}${p}" ${raw(p === active ? 'aria-current="page"' : "")}>${label}${p === "/leads" ? raw('<span class="badge-count" data-org-unread hidden></span>') : ""}</a>`,
       )}
-    </nav>`;
+    </nav>
+  </div>`;
 }

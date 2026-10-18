@@ -1,18 +1,40 @@
-# Design system
+# Propertiq design system
 
-Status: **white theme (17 Oct 2026).** Colours are sampled from the BAID Atlas logo: charcoal `#25272C` and
-bronze gold `#B38A56` (highlight `#DBB17D`, shadow `#936D3D`). The site is always white (no dark mode) so the
-charcoal-and-gold logo sits on the background it was designed for. Gold text uses `--gold-strong` (`#86653B`,
-5.3:1 on white); bright gold is for fills, icons and large display text. Typeface: Plus Jakarta Sans. Illustrations
-on the home page are always labelled "Illustration".
+Status: **18 October 2026.** Built and in use in `site/css/style.css`. The tokens at the top of that file are the
+source of truth; this page explains them.
+
+**Direction:** editorial premium + modern PropTech + discovery-first marketplace (from the UI/UX brief), in the
+black-and-white Propertiq identity you approved.
+
+**References:** the Dribbble collections in the brief were reviewed (landing pages, property pages, property
+search, map search, agent dashboards, verification dashboards, UI kits). Patterns were adapted, not copied.
 
 ## Principles
 
-1. **Mobile first.** Design at 360–430 px; enhance at 768 px and 1024 px.
-2. **Honest by default.** Trust labels state their scope; sponsored content is always labelled; renders are
-   marked.
-3. **Fast on slow networks.** Few fonts, system fallback, compressed images, skeletons over spinners.
-4. **Accessible.** WCAG 2.2 AA contrast; 44 px touch targets; visible focus; reduced motion respected.
+1. **Mobile first.** Designed at 360–430 px, then enhanced at 640, 768, 1024 and 1200 px. Phones get their own
+   layouts (tabs, sheets, cards instead of tables) rather than a shrunken desktop.
+2. **Honest by default.**
+   - Five separate trust lines, never one badge.
+   - Sponsored always labelled.
+   - Renders and off-plan marked.
+   - Missing values say "Not provided".
+3. **Fast on slow networks.**
+   - No framework.
+   - Self-hosted fonts.
+   - Photos resized on the phone before upload.
+   - Lazy images and skeletons.
+4. **Accessible (WCAG 2.2 AA).**
+   - 44 px touch targets.
+   - Visible focus rings.
+   - Reduced motion respected.
+   - Every control labelled.
+
+## Brand
+
+- **Logo:** the supplied file `site/brand/propertiq-logo.jpg`, never redrawn or recoloured.
+  - The header and footer show it through a CSS frame over its plain black margin, so they are pure black (`#000`) to match.
+  - Icons and the social image are the same artwork scaled onto black.
+- **Tagline:** "Property, understood better."
 
 ## Tokens
 
@@ -20,69 +42,100 @@ on the home page are always labelled "Illustration".
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--bg` / `--surface` | `#FFFFFF` | Page and cards |
-| `--surface-muted` | `#F7F4EE` | Chips, inputs, quiet panels (warm white) |
-| `--text` / `--primary` | `#25272C` | Body text, primary buttons (logo charcoal) |
-| `--text-muted` | `#5E5F66` | Secondary text (6.3:1) |
-| `--border` | `#ECE6DA` | Dividers, inputs |
-| `--gold` / `--accent` | `#B38A56` | Logo gold: fills, icons, focus ring; not for small text |
-| `--gold-strong` | `#86653B` | Gold text on white (5.3:1) |
-| `--gold-soft` | `#F7EFE2` | Gold-tinted backgrounds |
-| Gold gradient | `#DBB17D → #B38A56 → #936D3D` | Badges, avatars, highlights (from the logo's lit and shaded gold) |
-| `--verified` | `#1D6FB8` | Verification scope labels |
-| `--sponsored` | `#6B4BA1` | "Sponsored" labels |
-| `--warning` | `#9A5B00` | Render / concept labels, cautions |
-| `--danger` | `#B3261E` | Errors, destructive actions |
-| `--success` | `#1E7B45` | Confirmations |
+| `--text`, `--primary` | `#0b0b0b` | Text, primary buttons, active states |
+| `--bg`, `--surface` | `#ffffff` | Page and cards |
+| `--surface-muted` | `#f5f5f5` | Quiet panels, table row labels, skeletons |
+| `--border` | `#e5e5e5` | Hairlines and card borders |
+| `--muted` | `#5c5c5c` | Secondary text (7:1 on white) |
+| header / hero / footer | `#000000` | Matches the logo's background exactly |
 
-### Typography
+**Status colours carry meaning only.** They are never used as decoration.
 
-- Font: **Plus Jakarta Sans** (via `next/font`) with `system-ui` fallback.
-- Scale (mobile → ≥ 1024 px): `xs 12/16`, `sm 14/20`, `base 16/24`, `lg 18/26`, `xl 20/28`,
-  `2xl 24/30 → 28/34`, `3xl 28/34 → 36/42`.
-- Prices use tabular numerals and always show the ISO code or symbol, e.g. `GHS 1,250,000`.
+| Token | Value | Meaning |
+| --- | --- | --- |
+| `--success` / `--success-soft` | `#1e7b45` / `#e6f4ec` | A recorded check, live, confirmed |
+| `--warning` / `--warning-soft` | `#9a5b00` / `#fff6e8` | Needs attention: stale availability, renders, off-plan, changes requested |
+| `--danger` / `--danger-soft` | `#b3261e` / `#fdecea` | Errors, rejected, destructive actions |
+| `--verified` | `#1d6fb8` | Advertiser identity label |
+| `--sponsored` | `#6b4ba1` | Paid placement label, never a check |
 
-### Spacing, radius, elevation
+### Type
 
-- Spacing scale (px): 4, 8, 12, 16, 20, 24, 32, 40, 48, 64. Page gutter 16 px on phones, 24 px tablet.
-- Radius: `sm 6px`, `md 10px`, `lg 16px`, `full`.
-- Shadow: `sm 0 1px 2px rgb(0 0 0 / .06)`, `md 0 4px 12px rgb(0 0 0 / .08)`.
+| Role | Font | Notes |
+| --- | --- | --- |
+| Display (h1–h2, numbers in tiles) | Fraunces | Italic for a single emphasised word ("*more* confidence") |
+| UI and body | Plus Jakarta Sans | 400 / 500 / 600 / 700 |
+
+**Scale:**
+
+| Element | Size |
+| --- | --- |
+| Hero | 2.4–4.25 rem (fluid) |
+| h1 | 2–3 rem |
+| Section h2 | about 1.5–1.75 rem |
+| Body | 1 rem |
+| Small | 0.875 rem |
+| Tiny | 0.75 rem |
+| Overline | 0.75 rem, uppercase, tracked |
+
+### Space, radius, shadow
+
+- **Spacing steps:** 0.25 / 0.5 / 0.75 / 1 / 1.25 / 1.5 / 2 / 2.5 / 3 rem.
+- **Layout helpers:** `.stack`, `.stack-sm`, `.stack-lg`.
+- **Radius:** `--radius-sm` 8 px (inputs, thumbnails), `--radius` 12 px (buttons, cards), `--radius-lg` 16 px (panels, hero, tiles).
+- **Shadow:** a single soft `--shadow-lift`, used only for floating elements (search card, sheets, compare bar).
 
 ### Breakpoints
 
-`sm 640`, `md 768`, `lg 1024`, `xl 1280`. Styles are written mobile-first (`min-width` queries only).
+| Width | What changes |
+| --- | --- |
+| < 640 px | Single column, bottom navigation, filter sheet, cards instead of tables, hero drawing hidden |
+| 640 px | Two-column grids and forms |
+| 768 px | Search card fields in one row; 4 tiles per row; 3 category columns |
+| 1024 px | Top navigation; filter sidebar; property photo mosaic; sticky contact panel; portal sidebar |
+| 1200 px | Category links in the header; 6 category tiles; dashboard two-column grid |
 
-### Motion
+## Components
 
-Durations 120 / 200 / 320 ms, ease `cubic-bezier(.2,.8,.2,1)`. All non-essential motion is disabled under
-`prefers-reduced-motion: reduce`.
-
-## Core components (Phase 1–2)
-
-- **App shell:** sticky top bar; bottom tab bar (Home, Explore, Map, Saved, Account) on phones, safe-area
-  insets respected.
-- **Buttons:** primary, secondary, ghost, destructive; min height 44 px; full width on phones in forms.
-- **Inputs:** label above field, helper and error text, 16 px font (prevents iOS zoom).
-- **Bottom sheet:** filters and quick actions on phones; becomes dialog/side panel on desktop.
-- **Property card:** image (16:10, lazy), price + currency, purpose, beds/baths/area with units, locality,
-  labels row.
-- **Labels (badges):**
-  - *Verified: <scope>* — e.g. "Organisation identity checked · 12 Oct 2026". Tapping opens what the check
-    does and does not establish.
-  - *Sponsored* — always shown on paid placements.
-  - *Render* / *Virtually staged* / *Concept* — on media and cards.
-- **Empty, loading (skeleton) and error states** for every list and detail view.
-
-## Brand tokens (current)
-
-| Token | Light | Dark |
+| Component | Class / file | Notes |
 | --- | --- | --- |
-| `--primary` (ink / main buttons) | `#121212` | `#E2B04A` |
-| `--gold` | `#D9A12E` | `#D9A12E` |
-| `--gold-strong` (gold text) | `#9A6A12` | `#E8BC5C` |
-| `--bg` | `#F7F6F3` | `#0B0B0B` |
-| `--surface` | `#FFFFFF` | `#161616` |
-| Gold gradient | `#F6D27A → #D9A12E → #A8741A` | same |
+| Buttons | `.btn`, `--secondary`, `--ghost-light`, `--inverse`, `--danger`, `--small`, `--full`; `button.link` | Primary is black. One primary button per area. |
+| Inputs | `.input`, `.select`, `.textarea`, `.check` | Label above; hint and error under the field (`showErrors`). |
+| Search card | `.home-search` | Overlaps the hero. Location or reference, purpose tabs, type. |
+| Filter chips | `.chip` (purpose), `.filter-chip` (active filters, removable), `.pill-choice` (sheet options) | |
+| Filter sheet / sidebar | `dialog.sheet`, `.sheet--inline` | One form: a bottom sheet on phones, a sticky sidebar from 1024 px. |
+| Property card | `listingCard()` in `listings.js` | Price first; type, place, three facts; identity label; availability line; save and compare. No more than that. |
+| Gallery | `.gallery` (phones), `.mosaic` + `.photos-dialog` (desktop) | Render and staged labels are always on the photo. |
+| Key facts row | `.keyfacts` | Icons for bedrooms, bathrooms, floor, land and type. |
+| Trust panel | `trustPanel()` in `trust.js` | Five dated lines, each with "What does this mean?". |
+| Availability line | `availabilityLine()` | Green when confirmed in 30 days, amber after that. |
+| Status pill | `.status--<status>` | Listing, lead and viewing states. |
+| Tiles | `.tile-row`, `.tile` | Small numbers only (no huge stat cards). |
+| Tables | `.table-card`, `.data-table` | From 900 px; `.only-narrow` card list below that. |
+| Portal shell | `orgHeader()` + `.portal-root` | A sidebar on desktop, title and tabs on phones. |
+| Compare | `compare.js`, `/compare` | Up to 4. "Not provided" and "Doesn't apply"; nothing estimated. |
+| Alerts and toasts | `.alert--success/warning/error/info`, `toast()` | |
+| States | `.skeleton`, `.empty` | Every page has loading, empty and error states. |
 
-Shapes: pill buttons (`rounded-full`), 20–24 px card radii, round category bubbles, horizontal snap rails on
-phones. Social preview: `lib/og.tsx` (1200×630, generated at build).
+## Photography
+
+The references depend on large architectural photos. Propertiq will only show:
+
+1. Photos uploaded by advertisers on their own listings, with source and render labels.
+2. Brand photography Propertiq owns or is licensed to use. **None has been supplied yet.**
+
+Until brand photos exist, the hero uses an original line drawing in white on black. Stock photos must never be
+presented as listings.
+
+## Screens done in this design (18 October 2026)
+
+- **Public:** homepage, Explore (search results with filter sidebar, chips and sort), property page (mosaic, key facts, trust panel, similar properties), compare, trust and verification.
+- **Advertiser:** portal overview dashboard, listings table, team, profile, leads (sidebar shell).
+
+**Next:**
+
+- Map and list split view, once a tile provider is chosen.
+- Multi-step listing form.
+- Lead pipeline statuses.
+- Staff dashboard.
+- Studio pages.
