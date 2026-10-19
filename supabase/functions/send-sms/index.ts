@@ -6,7 +6,7 @@
 //   SASUSYNC_SENDER       your approved sender ID, e.g. "Propertiq"
 //   SEND_SMS_HOOK_SECRET  the secret Supabase shows when you enable the Send SMS hook ("v1,whsec_...")
 //   SASUSYNC_BASE_URL     optional, defaults to https://sms.sasusync.com
-//   SITE_DOMAIN           optional, defaults to baid-atlas.vercel.app (used for code auto-fill)
+//   SITE_DOMAIN           optional, defaults to propertiq-gh.vercel.app (used for code auto-fill)
 // The code and the API key are never logged.
 import { Webhook } from "npm:standardwebhooks@1.0.0";
 
@@ -43,7 +43,9 @@ Deno.serve(async (req) => {
   // The last line is the standard origin-bound format ("@domain #code"): Android fills the code in
   // automatically and iOS offers it above the keyboard. Kept to one SMS part (under 160 characters).
   const otp = payload.sms.otp;
-  const domain = Deno.env.get("SITE_DOMAIN") ?? "baid-atlas.vercel.app";
+  // The old address (baid-atlas) now redirects, so a leftover SITE_DOMAIN pointing at it is ignored.
+  const configured = Deno.env.get("SITE_DOMAIN")?.trim();
+  const domain = configured && !configured.includes("baid-atlas") ? configured : "propertiq-gh.vercel.app";
   const message = `Your Propertiq code is ${otp}. Don't share it with anyone.\n\n@${domain} #${otp}`;
 
   let res: Response;

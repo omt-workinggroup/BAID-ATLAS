@@ -119,10 +119,21 @@
       "has": [
         {
           "type": "host",
+          "value": "baid-atlas.vercel.app"
+        }
+      ],
+      "destination": "https://propertiq-gh.vercel.app/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
           "value": "baid-atlas-missoluadeoye-5587.vercel.app"
         }
       ],
-      "destination": "https://baid-atlas.vercel.app/:path*",
+      "destination": "https://propertiq-gh.vercel.app/:path*",
       "permanent": true
     }
   ],

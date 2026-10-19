@@ -27,7 +27,7 @@ input.addEventListener("paste", (e) => {
   setCode(e.clipboardData.getData("text"));
 });
 
-// Chrome on Android reads the code straight from the SMS ("@baid-atlas.vercel.app #123456").
+// Chrome on Android reads the code straight from the SMS ("@propertiq-gh.vercel.app #123456").
 if ("OTPCredential" in window) {
   const ac = new AbortController();
   form.addEventListener("submit", () => ac.abort(), { once: true });
