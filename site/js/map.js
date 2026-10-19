@@ -8,13 +8,15 @@ export const GHANA_CENTRE = [7.95, -1.03];
 const ATTRIBUTION =
   '<a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>';
 
-export function createMap(el, { center = GHANA_CENTRE, zoom = 7, scrollWheelZoom = true } = {}) {
+// 512 px tiles (one zoom level down) keep labels large and sharp; high-density screens get the @2x set.
+export function createMap(el, { center = GHANA_CENTRE, zoom = 7, scrollWheelZoom = true, style = MAP_STYLE, zoomControl = true } = {}) {
   const L = window.L;
-  const map = L.map(el, { center, zoom, scrollWheelZoom, zoomControl: true, attributionControl: true, minZoom: 5, maxZoom: 17 });
+  const map = L.map(el, { center, zoom, scrollWheelZoom, zoomControl, attributionControl: true, minZoom: 5, maxZoom: 17 });
   map.attributionControl.setPrefix(false);
-  L.tileLayer(`https://api.maptiler.com/maps/${MAP_STYLE}/256/{z}/{x}/{y}{r}.png?key=${MAPTILER_KEY}`, {
+  L.tileLayer(`https://api.maptiler.com/maps/${style}/{z}/{x}/{y}{r}.png?key=${MAPTILER_KEY}`, {
     attribution: ATTRIBUTION,
-    tileSize: 256,
+    tileSize: 512,
+    zoomOffset: -1,
     crossOrigin: true,
   }).addTo(map);
   return map;
@@ -30,7 +32,8 @@ export function shortPrice(amount, currency, period) {
 
 export const hasPosition = (l) => l.public_latitude !== null && l.public_latitude !== undefined && l.public_longitude !== null;
 
-// Price markers grouped into clusters when they overlap. Returns the cluster layer and a lookup by listing id.
+// Price markers grouped into clusters when they overlap, each with a soft circle over its approximate area.
+// With onSelect, a click picks the listing (the page shows its own preview); without it, a small popup opens.
 export function addListingMarkers(map, listings, { onSelect } = {}) {
   const L = window.L;
   const group = L.markerClusterGroup({
@@ -38,34 +41,48 @@ export function addListingMarkers(map, listings, { onSelect } = {}) {
     maxClusterRadius: 48,
     iconCreateFunction: (c) => L.divIcon({ html: `<span>${c.getChildCount()}</span>`, className: "map-cluster", iconSize: [40, 40] }),
   });
+  const areas = L.layerGroup();
   const byId = new Map();
+  const priceIcon = (l, selected) =>
+    L.divIcon({ html: markup(html`<span>${shortPrice(l.asking_price, l.currency, l.price_period)}</span>`), className: `map-price${selected ? " is-selected" : ""}`, iconSize: null });
   for (const l of listings.filter(hasPosition)) {
-    const marker = L.marker([Number(l.public_latitude), Number(l.public_longitude)], {
-      icon: L.divIcon({ html: markup(html`<span>${shortPrice(l.asking_price, l.currency, l.price_period)}</span>`), className: "map-price", iconSize: null }),
-      title: l.title,
-      keyboard: true,
-    });
-    marker.bindPopup(
-      markup(html`<a class="map-popup" href="/properties/${l.slug}">
-        ${l.cover_url ? html`<img src="${l.cover_url}" alt="" />` : ""}
-        <span class="bold">${formatPrice(l.asking_price, l.currency, l.price_period)}</span>
-        <span>${l.title}</span>
-        <span class="tiny muted">Approximate area · ${l.locality ? `${l.locality}, ` : ""}${l.city}</span>
-      </a>`),
-      { closeButton: false, minWidth: 220, maxWidth: 260 },
-    );
-    if (onSelect) marker.on("click", () => onSelect(l.id));
+    const at = [Number(l.public_latitude), Number(l.public_longitude)];
+    L.circle(at, { radius: 700, stroke: false, fillColor: "#ffffff", fillOpacity: 0.12, interactive: false }).addTo(areas);
+    const marker = L.marker(at, { icon: priceIcon(l, false), title: l.title, keyboard: true });
+    if (onSelect) {
+      marker.on("click", () => onSelect(l));
+      marker.on("keypress", (e) => e.originalEvent.key === "Enter" && onSelect(l));
+    } else {
+      marker.bindPopup(
+        markup(html`<a class="map-popup" href="/properties/${l.slug}">
+          ${l.cover_url ? html`<img src="${l.cover_url}" alt="" />` : ""}
+          <span class="bold">${formatPrice(l.asking_price, l.currency, l.price_period)}</span>
+          <span>${l.title}</span>
+          <span class="tiny muted">Approximate area · ${l.locality ? `${l.locality}, ` : ""}${l.city}</span>
+        </a>`),
+        { closeButton: false, minWidth: 220, maxWidth: 260 },
+      );
+    }
     group.addLayer(marker);
-    byId.set(l.id, marker);
+    byId.set(l.id, { marker, listing: l });
   }
+  map.addLayer(areas);
   map.addLayer(group);
-  return { group, byId };
+  let current = null;
+  // Highlights one price pill (or none) and keeps it above its neighbours.
+  const select = (id) => {
+    if (current && byId.has(current)) byId.get(current).marker.setIcon(priceIcon(byId.get(current).listing, false)).setZIndexOffset(0);
+    current = id;
+    if (id && byId.has(id)) byId.get(id).marker.setIcon(priceIcon(byId.get(id).listing, true)).setZIndexOffset(1000);
+  };
+  return { group, areas, byId, select };
 }
 
-export function fitToListings(map, group) {
+// padding keeps pins clear of anything drawn over the map (e.g. { paddingTopLeft: [x, y] }).
+export function fitToListings(map, group, padding = {}) {
   map.invalidateSize();
   const b = group.getBounds();
-  if (b.isValid()) map.fitBounds(b.pad(0.2), { maxZoom: 14 });
+  if (b.isValid()) map.fitBounds(b.pad(0.2), { maxZoom: 14, ...padding });
 }
 
 // Lazily loads Leaflet (and the cluster plug-in) the first time a page needs a map.

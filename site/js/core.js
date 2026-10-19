@@ -165,7 +165,7 @@ export async function signOut(scope = "local") {
 
 // ---- Page shell ----------------------------------------------------------------------------------------
 const NAV = [
-  { href: "/", label: "Home", icon: "home", match: (p) => p === "/", mobileOnly: true },
+  { href: "/home", label: "Home", icon: "home", match: (p) => p === "/home", mobileOnly: true },
   { href: "/explore", label: "Explore", icon: "search", match: (p) => p.startsWith("/explore") || p.startsWith("/properties") },
   { href: "/saved", label: "Saved", icon: "heart", match: (p) => p.startsWith("/saved") || p.startsWith("/compare") },
   { href: "/inbox", label: "Inbox", icon: "inbox", match: (p) => p.startsWith("/inbox"), badge: true },
@@ -195,7 +195,7 @@ function headerView(signedIn, path) {
     <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
-        <a href="/" class="logo" aria-label="Propertiq home"><span class="logo-frame"><img src="/brand/propertiq-logo.jpg" alt="Propertiq" width="1280" height="720" data-logo /></span></a>
+        <a href="/home" class="logo" aria-label="Propertiq home"><span class="logo-frame"><img src="/brand/propertiq-logo.jpg" alt="Propertiq" width="1280" height="720" data-logo /></span></a>
         <nav class="cat-nav" aria-label="Categories">
           <ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}>${label}</a></li>`)}</ul>
         </nav>

@@ -4,7 +4,7 @@ import { COMPLETION_LABELS, FURNISHING_LABELS, PROPERTY_TYPES, PURPOSES, PURPOSE
 import { STALE_AFTER_DAYS, availabilityState } from "./trust.js";
 
 export const CARD_COLUMNS =
-  "id, slug, title, purpose, asking_price, currency, price_period, status, published_at, is_sponsored, property_type, region, city, locality, bedrooms, bathrooms, floor_area, floor_area_unit, land_area, land_area_unit, organization_name, organization_slug, organization_verification_status, organization_verification_scope, cover_path, cover_alt, cover_is_render, cover_is_staged, image_count, reference, negotiable, availability_confirmed_at, availability_method, subtype, furnishing, completion_status";
+  "id, slug, title, purpose, asking_price, currency, price_period, status, published_at, is_sponsored, property_type, region, city, locality, bedrooms, bathrooms, floor_area, floor_area_unit, land_area, land_area_unit, organization_name, organization_slug, organization_verification_status, organization_verification_scope, cover_path, cover_alt, cover_is_render, cover_is_staged, image_count, reference, negotiable, availability_confirmed_at, availability_method, subtype, furnishing, completion_status, public_latitude, public_longitude";
 // At least 50 listings show before "Load more" (60 fills 2-, 3- and 4-column grids evenly).
 export const PAGE_SIZE = 60;
 export const SORTS = ["newest", "price_asc", "price_desc"];
@@ -166,6 +166,30 @@ export function listingCard(l, { saved = false, eager = false } = {}) {
       </div>
       <button type="button" class="compare-btn" data-compare="${l.id}" aria-pressed="false">${icon("check", 14, 2.4)} Compare</button>
     </div>
+  </article>`;
+}
+
+// Map preview: the listing picked on the map, shown as a card along the bottom of the map.
+export function mapPreviewCard(l) {
+  const area = formatArea(l.floor_area, l.floor_area_unit) ?? formatArea(l.land_area, l.land_area_unit);
+  const home = l.property_type !== "land";
+  const facts = [
+    home && l.bedrooms != null && ["bed", `${l.bedrooms} ${l.bedrooms === 1 ? "Bed" : "Beds"}`],
+    home && l.bathrooms != null && ["bath", `${l.bathrooms} ${l.bathrooms === 1 ? "Bath" : "Baths"}`],
+    area && ["area", area],
+  ].filter(Boolean);
+  return html`<article class="mcard">
+    <div class="mcard__media">
+      ${l.cover_url ? html`<img src="${l.cover_url}" alt="${l.cover_alt ?? l.title}" decoding="async" />` : noPhoto(true)}
+      <span class="tag tag--light">${PURPOSE_LABELS[l.purpose]}</span>
+    </div>
+    <div class="mcard__body">
+      <h3 class="mcard__title"><a href="/properties/${l.slug}">${l.title}</a></h3>
+      <p class="mcard__meta">${icon("pin", 13)}Approx. ${formatLocation(l.locality, l.city)}</p>
+      <p class="mcard__price">${formatPrice(l.asking_price, l.currency, l.price_period)}</p>
+      ${facts.length ? html`<ul class="mcard__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 14)}${t}</li>`)}</ul>` : ""}
+    </div>
+    <button type="button" class="mcard__close" data-close-preview aria-label="Close preview">${raw("&times;")}</button>
   </article>`;
 }
 

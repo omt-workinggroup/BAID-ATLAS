@@ -18,9 +18,18 @@ async function shot(page: Page, name: string, project: string) {
 }
 
 test.describe("public pages", () => {
-  test("home renders with mobile navigation", async ({ page }, info) => {
+  test("landing page is a standalone splash without navigation", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Find property with more confidence");
+    await expect(page.getByRole("navigation")).toHaveCount(0);
+    await expectNoHorizontalScroll(page);
+    await page.getByRole("link", { name: "Get Started" }).click();
+    await expect(page).toHaveURL(/\/home$/);
+  });
+
+  test("home renders with mobile navigation", async ({ page }, info) => {
+    await page.goto("/home");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Find your next property");
     await expect(page.getByPlaceholder("Search your home, area or PQ-…")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Primary" }).last()).toBeVisible();
     await expectNoHorizontalScroll(page);
@@ -30,7 +39,7 @@ test.describe("public pages", () => {
   for (const width of [360, 390, 430]) {
     test(`home fits ${width}px without horizontal scroll`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
-      await page.goto("/");
+      await page.goto("/home");
       await expectNoHorizontalScroll(page);
     });
   }
@@ -127,7 +136,10 @@ test("explore offers a map view that keeps the filters", async ({ page }) => {
   const href = new URL((await toMap.getAttribute("href"))!, "http://x");
   expect(Object.fromEntries(href.searchParams)).toEqual({ purpose: "sale", view: "map" });
   await toMap.click();
-  await expect(page.getByRole("navigation", { name: "View" }).getByRole("link", { name: "Map" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("heading", { name: "Explore Properties" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Buy or rent" }).getByRole("link", { name: "Buy" })).toHaveAttribute("aria-current", "page");
+  const toList = new URL((await page.getByRole("link", { name: "Show as a list" }).getAttribute("href"))!, "http://x");
+  expect(Object.fromEntries(toList.searchParams)).toEqual({ purpose: "sale" });
   await expectNoHorizontalScroll(page);
 });
 
@@ -150,14 +162,14 @@ test.describe("PWA and sharing", () => {
 });
 
 test("desktop layout shows top navigation @desktop", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/home");
   await expect(page.getByRole("navigation", { name: "Primary" }).first()).toBeVisible();
   await page.screenshot({ path: `${shotDir}/10-home-desktop.png` });
 });
 
 test.describe("discovery", () => {
   test("home search submits to Explore", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/home");
     await page.getByPlaceholder("Search your home, area or PQ-…").fill("Kumasi");
     await page.getByPlaceholder("Search your home, area or PQ-…").press("Enter");
     await expect(page).toHaveURL(/\/explore\?q=Kumasi/);

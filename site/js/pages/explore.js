@@ -1,8 +1,8 @@
 // Explore: search box, purpose chips, filter sheet and "Load more".
-import { boot, html, markup, params, raw, render, setTitle } from "../core.js";
+import { boot, html, icon, markup, params, raw, render, setTitle } from "../core.js";
 import { FURNISHING_LABELS, PROPERTY_TYPES, PROPERTY_TYPE_LABELS, PURPOSES, PURPOSE_LABELS } from "../format.js";
 import { wireCompareButtons } from "../compare.js";
-import { activeFilterCount, listingCard, parseSearch, savedIds, searchListings, skeletonCards, toQueryString, wireSaveButtons } from "../listings.js";
+import { activeFilterCount, listingCard, mapPreviewCard, parseSearch, savedIds, searchListings, skeletonCards, toQueryString, wireSaveButtons } from "../listings.js";
 
 boot();
 const f = parseSearch(params());
@@ -90,19 +90,58 @@ render(
   html`<a href="/explore${toQueryString({ ...base, purpose: f.purpose, view: undefined })}" ${raw(mapView ? "" : 'aria-current="page"')}>List</a><a href="/explore${toQueryString({ ...base, purpose: f.purpose, view: "map" })}" ${raw(mapView ? 'aria-current="page"' : "")}>Map</a>`,
 );
 
-// Map view: Leaflet is only downloaded when the map is actually opened.
+// Map view (reference design): dark map, title, Buy/Rent switch, type menu and filters on top, and the
+// picked listing as a card along the bottom. Leaflet is only downloaded when the map is actually opened.
+if (mapView) {
+  const purposeLink = (p, label) =>
+    html`<a href="/explore${toQueryString({ ...base, purpose: f.purpose === p ? undefined : p })}" ${raw(f.purpose === p ? 'aria-current="page"' : "")}>${label}</a>`;
+  render(
+    "#map-top",
+    html`<div class="map-top__row">
+        <h2 class="map-top__title">Explore Properties</h2>
+        <a class="map-round" href="/explore${toQueryString({ ...base, purpose: f.purpose, view: undefined })}" aria-label="Show as a list">${icon("grid", 20)}</a>
+      </div>
+      <div class="map-top__row">
+        <nav class="map-seg" aria-label="Buy or rent">${purposeLink("sale", "Buy")}${purposeLink("long_term_rent", "Rent")}</nav>
+        <label class="map-type"><span class="sr-only">Property type</span>
+          <select id="map-type">
+            <option value="">All types</option>
+            ${PROPERTY_TYPES.map((t) => html`<option value="${t}" ${raw(f.type === t ? "selected" : "")}>${PROPERTY_TYPE_LABELS[t]}</option>`)}
+          </select></label>
+        <button type="button" class="map-round" id="map-filters" aria-label="Filters${count ? ` (${count} active)` : ""}" aria-haspopup="dialog">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4" /></svg>
+          ${count ? html`<span class="map-round__count">${count}</span>` : ""}
+        </button>
+      </div>
+      <p class="map-top__note">Prices mark the approximate area, never the exact address.</p>`,
+  );
+  document.getElementById("map-type").addEventListener("change", (e) => {
+    location.href = `/explore${toQueryString({ ...base, purpose: f.purpose, type: e.target.value || undefined })}`;
+  });
+  document.getElementById("map-filters").addEventListener("click", () => dialog.showModal());
+}
+
 let mapApi = null;
 const mapRows = [];
 async function ensureMap() {
   if (!mapView) return null;
   if (mapApi) return mapApi;
   document.getElementById("map-panel").hidden = false;
-  const m = await import("../map.js");
+  const [m, { MAP_STYLE_DARK }] = await Promise.all([import("../map.js"), import("../config.js")]);
   await m.loadLeaflet({ clusters: true });
-  const map = m.createMap(document.getElementById("map"));
+  const map = m.createMap(document.getElementById("map"), { style: MAP_STYLE_DARK, zoomControl: false });
+  window.L.control.zoom({ position: "bottomright" }).addTo(map);
+  map.on("click", () => showPreview(null));
   mapApi = { m, map, layer: null };
   return mapApi;
 }
+const preview = document.getElementById("map-preview");
+function showPreview(l) {
+  mapApi?.layer?.select(l?.id ?? null);
+  preview.classList.toggle("is-open", Boolean(l));
+  render(preview, l ? mapPreviewCard(l) : "");
+}
+preview.addEventListener("click", (e) => e.target.closest("[data-close-preview]") && showPreview(null));
 async function drawMarkers(rows) {
   const api = await ensureMap().catch(() => null);
   if (!api) {
@@ -110,13 +149,17 @@ async function drawMarkers(rows) {
     return;
   }
   mapRows.push(...rows);
-  if (api.layer) api.map.removeLayer(api.layer.group);
-  api.layer = api.m.addListingMarkers(api.map, mapRows, {
-    onSelect: (id) => document.querySelector(`[data-compare="${id}"]`)?.closest(".lcard")?.scrollIntoView({ behavior: "smooth", block: "center" }),
-  });
-  api.m.fitToListings(api.map, api.layer.group);
-  const missing = mapRows.filter((r) => !api.m.hasPosition(r)).length;
-  render("#map-note", `Pins show the approximate area (about 1 km), never the exact address.${missing ? ` ${missing} of these ${missing === 1 ? "listing has" : "listings have"} no map location yet.` : ""}`);
+  if (api.layer) {
+    api.map.removeLayer(api.layer.group);
+    api.map.removeLayer(api.layer.areas);
+  }
+  api.layer = api.m.addListingMarkers(api.map, mapRows, { onSelect: showPreview });
+  // Keep pins out from under the controls at the top and the preview card at the bottom.
+  api.m.fitToListings(api.map, api.layer.group, { paddingTopLeft: [24, 150], paddingBottomRight: [24, 190] });
+  const placed = mapRows.filter(api.m.hasPosition);
+  if (placed.length && !preview.classList.contains("is-open")) showPreview(placed[0]);
+  const missing = mapRows.length - placed.length;
+  render("#map-note", `Prices mark the approximate area (about 1 km), never the exact address.${missing ? ` ${missing} of these ${missing === 1 ? "listing has" : "listings have"} no map location yet.` : ""}`);
 }
 
 // Sort menu above the results
@@ -164,6 +207,11 @@ async function load(append) {
   }
   if (!append && result.rows.length === 0) {
     grid.outerHTML = emptyView(count > 0 || Boolean(f.q));
+    if (mapView) {
+      await drawMarkers([]);
+      preview.classList.add("is-open");
+      render(preview, html`<p class="mcard mcard--empty">No properties match here yet. Try switching Buy or Rent, another type or fewer filters.</p>`);
+    }
     return;
   }
   const saved = await savedIds(result.rows.map((r) => r.id));

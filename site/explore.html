@@ -18,7 +18,7 @@
   <body>
     <main id="main" class="page page--wide">
       <div class="stack">
-        <div class="stack-sm">
+        <div class="stack-sm explore-head">
           <h1 id="heading">Explore property</h1>
           <div class="pill-search">
             <form class="search-box" action="/explore" method="get" role="search" id="search-form">
@@ -81,8 +81,12 @@
             <div class="explore-split">
               <div class="listing-grid listing-grid--results" id="results" aria-busy="true"></div>
               <div class="map-panel" id="map-panel" hidden>
-                <div id="map" class="map" role="region" aria-label="Map of approximate listing areas"></div>
-                <p class="tiny muted" id="map-note">Pins show the approximate area (about 1 km), never the exact address.</p>
+                <div class="map-frame">
+                  <div id="map" class="map" role="region" aria-label="Map of approximate listing areas"></div>
+                  <div class="map-top" id="map-top"></div>
+                  <div class="map-preview" id="map-preview" aria-live="polite"></div>
+                </div>
+                <p class="tiny muted" id="map-note">Prices mark the approximate area (about 1 km), never the exact address.</p>
               </div>
             </div>
             <div class="center"><button type="button" class="btn btn--secondary" id="load-more" hidden>Load more</button></div>

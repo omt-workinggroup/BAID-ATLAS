@@ -113,6 +113,8 @@ search, map search, agent dashboards, verification dashboards, UI kits). Pattern
 | Tiles | `.tile-row`, `.tile` | Small numbers only (no huge stat cards). |
 | Tables | `.table-card`, `.data-table` | From 900 px; `.only-narrow` card list below that. |
 | Portal shell | `orgHeader()` + `.portal-root` | A sidebar on desktop, title and tabs on phones. |
+| Landing (splash) | `/` (`index.html`, `.splash`) | Standalone welcome screen with no site navigation: full photo, serif headline, white "Get Started" pill to `/home`. Wide screens show a black panel beside the portrait photo. |
+| Map search | `/explore?view=map`, `map.js` | Dark MapTiler `streets-v2-dark` tiles (512 px, sharp labels). Overlay: "Explore Properties", Buy/Rent switch, type menu, filters. White price pills over soft approximate-area circles; the picked one turns black and shows a preview card at the bottom. Full screen on phones. |
 | Compare | `compare.js`, `/compare` | Up to 4. "Not provided" and "Doesn't apply"; nothing estimated. |
 | Alerts and toasts | `.alert--success/warning/error/info`, `toast()` | |
 | States | `.skeleton`, `.empty` | Every page has loading, empty and error states. |
@@ -129,12 +131,11 @@ presented as listings.
 
 ## Screens done in this design (18 October 2026)
 
-- **Public:** homepage, Explore (search results with filter sidebar, chips and sort), property page (mosaic, key facts, trust panel, similar properties), compare, trust and verification.
+- **Public:** landing splash (`/`), home (`/home`), map search, Explore (search results with filter sidebar, chips and sort), property page (mosaic, key facts, trust panel, similar properties), compare, trust and verification.
 - **Advertiser:** portal overview dashboard, listings table, team, profile, leads (sidebar shell).
 
 **Next:**
 
-- Map and list split view, once a tile provider is chosen.
 - Multi-step listing form.
 - Lead pipeline statuses.
 - Staff dashboard.
