@@ -157,7 +157,7 @@ test.describe("PWA and sharing", () => {
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
     const res = await request.get(new URL(og!).pathname);
     expect(res.status()).toBe(200);
-    expect(res.headers()["content-type"]).toContain("image/png");
+    expect(res.headers()["content-type"]).toContain("image/jpeg");
   });
 });
 

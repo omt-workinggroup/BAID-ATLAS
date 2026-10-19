@@ -37,7 +37,10 @@ search, map search, agent dashboards, verification dashboards, UI kits). Pattern
     The light streak under the original is left out.
   - Used in the header (30 px tall, 34 px on desktop), footer (36 px), the landing splash (over the photo, with a soft
     shadow) and the offline page. It is white artwork, so it goes on black, dark or photo backgrounds only.
-  - Icons and the social image are the original artwork scaled onto black.
+  - **Mark:** `propertiq-mark.png` is the house-Q from the same artwork, cut out unchanged. It is the favicon
+    (rounded black tile, 16–64 px), the app icons (192, 512, maskable, Apple 180) and the tab icon.
+  - **Social preview:** `og.jpg` (1200 × 630, under 100 KB so WhatsApp shows it): logo, "Find Your Next Property",
+    one short line, the address, and the landing photo. Public pages carry full Open Graph and Twitter tags.
 - **Tagline:** "Property, understood better."
 
 ## Tokens
