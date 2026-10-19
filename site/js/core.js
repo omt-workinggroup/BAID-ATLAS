@@ -195,7 +195,7 @@ function headerView(signedIn, path) {
     <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
-        <a href="/home" class="logo" aria-label="Propertiq home"><span class="logo-frame"><img src="/brand/propertiq-logo.jpg" alt="Propertiq" width="1280" height="720" data-logo /></span></a>
+        <a href="/home" class="logo" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" data-logo /></a>
         <nav class="cat-nav" aria-label="Categories">
           <ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}>${label}</a></li>`)}</ul>
         </nav>
@@ -243,7 +243,7 @@ function footerView() {
     <footer class="site-footer">
       <div class="site-footer__inner">
         <div class="site-footer__about">
-          <span class="logo-frame"><img src="/brand/propertiq-logo.jpg" alt="Propertiq" width="1280" height="720" loading="lazy" data-logo /></span>
+          <img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" loading="lazy" data-logo />
           <p>Property listings for Ghana, reviewed before they go live, with verification you can read in full.</p>
         </div>
         <div class="footer-cols">
@@ -263,9 +263,9 @@ export async function boot() {
   document.body.classList.add("app");
   document.body.insertAdjacentHTML("afterbegin", part(headerView(Boolean(user), path)));
   document.body.insertAdjacentHTML("beforeend", part(footerView()) + part(bottomNavView(Boolean(user), path)));
-  // The logo is the supplied artwork, used unchanged. If the file is missing, show the name in text instead.
+  // The logo is the supplied artwork on a transparent background. If the file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {
-    const fallback = () => img.parentElement.replaceWith(Object.assign(document.createElement("span"), { className: "logo-text", textContent: "Propertiq" }));
+    const fallback = () => img.replaceWith(Object.assign(document.createElement("span"), { className: "logo-text", textContent: "Propertiq" }));
     if (img.complete && img.naturalWidth === 0) fallback();
     else img.addEventListener("error", fallback, { once: true });
   });

@@ -227,7 +227,7 @@ body.app {
 }
 
 /* ---- Header and navigation ------------------------------------------------ */
-/* Black, so the supplied white-on-black logo sits on its own background, unchanged. */
+/* Black header, matching the logo's original background. */
 .site-header {
   position: sticky;
   top: 0;
@@ -246,24 +246,18 @@ body.app {
   justify-content: space-between;
   gap: 1rem;
 }
-/* The logo is the supplied 1280x720 artwork, unedited. This frame shows the part around the wordmark
-   (x 200-1090, y 230-500); the rest of the file is plain black like the header, so nothing is altered. */
-.logo-frame {
-  --h: 46px;
-  position: relative;
+/* The logo is the supplied artwork with its black background made transparent (the wordmark and house are
+   untouched), so it sits cleanly on the black header, the dark map and photos. */
+.logo-img {
   display: block;
-  width: calc(var(--h) * 890 / 270);
-  height: var(--h);
-  overflow: hidden;
-  flex: none;
-}
-.logo-frame img {
-  position: absolute;
+  width: auto;
+  height: 30px;
   max-width: none;
-  width: calc(var(--h) * 1280 / 270);
-  height: auto;
-  left: calc(var(--h) * -200 / 270);
-  top: calc(var(--h) * -230 / 270);
+}
+@media (min-width: 1024px) {
+  .site-header .logo-img {
+    height: 34px;
+  }
 }
 .logo {
   display: flex;
@@ -412,8 +406,8 @@ body.app {
     grid-template-columns: 1.2fr 2fr;
   }
 }
-.site-footer__about .logo-frame {
-  --h: 54px;
+.site-footer__about .logo-img {
+  height: 36px;
 }
 .site-footer__about p {
   margin-top: 1rem;
@@ -3974,8 +3968,8 @@ button.link {
   padding: max(1.1rem, env(safe-area-inset-top)) 1.25rem 0;
 }
 .splash__logo {
-  --h: 34px;
-  border-radius: 8px;
+  height: 30px;
+  filter: drop-shadow(0 2px 10px rgb(0 0 0 / 0.45));
 }
 .splash__signin {
   display: inline-flex;
@@ -4086,7 +4080,7 @@ button.link {
     padding: 2rem 3.5rem 0;
   }
   .splash__logo {
-    --h: 44px;
+    height: 38px;
   }
   .splash__content {
     grid-column: 1;

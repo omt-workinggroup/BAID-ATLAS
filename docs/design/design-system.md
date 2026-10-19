@@ -32,8 +32,12 @@ search, map search, agent dashboards, verification dashboards, UI kits). Pattern
 ## Brand
 
 - **Logo:** the supplied file `site/brand/propertiq-logo.jpg`, never redrawn or recoloured.
-  - The header and footer show it through a CSS frame over its plain black margin, so they are pure black (`#000`) to match.
-  - Icons and the social image are the same artwork scaled onto black.
+  - `propertiq-logo.png` / `.webp` (880 × 216) are the same artwork with the black background made transparent:
+    each pixel keeps its colour and the black becomes see-through, so the wordmark, house and soft edges are unchanged.
+    The light streak under the original is left out.
+  - Used in the header (30 px tall, 34 px on desktop), footer (36 px), the landing splash (over the photo, with a soft
+    shadow) and the offline page. It is white artwork, so it goes on black, dark or photo backgrounds only.
+  - Icons and the social image are the original artwork scaled onto black.
 - **Tagline:** "Property, understood better."
 
 ## Tokens
