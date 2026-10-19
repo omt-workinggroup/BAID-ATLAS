@@ -21,7 +21,7 @@ test.describe("public pages", () => {
   test("home renders with mobile navigation", async ({ page }, info) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Find property with more confidence");
-    await expect(page.getByPlaceholder("East Legon, Kumasi, PQ-…")).toBeVisible();
+    await expect(page.getByPlaceholder("Search your home, area or PQ-…")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Primary" }).last()).toBeVisible();
     await expectNoHorizontalScroll(page);
     await shot(page, "01-home", info.project.name);
@@ -158,8 +158,8 @@ test("desktop layout shows top navigation @desktop", async ({ page }) => {
 test.describe("discovery", () => {
   test("home search submits to Explore", async ({ page }) => {
     await page.goto("/");
-    await page.getByPlaceholder("East Legon, Kumasi, PQ-…").fill("Kumasi");
-    await page.getByPlaceholder("East Legon, Kumasi, PQ-…").press("Enter");
+    await page.getByPlaceholder("Search your home, area or PQ-…").fill("Kumasi");
+    await page.getByPlaceholder("Search your home, area or PQ-…").press("Enter");
     await expect(page).toHaveURL(/\/explore\?q=Kumasi/);
     await expect(page.locator("#q")).toHaveValue("Kumasi");
   });

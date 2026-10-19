@@ -8,7 +8,7 @@ boot();
 document.querySelector(".home-search")?.addEventListener("submit", (e) => {
   e.preventDefault();
   const d = new FormData(e.currentTarget);
-  location.href = `/explore${toQueryString({ q: String(d.get("q") ?? "").trim() || undefined, purpose: d.get("purpose") || undefined, type: d.get("type") || undefined })}`;
+  location.href = `/explore${toQueryString({ q: String(d.get("q") ?? "").trim() || undefined })}`;
 });
 
 const rail = document.getElementById("latest-rail");

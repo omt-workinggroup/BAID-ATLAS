@@ -86,14 +86,26 @@ const photosDialog = photos.length
       <div class="photos-dialog__list">${photos.map((p, i) => html`<figure id="photo-${i}"><img src="${p.url}" alt="${p.alt_text ?? `${l.title}, photo ${i + 1}`}" loading="lazy" />${p.is_render ? html`<figcaption>Render — not a photo</figcaption>` : p.is_virtually_staged ? html`<figcaption>Virtually staged</figcaption>` : ""}</figure>`)}</div>
     </dialog>`
   : "";
-// The most useful facts at a glance, with icons; the full table follows below.
+// Stats card (reference design): number first, label under it.
+const stat = (ic, n, label) => [ic, n, label];
 const keyFacts = [
-  l.bedrooms !== null && l.bedrooms !== undefined && ["bed", `${l.bedrooms} ${l.bedrooms === 1 ? "bedroom" : "bedrooms"}`],
-  l.bathrooms !== null && l.bathrooms !== undefined && ["bath", `${l.bathrooms} ${l.bathrooms === 1 ? "bathroom" : "bathrooms"}`],
-  formatArea(l.floor_area, l.floor_area_unit) && ["area", `${formatArea(l.floor_area, l.floor_area_unit)} floor`],
-  formatArea(l.land_area, l.land_area_unit) && ["plot", `${formatArea(l.land_area, l.land_area_unit)} land`],
-  ["house", subtypeLabel(catalogue, l.property_type, l.subtype) ?? PROPERTY_TYPE_LABELS[l.property_type]],
-].filter(Boolean);
+  l.bedrooms != null && stat("bed", l.bedrooms, l.bedrooms === 1 ? "Bed" : "Beds"),
+  l.bathrooms != null && stat("bath", l.bathrooms, l.bathrooms === 1 ? "Bath" : "Baths"),
+  details?.parking_spaces != null && stat("car", details.parking_spaces, "Parking"),
+  formatArea(l.floor_area, l.floor_area_unit) && stat("area", formatArea(l.floor_area, l.floor_area_unit), "Floor"),
+  formatArea(l.land_area, l.land_area_unit) && stat("plot", formatArea(l.land_area, l.land_area_unit), "Land"),
+].filter(Boolean).slice(0, 4);
+const periodLabel = { per_month: "Per month", per_year: "Per year", per_week: "Per week", per_night: "Per night" }[l.price_period] ?? "Total price";
+
+// Phones: photo grid under the stats card; the last tile opens every photo.
+const photoGrid = photos.length >= 2
+  ? html`<div class="pd-photos pd-photos--${Math.min(photos.length, 4)}">
+      ${photos.slice(0, 4).map((p, i, arr) => html`<button type="button" class="pd-photos__item" data-photo="${i}" aria-label="Open photo ${i + 1} of ${photos.length}">
+        <img src="${p.url}" alt="" loading="lazy" />
+        ${i === arr.length - 1 && photos.length > arr.length ? html`<span class="pd-photos__more"><b>${photos.length - arr.length + 1}+</b>Photos</span>` : ""}
+      </button>`)}
+    </div>`
+  : "";
 
 const gallery = photos.length
   ? html`<section class="gallery${mosaic ? " gallery--has-mosaic" : ""}" aria-roledescription="carousel" aria-label="Photos of ${l.title}">
@@ -110,22 +122,36 @@ render(
   html`
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/explore">Explore</a><span aria-hidden="true">/</span><a href="/explore?purpose=${l.purpose}">${PURPOSE_LABELS[l.purpose]}</a></nav>
     ${mosaic}
-    ${gallery}
+    <div class="pd-hero${mosaic ? " pd-hero--has-mosaic" : ""}">
+      ${gallery}
+      <div class="pd-hero__controls">
+        <a class="round-btn round-btn--light" href="/explore" data-back aria-label="Back">${icon("back", 20, 2)}</a>
+        <span class="row" style="gap: 0.5rem">
+          <button type="button" class="round-btn round-btn--light" data-share aria-label="Share">${icon("share", 18)}</button>
+          <button type="button" class="round-btn round-btn--light" data-save="${l.id}" data-slug="${l.slug}" aria-pressed="${saved}" aria-label="Save">${icon("heart", 18, 2)}</button>
+        </span>
+      </div>
+      <div class="pd-hero__text" aria-hidden="true">
+        <div><p class="pd-hero__title">${l.title}</p><p class="pd-hero__loc">${icon("pin", 14)}${location_}</p></div>
+        <div style="text-align: right"><p class="pd-hero__price">${formatPrice(l.asking_price, l.currency)}</p><p class="pd-hero__loc">${PURPOSE_LABELS[l.purpose]}</p></div>
+      </div>
+    </div>
     ${photosDialog}
     <div class="property-layout">
       <div class="stack-lg">
-        <header class="stack">
-          <div class="row wrap">
+        <header class="stack pd-head">
+          <div class="row wrap pd-desk">
             <span class="tag tag--dark">${PURPOSE_LABELS[l.purpose]}</span>
             ${l.is_sponsored ? html`<span class="tag tag--sponsored">Sponsored</span>` : ""}
             <span class="tiny muted">${listedAgo(l.published_at)}</span>
           </div>
-          <h1>${l.title}</h1>
-          <p class="row muted" style="gap: 0.375rem">${icon("pin", 16)}${location_}</p>
-          <p class="price-big">${price}${l.negotiable ? html` <span class="tag tag--light" style="vertical-align: middle">Negotiable</span>` : ""}</p>
+          <h1 class="pd-h1">${l.title}</h1>
+          <p class="row muted pd-desk" style="gap: 0.375rem">${icon("pin", 16)}${location_}</p>
+          <p class="price-big pd-desk">${price}${l.negotiable ? html` <span class="tag tag--light" style="vertical-align: middle">Negotiable</span>` : ""}</p>
           <p class="tiny muted">Reference ${l.reference}</p>
-          <ul class="keyfacts">${keyFacts.map(([ic, t]) => html`<li>${icon(ic, 20)}<span>${t}</span></li>`)}</ul>
-          <div class="row wrap">
+          ${keyFacts.length ? html`<ul class="keyfacts statcard">${keyFacts.map(([ic, n, label]) => html`<li>${icon(ic, 20)}<b>${n}</b><span>${label}</span></li>`)}</ul>` : ""}
+          ${photoGrid}
+          <div class="row wrap pd-desk">
             <button type="button" class="btn btn--secondary btn--small" data-save="${l.id}" data-slug="${l.slug}" data-label="text" aria-pressed="${saved}">${icon("heart", 18, 2)}<span> ${saved ? "Saved" : "Save"}</span></button>
             <button type="button" class="btn btn--secondary btn--small" id="share">${icon("share", 18)} Share</button>
           </div>
@@ -135,7 +161,7 @@ render(
           <dl class="facts-table">${facts.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>
         </section>
         ${trustPanel(trust, { sponsored: l.is_sponsored })}
-        ${listing?.description ? html`<section class="stack-sm"><h2 style="font-size: 1.5rem">About this property</h2><p class="prose">${listing.description}</p></section>` : ""}
+        ${listing?.description ? html`<section class="stack-sm"><h2 style="font-size: 1.5rem">About this property</h2><p class="prose clamp" id="about">${listing.description}</p><button type="button" class="see-more" id="see-more" hidden>See more</button></section>` : ""}
         ${amenities.length ? html`<section class="stack-sm"><h2 style="font-size: 1.5rem">Amenities</h2><ul class="amenity-list">${amenities.map((a) => html`<li>${icon("check", 16, 2)}${a}</li>`)}</ul><p class="tiny muted">As stated by the advertiser.</p></section>` : ""}
         ${l.completion_status && l.completion_status !== "completed" ? html`<p class="alert alert--warning">${l.completion_status === "off_plan" ? "Off-plan: this property has not been built yet." : "Under construction: this property is not finished yet."} Ask the advertiser for the building permit and the expected completion date.</p>` : ""}
         ${anyRender ? html`<p class="alert alert--warning">Some images are renders or virtually staged. They don't show the property's current condition, completion or exact dimensions.</p>` : ""}
@@ -151,8 +177,8 @@ render(
           <p class="tiny muted">Listed by</p>
           <a href="/providers/${l.organization_slug}" class="row"><span class="monogram">${l.organization_name.slice(0, 1)}</span><span><span class="bold">${l.organization_name}</span><br /><span class="tiny muted">View provider profile</span></span></a>
           ${l.organization_verification_status === "verified" ? html`<div class="stack-sm">${verifiedLabel(l.organization_verification_scope, false)}<p class="tiny muted">Checked by Propertiq. This doesn't prove ownership of this property — always confirm title documents.</p></div>` : ""}
-          <button type="button" class="btn btn--full" data-open="inquiry-sheet">${icon("chat", 18)} Message provider</button>
-          <button type="button" class="btn btn--secondary btn--full" data-open="viewing-sheet">${icon("calendar", 18)} Request a viewing</button>
+          <button type="button" class="btn btn--full" data-open="inquiry-sheet">${icon("chat", 18)} Contact advertiser</button>
+          <button type="button" class="btn btn--outline-warm btn--full" data-open="viewing-sheet">${icon("calendar", 18)} Schedule visit</button>
         </section>
         <section class="card stack-sm small">
           <h2 style="font-size: 1.2rem">Before you pay anything</h2>
@@ -169,8 +195,9 @@ render(
       <div class="listing-grid" id="similar-grid"></div>
     </section>
     <div class="action-bar"><div class="action-bar__inner">
-      <div style="flex: 1; min-width: 0"><p class="bold truncate">${price}</p><p class="tiny muted truncate">${l.organization_name}</p></div>
-      <button type="button" class="btn" data-open="inquiry-sheet">Message</button>
+      <div style="flex: 1; min-width: 0"><p class="tiny bold truncate">${formatPrice(l.asking_price, l.currency)}</p><p class="truncate" style="font-size: 1rem">${periodLabel}</p></div>
+      <button type="button" class="btn btn--outline-warm" data-open="viewing-sheet">Schedule visit</button>
+      <button type="button" class="btn" data-open="inquiry-sheet">Contact</button>
     </div></div>`,
 );
 root.removeAttribute("aria-busy");
@@ -183,6 +210,21 @@ if (hasPosition(l)) {
     await m.loadLeaflet();
     m.areaMap(document.getElementById("area-map"), Number(l.public_latitude), Number(l.public_longitude));
   }).catch(() => document.getElementById("area-map")?.remove());
+}
+
+// ---- Hero buttons and "See more" ------------------------------------------------------------------------
+root.querySelector("[data-back]")?.addEventListener("click", (e) => {
+  if (history.length > 1 && document.referrer.startsWith(location.origin)) (e.preventDefault(), history.back());
+});
+root.querySelector("[data-share]")?.addEventListener("click", () => document.getElementById("share").click());
+const about = document.getElementById("about");
+if (about && about.scrollHeight > about.clientHeight + 4) {
+  const more = document.getElementById("see-more");
+  more.hidden = false;
+  more.addEventListener("click", () => {
+    const open = about.classList.toggle("clamp--open");
+    more.textContent = open ? "See less" : "See more";
+  });
 }
 
 // ---- All photos ------------------------------------------------------------------------------------------

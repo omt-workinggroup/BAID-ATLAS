@@ -1,6 +1,6 @@
 // Listing cards, search and saving. Used by Home, Explore, Saved and provider pages.
 import { $$, getUser, html, icon, raw, sb, signedUrls, toast } from "./core.js";
-import { COMPLETION_LABELS, FURNISHING_LABELS, PROPERTY_TYPES, PURPOSES, PURPOSE_LABELS, PROPERTY_TYPE_LABELS, formatLocation, formatPrice, listingFacts } from "./format.js";
+import { COMPLETION_LABELS, FURNISHING_LABELS, PROPERTY_TYPES, PURPOSES, PURPOSE_LABELS, PROPERTY_TYPE_LABELS, formatArea, formatLocation, formatPrice } from "./format.js";
 import { STALE_AFTER_DAYS, availabilityState } from "./trust.js";
 
 export const CARD_COLUMNS =
@@ -127,13 +127,22 @@ export function verifiedLabel(scope, compact = true) {
   return html`<span class="verified" title="${scope ? `Verified: ${scope}. This does not prove ownership of any specific property.` : ""}">${icon("check", 13, 3)}${compact ? "Verified provider" : `Verified: ${scope ?? "provider"}`}</span>`;
 }
 
+// Photo card: name, price and key facts sit on the photo (reference design); trust details sit just below.
 export function listingCard(l, { saved = false, eager = false } = {}) {
-  const facts = listingFacts(l);
+  const isNew = l.published_at && Date.now() - new Date(l.published_at).getTime() < 7 * 86_400_000;
+  const area = formatArea(l.floor_area, l.floor_area_unit) ?? formatArea(l.land_area, l.land_area_unit);
+  const home = l.property_type !== "land";
+  const facts = [
+    home && l.bedrooms != null && ["bed", `${l.bedrooms} ${l.bedrooms === 1 ? "Bed" : "Beds"}`],
+    home && l.bathrooms != null && ["bath", `${l.bathrooms} ${l.bathrooms === 1 ? "Bath" : "Baths"}`],
+    area && ["area", area],
+  ].filter(Boolean);
   return html`<article class="lcard">
     <div class="lcard__media">
       ${l.cover_url ? html`<img src="${l.cover_url}" alt="${l.cover_alt ?? l.title}" loading="${eager ? "eager" : "lazy"}" decoding="async" />` : noPhoto()}
       <div class="lcard__tags">
         <div>
+          ${isNew ? html`<span class="tag tag--light">New</span>` : ""}
           <span class="tag tag--light">${PURPOSE_LABELS[l.purpose]}</span>
           ${l.is_sponsored ? html`<span class="tag tag--sponsored">Sponsored</span>` : ""}
           ${l.cover_is_render || l.cover_is_staged ? html`<span class="tag tag--warning">${l.cover_is_render ? "Render" : "Staged"}</span>` : ""}
@@ -141,15 +150,20 @@ export function listingCard(l, { saved = false, eager = false } = {}) {
         </div>
         ${heartButton(l, saved)}
       </div>
-      ${l.image_count > 1 ? html`<span class="lcard__count">${icon("photo", 12, 2)}${l.image_count}</span>` : ""}
+      <div class="lcard__overlay">
+        <div class="lcard__headline">
+          <h3 class="lcard__title"><a href="/properties/${l.slug}">${l.title}</a></h3>
+          <p class="lcard__price">${formatPrice(l.asking_price, l.currency, l.price_period)}</p>
+        </div>
+        ${facts.length ? html`<ul class="lcard__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 16)}${t}</li>`)}</ul>` : ""}
+      </div>
     </div>
     <div class="lcard__body">
-      <p class="lcard__price">${formatPrice(l.asking_price, l.currency, l.price_period)}</p>
-      <h3 class="lcard__title"><a href="/properties/${l.slug}">${l.title}</a></h3>
-      <p class="lcard__meta">${PROPERTY_TYPE_LABELS[l.property_type]} · ${formatLocation(l.locality, l.city)}</p>
-      ${facts.length ? html`<ul class="facts-inline">${facts.map((f) => html`<li>${f}</li>`)}</ul>` : ""}
-      ${l.organization_verification_status === "verified" ? html`<div class="mt-1">${verifiedLabel(l.organization_verification_scope)}</div>` : ""}
-      ${availabilityLine(l.availability_confirmed_at)}
+      <p class="lcard__meta">${icon("pin", 14)}${PROPERTY_TYPE_LABELS[l.property_type]} · ${formatLocation(l.locality, l.city)}</p>
+      <div class="lcard__trust">
+        ${l.organization_verification_status === "verified" ? verifiedLabel(l.organization_verification_scope) : ""}
+        ${availabilityLine(l.availability_confirmed_at)}
+      </div>
       <button type="button" class="compare-btn" data-compare="${l.id}" aria-pressed="false">${icon("check", 14, 2.4)} Compare</button>
     </div>
   </article>`;

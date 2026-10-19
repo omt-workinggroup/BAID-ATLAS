@@ -20,13 +20,13 @@
       <div class="stack">
         <div class="stack-sm">
           <h1 id="heading">Explore property</h1>
-          <div class="row">
+          <div class="pill-search">
             <form class="search-box" action="/explore" method="get" role="search" id="search-form">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" style="color: var(--muted); flex: none"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg>
               <label for="q" class="sr-only">Search by place or title</label>
               <input id="q" name="q" placeholder="Area, city or reference (PQ-…)" enterkeyhint="search" />
             </form>
-            <button type="button" class="icon-btn" id="open-filters" aria-haspopup="dialog" aria-label="Filters">
+            <button type="button" class="icon-btn filter-square" id="open-filters" aria-haspopup="dialog" aria-label="Filters">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4" /></svg>
               <span class="badge-count" id="filter-count" hidden style="position: absolute; top: -6px; right: -6px; margin: 0; background: var(--primary)"></span>
             </button>

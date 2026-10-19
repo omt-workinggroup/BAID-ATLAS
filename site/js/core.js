@@ -66,6 +66,7 @@ const PATHS = {
   area: "M4 4h16v16H4zM4 9h4M4 14h2M9 4v4M14 4v2",
   plot: "M3 20 8 4h8l5 16zM6 14h12M9.5 9h5",
   grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+  car: "M4 17v-4l2-6h12l2 6v4zM4 17v2M20 17v2M4 13h16M7.5 15h.01M16.5 15h.01",
 };
 export function icon(name, size = 22, stroke = 1.6) {
   return raw(
@@ -207,7 +208,12 @@ function headerView(signedIn, path) {
               )}
           </ul>
         </nav>
-        ${signedIn ? "" : html`<a href="/sign-in" class="header-signin">Sign in</a>`}
+        ${signedIn
+          ? html`<div class="header-icons">
+              <a class="round-btn" href="/inbox" aria-label="Inbox">${icon("inbox", 20)}<span class="dot" data-unread-dot hidden></span></a>
+              <a class="round-btn round-btn--avatar" href="/account" aria-label="Your account" data-avatar>${icon("user", 18, 2)}</a>
+            </div>`
+          : html`<a href="/sign-in" class="header-signin">Sign in</a>`}
       </div>
     </header>`;
 }
@@ -263,7 +269,14 @@ export async function boot() {
     if (img.complete && img.naturalWidth === 0) fallback();
     else img.addEventListener("error", fallback, { once: true });
   });
-  if (user) refreshUnread();
+  if (user) {
+    refreshUnread();
+    // The account button shows the person's initial, like an avatar.
+    getProfile().then((p) => {
+      const initial = (p?.display_name ?? "").trim().charAt(0).toUpperCase();
+      document.querySelectorAll("[data-avatar]").forEach((a) => initial && (a.textContent = initial));
+    }).catch(() => {});
+  }
   if ("serviceWorker" in navigator && location.hostname !== "localhost") navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 

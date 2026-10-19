@@ -81,6 +81,8 @@ function placeFilters() {
 }
 placeFilters();
 wide.addEventListener("change", placeFilters);
+// Arriving from the homepage filter button opens the filters straight away on phones.
+if (params().get("filters") === "open" && !dialog.open) dialog.showModal();
 
 // List / map switch (keeps every filter)
 render(
