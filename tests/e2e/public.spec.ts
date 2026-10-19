@@ -20,7 +20,7 @@ async function shot(page: Page, name: string, project: string) {
 test.describe("public pages", () => {
   test("landing page is a standalone splash without navigation", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Find property with more confidence");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find Your Next Property");
     await expect(page.getByRole("navigation")).toHaveCount(0);
     await expectNoHorizontalScroll(page);
     await page.getByRole("link", { name: "Get Started" }).click();
