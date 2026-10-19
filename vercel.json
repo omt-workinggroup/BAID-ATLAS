@@ -132,7 +132,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ecikayrsbjzgdjkehnhl.supabase.co; font-src 'self'; connect-src 'self' https://ecikayrsbjzgdjkehnhl.supabase.co wss://ecikayrsbjzgdjkehnhl.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ecikayrsbjzgdjkehnhl.supabase.co https://api.maptiler.com; font-src 'self'; connect-src 'self' https://ecikayrsbjzgdjkehnhl.supabase.co wss://ecikayrsbjzgdjkehnhl.supabase.co https://api.maptiler.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
         },
         {
           "key": "X-Content-Type-Options",

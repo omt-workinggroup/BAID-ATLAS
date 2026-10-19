@@ -1,7 +1,7 @@
 // New listing: details first; photos come next on the edit page.
 import { boot, formMessage, html, render, sb, setTitle, showErrors } from "../core.js";
 import { loadCatalogue } from "../catalogue.js";
-import { listingDbMessage, listingFormView, readListingForm, wireListingForm } from "../listingform.js";
+import { listingDbMessage, listingFormView, readListingForm, wireListingForm, wirePinPicker } from "../listingform.js";
 import { canEditListings, requireMembership } from "../portal.js";
 
 boot();
@@ -21,6 +21,7 @@ root.removeAttribute("aria-busy");
 
 const form = document.getElementById("listing-form");
 wireListingForm(form, catalogue);
+wirePinPicker(form);
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const { payload, errors } = readListingForm(form);

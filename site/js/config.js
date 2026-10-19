@@ -4,3 +4,7 @@ export const SUPABASE_URL = "https://ecikayrsbjzgdjkehnhl.supabase.co";
 export const SUPABASE_KEY = "sb_publishable_PvFo2yR2L05I89ToXMBp0A_U3HzZ8l0";
 export const SITE_NAME = "Propertiq";
 export const MEDIA_BUCKET = "listing-media";
+// MapTiler map tiles. This key is public by design (every visitor's browser uses it); it is restricted in the
+// MapTiler dashboard to Propertiq's own web addresses, so it cannot be used from other sites.
+export const MAPTILER_KEY = "9g1fE8seqYv83q0AINcI";
+export const MAP_STYLE = "dataviz-light";

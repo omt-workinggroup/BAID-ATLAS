@@ -6,7 +6,9 @@ import { activeFilterCount, listingCard, parseSearch, savedIds, searchListings, 
 
 boot();
 const f = parseSearch(params());
-const base = { q: f.q, type: f.type, min: f.min, max: f.max, beds: f.beds, baths: f.baths, furnishing: f.furnishing, fresh: f.fresh, stage: f.stage, currency: f.currency, sort: f.sort };
+const mapView = params().get("view") === "map";
+if (mapView) document.body.classList.add("explore--map");
+const base = { q: f.q, type: f.type, min: f.min, max: f.max, beds: f.beds, baths: f.baths, furnishing: f.furnishing, fresh: f.fresh, stage: f.stage, currency: f.currency, sort: f.sort, view: mapView ? "map" : undefined };
 
 // Heading and title
 const heading = f.stage === "new" ? "New developments" : f.purpose ? `${PURPOSE_LABELS[f.purpose]}${f.type ? ` · ${PROPERTY_TYPE_LABELS[f.type]}` : ""}` : f.type ? PROPERTY_TYPE_LABELS[f.type] : "Explore property";
@@ -62,13 +64,13 @@ filterForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const d = new FormData(filterForm);
   const v = (k) => String(d.get(k) ?? "").trim() || undefined;
-  location.href = `/explore${toQueryString({ q: v("q"), purpose: v("purpose"), type: v("type"), currency: v("min") || v("max") ? v("currency") : undefined, min: v("min"), max: v("max"), beds: v("beds"), baths: v("baths"), furnishing: v("furnishing"), fresh: d.get("fresh") ? "1" : undefined, stage: f.stage, sort: v("sort") === "newest" ? undefined : v("sort") })}`;
+  location.href = `/explore${toQueryString({ q: v("q"), purpose: v("purpose"), type: v("type"), currency: v("min") || v("max") ? v("currency") : undefined, min: v("min"), max: v("max"), beds: v("beds"), baths: v("baths"), furnishing: v("furnishing"), fresh: d.get("fresh") ? "1" : undefined, stage: f.stage, view: mapView ? "map" : undefined, sort: v("sort") === "newest" ? undefined : v("sort") })}`;
 });
 
 // Wide screens: the same filter form stays open as a sidebar instead of a sheet.
 const wide = matchMedia("(min-width: 1024px)");
 function placeFilters() {
-  if (wide.matches) {
+  if (wide.matches && !mapView) {
     if (dialog.open && dialog.matches(":modal")) dialog.close();
     if (!dialog.open) dialog.show();
     dialog.classList.add("sheet--inline");
@@ -79,6 +81,41 @@ function placeFilters() {
 }
 placeFilters();
 wide.addEventListener("change", placeFilters);
+
+// List / map switch (keeps every filter)
+render(
+  "#view-switch",
+  html`<a href="/explore${toQueryString({ ...base, purpose: f.purpose, view: undefined })}" ${raw(mapView ? "" : 'aria-current="page"')}>List</a><a href="/explore${toQueryString({ ...base, purpose: f.purpose, view: "map" })}" ${raw(mapView ? 'aria-current="page"' : "")}>Map</a>`,
+);
+
+// Map view: Leaflet is only downloaded when the map is actually opened.
+let mapApi = null;
+const mapRows = [];
+async function ensureMap() {
+  if (!mapView) return null;
+  if (mapApi) return mapApi;
+  document.getElementById("map-panel").hidden = false;
+  const m = await import("../map.js");
+  await m.loadLeaflet({ clusters: true });
+  const map = m.createMap(document.getElementById("map"));
+  mapApi = { m, map, layer: null };
+  return mapApi;
+}
+async function drawMarkers(rows) {
+  const api = await ensureMap().catch(() => null);
+  if (!api) {
+    if (mapView) render("#map-note", "The map couldn't load. The list still shows every result.");
+    return;
+  }
+  mapRows.push(...rows);
+  if (api.layer) api.map.removeLayer(api.layer.group);
+  api.layer = api.m.addListingMarkers(api.map, mapRows, {
+    onSelect: (id) => document.querySelector(`[data-compare="${id}"]`)?.closest(".lcard")?.scrollIntoView({ behavior: "smooth", block: "center" }),
+  });
+  api.m.fitToListings(api.map, api.layer.group);
+  const missing = mapRows.filter((r) => !api.m.hasPosition(r)).length;
+  render("#map-note", `Pins show the approximate area (about 1 km), never the exact address.${missing ? ` ${missing} of these ${missing === 1 ? "listing has" : "listings have"} no map location yet.` : ""}`);
+}
 
 // Sort menu above the results
 const sortSelect = document.getElementById("sort-select");
@@ -133,6 +170,7 @@ async function load(append) {
   else render(grid, cards);
   grid.removeAttribute("aria-busy");
   markCompare?.();
+  if (mapView) drawMarkers(result.rows);
   shown += result.rows.length;
   cursor = result.nextCursor;
   more.hidden = !cursor;

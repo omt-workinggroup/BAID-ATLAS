@@ -70,6 +70,7 @@
           <section class="stack" aria-label="Results">
             <div class="results-bar">
               <p class="small muted" aria-live="polite" id="results-count"></p>
+              <nav class="view-switch" aria-label="View" id="view-switch"></nav>
               <label class="sort-select"><span class="sr-only">Sort by</span>
                 <select class="select" id="sort-select">
                   <option value="newest">Newest first</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option>
@@ -77,7 +78,13 @@
             </div>
             <div class="active-filters" id="active-filters"></div>
             <div id="results-error"></div>
-            <div class="listing-grid listing-grid--results" id="results" aria-busy="true"></div>
+            <div class="explore-split">
+              <div class="listing-grid listing-grid--results" id="results" aria-busy="true"></div>
+              <div class="map-panel" id="map-panel" hidden>
+                <div id="map" class="map" role="region" aria-label="Map of approximate listing areas"></div>
+                <p class="tiny muted" id="map-note">Pins show the approximate area (about 1 km), never the exact address.</p>
+              </div>
+            </div>
             <div class="center"><button type="button" class="btn btn--secondary" id="load-more" hidden>Load more</button></div>
           </section>
         </div>

@@ -8,6 +8,7 @@ import { amenityLabel, loadCatalogue, subtypeLabel } from "../catalogue.js";
 import { trustItems, trustPanel } from "../trust.js";
 import { CARD_COLUMNS, listingCard, noPhoto, savedIds, verifiedLabel, wireSaveButtons, withCoverUrls } from "../listings.js";
 import { wireCompareButtons } from "../compare.js";
+const hasPosition = (l) => l.public_latitude !== null && l.public_latitude !== undefined && l.public_longitude !== null;
 
 boot();
 main();
@@ -140,7 +141,8 @@ render(
         ${anyRender ? html`<p class="alert alert--warning">Some images are renders or virtually staged. They don't show the property's current condition, completion or exact dimensions.</p>` : ""}
         <section class="stack-sm">
           <h2 style="font-size: 1.5rem">Location</h2>
-          <div class="location-card stack-sm"><p class="bold">${location_}</p><p class="small muted">Approximate area only. The provider shares the exact address once you're in touch.</p></div>
+          ${hasPosition(l) ? html`<div class="map map--area" id="area-map" role="img" aria-label="Map of the approximate area around ${location_}"></div>` : ""}
+          <div class="location-card stack-sm"><p class="bold">${location_}</p><p class="small muted">Approximate area only${hasPosition(l) ? " — the property is somewhere in the shaded circle" : ""}. The provider shares the exact address once you're in touch.</p></div>
         </section>
         <p class="small"><button type="button" class="btn btn--ghost btn--small" data-open="report-sheet" style="padding: 0; color: var(--muted)">${icon("flag", 16)} Report this listing</button></p>
       </div>
@@ -174,6 +176,14 @@ render(
 root.removeAttribute("aria-busy");
 root.style.paddingBottom = "5rem";
 wireSaveButtons(root);
+
+// ---- Area map (approximate only; loads after the page so it never slows it down) ----------------------------
+if (hasPosition(l)) {
+  import("../map.js").then(async (m) => {
+    await m.loadLeaflet();
+    m.areaMap(document.getElementById("area-map"), Number(l.public_latitude), Number(l.public_longitude));
+  }).catch(() => document.getElementById("area-map")?.remove());
+}
 
 // ---- All photos ------------------------------------------------------------------------------------------
 root.addEventListener("click", (e) => {

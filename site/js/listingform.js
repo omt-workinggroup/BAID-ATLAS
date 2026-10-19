@@ -60,6 +60,19 @@ export function listingFormView(v = {}, { locked = false, submitLabel = "Save", 
         </div>
         ${field({ label: "Area or neighbourhood (optional)", name: "locality", value: v.locality, attrs: 'maxlength="80"' })}
         ${field({ label: "Exact address (private)", name: "address_private", value: v.address_private, hint: "Never shown publicly. Only your team can see it.", attrs: 'maxlength="300"' })}
+        <div class="stack-sm" id="pin-section">
+          <p class="bold small">Map location</p>
+          <p class="tiny muted">Place the pin on the property. Buyers only ever see the area, rounded to about 1 km — never the exact spot.</p>
+          <div class="row">
+            <label class="sr-only" for="pin-search">Find a place on the map</label>
+            <input class="input" id="pin-search" placeholder="Find a place, e.g. East Legon" autocomplete="off" />
+            <button type="button" class="btn btn--secondary btn--small" id="pin-find">Find</button>
+          </div>
+          <div class="map map--picker" id="pin-map" role="application" aria-label="Map: tap to place the pin"></div>
+          <div class="row-between"><span class="tiny muted" id="pin-status">${v.latitude ? "Pin placed." : "No pin yet."}</span><button type="button" class="link small" id="pin-clear" ${raw(v.latitude ? "" : "hidden")}>Remove pin</button></div>
+          <input type="hidden" name="latitude" value="${v.latitude ?? ""}" />
+          <input type="hidden" name="longitude" value="${v.longitude ?? ""}" />
+        </div>
       </section>
       <section class="card stack">
         <h2>Size and details</h2>
@@ -94,6 +107,12 @@ export function listingFormView(v = {}, { locked = false, submitLabel = "Save", 
     </fieldset>
   </form>`;
 }
+
+// A coordinate from the hidden pin fields, or "" when no pin was placed.
+const coord = (v, max) => {
+  const n = Number(v);
+  return v !== null && v !== "" && Number.isFinite(n) && Math.abs(n) <= max ? n.toFixed(6) : "";
+};
 
 // Validates the form; returns { payload, errors }.
 export function readListingForm(form) {
@@ -144,7 +163,7 @@ export function readListingForm(form) {
       title: values.title, description: values.description ?? "", purpose: values.purpose, property_type: type,
       subtype: String(d.get("subtype") ?? ""),
       region: values.region, city: values.city, locality: values.locality ?? "", address_private: values.address_private ?? "",
-      latitude: "", longitude: "",
+      latitude: coord(d.get("latitude"), 90), longitude: coord(d.get("longitude"), 180),
       bedrooms: home ? s(values.bedrooms) : "", bathrooms: home ? s(values.bathrooms) : "",
       floor_area: land ? "" : s(values.floor_area), floor_area_unit: floorUnit, land_area: s(values.land_area), land_area_unit: landUnit,
       furnishing: pick("furnishing"), condition: pick("condition"), completion_status: pick("completion_status"),
@@ -188,4 +207,46 @@ export function listingDbMessage(error) {
     default:
       return "Something went wrong. Please try again.";
   }
+}
+
+// The pin picker. Leaflet loads only when the form is shown; the form still works if the map can't load.
+export async function wirePinPicker(form) {
+  const el = form.querySelector("#pin-map");
+  if (!el) return;
+  const m = await import("./map.js");
+  try {
+    await m.loadLeaflet();
+  } catch {
+    form.querySelector("#pin-status").textContent = "The map couldn't load. You can save without a pin and add it later.";
+    el.hidden = true;
+    return;
+  }
+  const lat = form.latitude.value, lng = form.longitude.value;
+  const map = m.createMap(el, { center: lat ? [Number(lat), Number(lng)] : [5.6037, -0.187], zoom: lat ? 15 : 11, scrollWheelZoom: false });
+  let pin = lat ? window.L.marker([Number(lat), Number(lng)], { icon: m.pinIcon() }).addTo(map) : null;
+  const status = form.querySelector("#pin-status");
+  const clear = form.querySelector("#pin-clear");
+  const place = (latlng) => {
+    pin ? pin.setLatLng(latlng) : (pin = window.L.marker(latlng, { icon: m.pinIcon() }).addTo(map));
+    form.latitude.value = latlng.lat.toFixed(6);
+    form.longitude.value = latlng.lng.toFixed(6);
+    status.textContent = "Pin placed. Buyers will see the area within about 1 km.";
+    clear.hidden = false;
+  };
+  if (form.querySelector("fieldset[disabled]")) return; // read-only while in review or live
+  map.on("click", (e) => place(e.latlng));
+  clear.addEventListener("click", () => {
+    pin?.remove();
+    pin = null;
+    form.latitude.value = form.longitude.value = "";
+    status.textContent = "No pin yet.";
+    clear.hidden = true;
+  });
+  const find = async () => {
+    const hit = await m.findPlace(form.querySelector("#pin-search").value).catch(() => null);
+    if (hit) map.setView(hit, 15);
+    else status.textContent = "Couldn't find that place. Try a nearby area or town.";
+  };
+  form.querySelector("#pin-find").addEventListener("click", find);
+  form.querySelector("#pin-search").addEventListener("keydown", (e) => e.key === "Enter" && (e.preventDefault(), find()));
 }

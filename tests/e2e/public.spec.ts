@@ -121,6 +121,16 @@ test("explore shows filters as a sidebar on wide screens @desktop", async ({ pag
   await expect(page.getByRole("link", { name: "Remove filter: 3+ bedrooms" })).toHaveAttribute("href", "/explore?purpose=sale");
 });
 
+test("explore offers a map view that keeps the filters", async ({ page }) => {
+  await page.goto("/explore?purpose=sale");
+  const toMap = page.getByRole("navigation", { name: "View" }).getByRole("link", { name: "Map" });
+  const href = new URL((await toMap.getAttribute("href"))!, "http://x");
+  expect(Object.fromEntries(href.searchParams)).toEqual({ purpose: "sale", view: "map" });
+  await toMap.click();
+  await expect(page.getByRole("navigation", { name: "View" }).getByRole("link", { name: "Map" })).toHaveAttribute("aria-current", "page");
+  await expectNoHorizontalScroll(page);
+});
+
 test.describe("PWA and sharing", () => {
   test("manifest and icons are served", async ({ request }) => {
     const manifest = await (await request.get("/manifest.webmanifest")).json();

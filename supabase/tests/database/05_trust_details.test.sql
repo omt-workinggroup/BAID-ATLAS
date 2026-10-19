@@ -2,7 +2,7 @@
 -- Personas: vera (owner, org will be verified), uma (owner, unverified org), ada (platform admin),
 -- mo (moderator), sam (signed-in, no organisation), anonymous visitor.
 begin;
-select plan(24);
+select plan(26);
 
 create schema tests;
 grant usage on schema tests to anon, authenticated;
@@ -135,6 +135,15 @@ select ok((select reference ~ '^PQ-' and availability_confirmed_at is not null a
              from public.listing_cards where id = (select v from ctx where k = 'h1')),
   'visitors see the reference, availability date and subtype of a published listing');
 select throws_ok($$select count(*) from public.availability_checks$$, '42501', null, 'visitors cannot read the availability history');
+
+-- Map: only the rounded position is public; the exact one is not readable.
+select tests.logout();
+update public.properties set latitude = 5.636512, longitude = -0.161234
+ where id = (select property_id from public.property_listings where id = (select v from ctx where k = 'h1'));
+select tests.anon();
+select is((select public_latitude::text || ',' || public_longitude::text from public.listing_cards where id = (select v from ctx where k = 'h1')),
+  '5.64,-0.16', 'visitors see the position rounded to about 1 km');
+select throws_ok($$select latitude from public.properties$$, '42501', null, 'visitors cannot read exact coordinates');
 
 select * from finish();
 rollback;

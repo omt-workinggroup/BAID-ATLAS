@@ -3,7 +3,7 @@ import { boot, busy, formMessage, html, params, raw, render, sb, setTitle, showE
 import { LISTING_STATUS_LABELS, reviewReason } from "../format.js";
 import { MEDIA_BUCKET } from "../config.js";
 import { loadCatalogue } from "../catalogue.js";
-import { listingDbMessage, listingFormView, readListingForm, wireListingForm } from "../listingform.js";
+import { listingDbMessage, listingFormView, readListingForm, wireListingForm, wirePinPicker } from "../listingform.js";
 import { STALE_AFTER_DAYS, availabilityState } from "../trust.js";
 import { prepareImage, randomName } from "../media.js";
 import { canEditListings, requireMembership } from "../portal.js";
@@ -78,6 +78,7 @@ async function draw() {
   root.removeAttribute("aria-busy");
   const form = document.getElementById("listing-form");
   if (editable) wireListingForm(form, catalogue);
+  wirePinPicker(form);
 }
 
 function actionsCard(l, photos, editable, descriptionOk, check) {
