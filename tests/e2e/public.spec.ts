@@ -161,6 +161,16 @@ test.describe("PWA and sharing", () => {
   });
 });
 
+test("desktop landing searches Explore with the chosen filters @desktop", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find Your Next Property");
+  await page.getByLabel("Looking to").selectOption("long_term_rent");
+  await page.getByLabel("Property type").selectOption("apartment");
+  await page.getByLabel("Price (GHS)").selectOption("500000-1000000");
+  await page.getByRole("button", { name: "Search" }).click();
+  await expect(page).toHaveURL(/\/explore\?purpose=long_term_rent&type=apartment&currency=GHS&min=500000&max=1000000$/);
+});
+
 test("desktop layout shows top navigation @desktop", async ({ page }) => {
   await page.goto("/home");
   await expect(page.getByRole("navigation", { name: "Primary" }).first()).toBeVisible();

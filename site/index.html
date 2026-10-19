@@ -30,9 +30,63 @@
     <link rel="preload" href="/brand/hero-home.jpg" as="image" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
+    <script type="module" src="/js/pages/landing.js"></script>
   </head>
   <!-- Landing (splash) page: a standalone welcome screen with no site navigation, as in the reference. -->
   <body class="splash-page">
+    <!-- Wide screens: floating navigation bar over a large rounded photo with the search panel (desktop reference).
+         Phones get the standalone splash below instead. -->
+    <div class="landing">
+      <header class="landing__nav">
+        <a href="/home" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" /></a>
+        <nav aria-label="Primary">
+          <a href="/explore?purpose=sale">Buy</a>
+          <a href="/explore?purpose=long_term_rent">Rent</a>
+          <a href="/explore?type=land">Land</a>
+          <a href="/explore?type=commercial">Commercial</a>
+          <a href="/explore?stage=new">New developments</a>
+          <a href="/portal">List a property</a>
+        </nav>
+        <a class="landing__join" href="/sign-in">Join / Sign in</a>
+      </header>
+      <section class="landing__hero" aria-labelledby="landing-h">
+        <img class="landing__img" src="/brand/hero-home.jpg" width="736" height="1104" alt="A modern two-storey home at dusk" />
+        <div class="landing__text">
+          <h1 id="landing-h">Find Your Next Property</h1>
+          <p>Explore homes, land, rentals and new developments across Ghana, and see what has been checked before you get in touch.</p>
+        </div>
+        <form class="landing__search" action="/explore" method="get" role="search" id="landing-search">
+          <p>Search for the property you're looking for</p>
+          <div class="landing__fields">
+            <label><span class="sr-only">Looking to</span>
+              <select name="purpose">
+                <option value="sale">Buy</option>
+                <option value="long_term_rent">Rent</option>
+                <option value="short_stay">Short stay</option>
+                <option value="lease">Lease</option>
+              </select></label>
+            <label><span class="sr-only">Property type</span>
+              <select name="type">
+                <option value="">Any type</option>
+                <option value="house">House</option>
+                <option value="apartment">Apartment</option>
+                <option value="land">Land</option>
+                <option value="commercial">Commercial</option>
+                <option value="office">Office</option>
+              </select></label>
+            <label><span class="sr-only">Price (GHS)</span>
+              <select name="price">
+                <option value="">Any price</option>
+                <option value="0-500000">Under GHS 500k</option>
+                <option value="500000-1000000">GHS 500k – 1M</option>
+                <option value="1000000-3000000">GHS 1M – 3M</option>
+                <option value="3000000-">Over GHS 3M</option>
+              </select></label>
+            <button type="submit">Search <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg></button>
+          </div>
+        </form>
+      </section>
+    </div>
     <main id="main" class="splash" aria-labelledby="hero-h">
       <img class="splash__img" src="/brand/hero-home.jpg" width="736" height="1104" alt="A modern two-storey home at dusk" fetchpriority="high" />
       <div class="splash__top">

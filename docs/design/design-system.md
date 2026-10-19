@@ -120,7 +120,7 @@ search, map search, agent dashboards, verification dashboards, UI kits). Pattern
 | Tiles | `.tile-row`, `.tile` | Small numbers only (no huge stat cards). |
 | Tables | `.table-card`, `.data-table` | From 900 px; `.only-narrow` card list below that. |
 | Portal shell | `orgHeader()` + `.portal-root` | A sidebar on desktop, title and tabs on phones. |
-| Landing (splash) | `/` (`index.html`, `.splash`) | Standalone welcome screen with no site navigation, sized to the reference: small logo top left, a two-line serif title ("Find Your Next Property"), three short lines of text and one tall white "Get Started" pill to `/home`. Nothing else. Wide screens show a black panel beside the portrait photo. |
+| Landing (splash) | `/` (`index.html`, `.splash`) | Standalone welcome screen with no site navigation, sized to the reference: small logo top left, a two-line serif title ("Find Your Next Property"), three short lines of text and one tall white "Get Started" pill to `/home`. Nothing else. From 1024 px it becomes the desktop reference layout: black floating nav bar (logo, category links, "Join / Sign in"), a large rounded photo with a big sans headline, and a glass search panel (purpose, type, GHS price band, Search) that opens Explore with those filters. |
 | Map search | `/explore?view=map`, `map.js` | Dark MapTiler `streets-v2-dark` tiles (512 px, sharp labels). Overlay: "Explore Properties", Buy/Rent switch, type menu, filters. White price pills over soft approximate-area circles; the picked one turns black and shows a preview card at the bottom. Full screen on phones. |
 | Compare | `compare.js`, `/compare` | Up to 4. "Not provided" and "Doesn't apply"; nothing estimated. |
 | Alerts and toasts | `.alert--success/warning/error/info`, `toast()` | |
