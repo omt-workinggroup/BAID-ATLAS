@@ -71,7 +71,7 @@ drawLists();
 const m = await import("../map.js");
 await m.loadMapLibre();
 const gl = window.maplibregl;
-const map = m.createMap(document.getElementById("map"), { center: m.ACCRA, zoom: 11.3, pitch: 0, style: "map" });
+const map = m.createMap(document.getElementById("map"), { center: m.ACCRA, zoom: 11.3, pitch: 0, style: "map", controls: "top-left" });
 const markers = new Map();
 for (const p of placed) {
   const el = document.createElement("button");

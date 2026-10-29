@@ -1531,29 +1531,31 @@ body.app {
   color: var(--ink-2);
 }
 /* Phones: the zoom, compass and full-screen buttons sit in a row on the left, level with the
-   Map / Satellite switch, so they never cover a price tag or the cards. */
+   Map / Satellite switch, so they never cover a price tag or the cards. The map credit stays in its
+   own corner, just above the cards. */
 .mapx .maplibregl-ctrl-bottom-right {
+  bottom: 14.5rem;
+}
+.mapx .maplibregl-ctrl-top-left {
   top: 7.375rem;
-  bottom: auto;
   left: 0.75rem;
-  right: auto;
   display: flex;
   gap: 0.4rem;
 }
-.mapx .maplibregl-ctrl-bottom-right .maplibregl-ctrl {
+.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl {
   margin: 0;
 }
-.mapx .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl-group {
   display: flex;
   border-radius: 999px;
   overflow: hidden;
   box-shadow: var(--shadow), 0 0 0 1px var(--line);
 }
-.mapx .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button {
+.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl-group button {
   width: 2.3rem;
   height: 2.3rem;
 }
-.mapx .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button + button {
+.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl-group button + button {
   border-top: 0;
   border-left: 1px solid var(--line);
 }
@@ -1809,6 +1811,9 @@ body.app {
     right: auto;
   }
   .mapx .maplibregl-ctrl-bottom-right {
+    bottom: 0;
+  }
+  .mapx .maplibregl-ctrl-top-left {
     top: auto;
     bottom: 0.5rem;
     left: auto;

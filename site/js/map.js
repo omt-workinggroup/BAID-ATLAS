@@ -21,7 +21,7 @@ export function loadMapLibre() {
 export const hasPosition = (p) => typeof p.location?.lat === "number" && typeof p.location?.lng === "number";
 export const lngLat = (p) => [p.location.lng, p.location.lat];
 
-export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 0, style = "satellite", cooperative = false } = {}) {
+export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 0, style = "satellite", cooperative = false, controls = "bottom-right" } = {}) {
   const gl = window.maplibregl;
   const map = new gl.Map({
     container: el,
@@ -35,8 +35,8 @@ export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 
     cooperativeGestures: cooperative,
     fadeDuration: 200,
   });
-  map.addControl(new gl.NavigationControl({ visualizePitch: true }), "bottom-right");
-  map.addControl(new gl.FullscreenControl(), "bottom-right");
+  map.addControl(new gl.NavigationControl({ visualizePitch: true }), controls);
+  map.addControl(new gl.FullscreenControl(), controls);
   return map;
 }
 
