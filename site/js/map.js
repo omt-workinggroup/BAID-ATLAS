@@ -35,6 +35,8 @@ export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 
     cooperativeGestures: cooperative,
     fadeDuration: 200,
   });
+  map._pqStyle = style;
+  map.on("style.load", () => map._pqStyle === "map" && blackAndGold(map));
   map.addControl(new gl.NavigationControl({ visualizePitch: true }), controls);
   map.addControl(new gl.FullscreenControl(), controls);
   return map;
@@ -42,7 +44,36 @@ export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 
 
 // Switches between satellite and street map; custom layers are added back by the caller's "style.load".
 export function setStyle(map, name) {
+  map._pqStyle = name;
   map.setStyle(styleUrl(name));
+}
+
+// Recolours the dark street map to the site's black and gold: black land, near-black water, dark
+// buildings, quiet grey streets with the main roads in muted gold, and warm grey labels.
+function blackAndGold(map) {
+  const set = (id, prop, value) => {
+    try {
+      map.setPaintProperty(id, prop, value);
+    } catch {
+      /* a layer without that property */
+    }
+  };
+  for (const { id, type } of map.getStyle().layers) {
+    const n = id.toLowerCase();
+    if (type === "background") set(id, "background-color", "#0a0a0a");
+    else if (type === "fill") set(id, "fill-color", /water|ocean|sea|lake/.test(n) ? "#0d0f10" : /building/.test(n) ? "#1b1a17" : /park|grass|wood|forest|green/.test(n) ? "#101210" : "#111111");
+    else if (type === "fill-extrusion") set(id, "fill-extrusion-color", "#1e1c18");
+    else if (type === "line") {
+      if (/water|river|stream|canal/.test(n)) set(id, "line-color", "#14171a");
+      else if (/motorway|trunk|primary|highway|major/.test(n)) set(id, "line-color", "#6e5a2e");
+      else if (/boundary|admin/.test(n)) set(id, "line-color", "#3a352c");
+      else set(id, "line-color", "#2a2824");
+    } else if (type === "symbol") {
+      set(id, "text-color", "#a39c8e");
+      set(id, "text-halo-color", "#000000");
+      set(id, "icon-opacity", 0.6);
+    }
+  }
 }
 
 // A slow orbit around the current centre, until someone touches the map.
