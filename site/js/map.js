@@ -53,7 +53,7 @@ export function setStyle(map, name) {
 }
 
 // Recolours the street map to the site's two colours: cream land, soft green-grey water and parks, pale
-// buildings, white streets with the main roads in sand, evergreen labels, and no shop icons.
+// buildings, white streets with the main roads in sand, evergreen labels in one font, and no shop icons.
 function siteColours(map) {
   const set = (id, prop, value) => {
     try {
@@ -78,6 +78,8 @@ function siteColours(map) {
         map.setLayoutProperty(id, "visibility", "none");
         continue;
       }
+      // Every label in one font, so the map fetches one set of letter shapes instead of five.
+      if (map.getLayoutProperty(id, "text-field") != null) map.setLayoutProperty(id, "text-font", ["Roboto Regular", "Noto Sans Regular"]);
       set(id, "text-color", "#3d524b");
       set(id, "text-halo-color", "#ffffff");
       set(id, "icon-opacity", 0.6);
