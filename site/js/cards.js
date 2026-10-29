@@ -1,7 +1,7 @@
 // Property card. On phones the name, price and facts sit on the photo (Homio style); on desktop they sit
 // under it (three-column grid). The same markup serves both; CSS decides.
 import { html, icon } from "./core.js";
-import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, formatPrice, keyFacts, place } from "./data.js";
+import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, formatPrice, keyFacts, place, small } from "./data.js";
 
 const isNew = (p) => p.listed && Date.now() - new Date(p.listed).getTime() < 30 * 86_400_000;
 
@@ -35,7 +35,7 @@ export function card(p, { eager = false } = {}) {
   const factList = facts.length ? html`<ul class="card__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 15)}${t}</li>`)}</ul>` : "";
   return html`<article class="card">
     <a class="card__media" href="/properties/${p.slug}" aria-label="${p.title}, ${formatPrice(p.price)}">
-      ${c ? html`<img src="${c.src}" alt="" loading="${eager ? "eager" : "lazy"}" decoding="async" />` : html`<span class="card__noimg">Images to follow</span>`}
+      ${c ? html`<img src="${small(c)}" alt="" loading="${eager ? "eager" : "lazy"}" ${eager ? html`fetchpriority="high"` : ""} decoding="async" />` : html`<span class="card__noimg">Images to follow</span>`}
       ${tag(p) ? html`<span class="card__tag">${tag(p)}</span>` : ""}
       <span class="card__overlay">
         <span class="card__row"><span class="card__title">${p.title}</span><span class="card__price">${formatPrice(p.price)}</span></span>
@@ -54,7 +54,7 @@ export function card(p, { eager = false } = {}) {
 export function mapCard(p) {
   const c = cover(p);
   return html`<a class="map-card" href="/properties/${p.slug}">
-    ${c ? html`<img src="${c.src}" alt="" />` : ""}
+    ${c ? html`<img src="${small(c)}" alt="" />` : ""}
     <span class="map-card__text"><span class="eyebrow">${place(p)}</span><strong>${p.title}</strong><span>${formatPrice(p.price)}</span></span>
     ${icon("arrow", 18, 1.8)}
   </a>`;

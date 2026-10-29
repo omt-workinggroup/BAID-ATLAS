@@ -35,15 +35,11 @@ if (office && typeof office.lat === "number") {
   import("../map.js").then(async (m) => {
     await m.loadMapLibre();
     const at = [office.lng, office.lat];
-    const map = m.createMap(mapEl, { center: at, zoom: 14, style: "satellite", cooperative: true });
+    const map = m.createMap(mapEl, { center: at, zoom: 16.4, pitch: 50, style: "satellite", cooperative: true });
     const pin = document.createElement("span");
     pin.className = "tagpin is-active";
     pin.innerHTML = '<span class="tagpin__label">We\'re here</span><span class="tagpin__tip"></span>';
     new window.maplibregl.Marker({ element: pin, anchor: "bottom" }).setLngLat(at).addTo(map);
-    map.once("load", () => {
-      map.flyTo({ center: at, zoom: 16.4, pitch: 58, bearing: -20, duration: 2800, essential: true });
-      map.once("moveend", () => m.orbit(map));
-    });
   });
 } else {
   mapEl.remove();

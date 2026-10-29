@@ -21,7 +21,7 @@ const ONE = { acre: "acre", plot: "plot" };
 
 let cache = null;
 export function loadPortfolio() {
-  cache ??= fetch("/data/properties.json", { cache: "no-cache" }).then((r) => {
+  cache ??= fetch("/data/properties.json").then((r) => {
     if (!r.ok) throw new Error(`properties.json: ${r.status}`);
     return r.json();
   });
@@ -53,6 +53,8 @@ export function formatArea(a) {
 }
 export const place = (p) => [p.location?.area, p.location?.city].filter(Boolean).join(", ");
 export const cover = (p) => p.photos?.[0] ?? null;
+// The small preview of a photo (made by scripts/make-thumbs.py), or the photo itself if there is none.
+export const small = (photo) => photo?.thumb ?? photo?.src;
 // Tours from these services can be embedded; any other link is ignored rather than framed.
 const TOUR_HOSTS = ["my.matterport.com", "kuula.co", "www.youtube-nocookie.com", "www.youtube.com"];
 export function embedUrl(src) {

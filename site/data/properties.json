@@ -69,57 +69,68 @@
         {
           "src": "/media/the-parkchester-residence/hero.jpg",
           "alt": "The Parkchester Residence at dusk",
-          "caption": "The residence at dusk"
+          "caption": "The residence at dusk",
+          "thumb": "/media/the-parkchester-residence/thumbs/hero.webp"
         },
         {
           "src": "/media/the-parkchester-residence/exterior-1.jpg",
           "alt": "Front facade and entrance",
-          "caption": "Front facade and entrance"
+          "caption": "Front facade and entrance",
+          "thumb": "/media/the-parkchester-residence/thumbs/exterior-1.webp"
         },
         {
           "src": "/media/the-parkchester-residence/exterior-2.jpg",
           "alt": "Corner view",
-          "caption": "Corner view"
+          "caption": "Corner view",
+          "thumb": "/media/the-parkchester-residence/thumbs/exterior-2.webp"
         },
         {
           "src": "/media/the-parkchester-residence/exterior-3.jpg",
           "alt": "Side elevation by day",
-          "caption": "Side elevation, day"
+          "caption": "Side elevation, day",
+          "thumb": "/media/the-parkchester-residence/thumbs/exterior-3.webp"
         },
         {
           "src": "/media/the-parkchester-residence/exterior-4.jpg",
           "alt": "Side elevation in the evening",
-          "caption": "Side elevation, evening"
+          "caption": "Side elevation, evening",
+          "thumb": "/media/the-parkchester-residence/thumbs/exterior-4.webp"
         },
         {
           "src": "/media/the-parkchester-residence/interior-1.jpg",
           "alt": "Private balcony",
-          "caption": "Balcony"
+          "caption": "Balcony",
+          "thumb": "/media/the-parkchester-residence/thumbs/interior-1.webp"
         },
         {
           "src": "/media/the-parkchester-residence/interior-2.jpg",
           "alt": "Kitchen and dining area",
-          "caption": "Kitchen and dining"
+          "caption": "Kitchen and dining",
+          "thumb": "/media/the-parkchester-residence/thumbs/interior-2.webp"
         },
         {
           "src": "/media/the-parkchester-residence/interior-3.jpg",
           "alt": "Master bedroom",
-          "caption": "Master bedroom"
+          "caption": "Master bedroom",
+          "thumb": "/media/the-parkchester-residence/thumbs/interior-3.webp"
         },
         {
           "src": "/media/the-parkchester-residence/interior-4.jpg",
           "alt": "Bathroom",
-          "caption": "Bathroom"
+          "caption": "Bathroom",
+          "thumb": "/media/the-parkchester-residence/thumbs/interior-4.webp"
         },
         {
           "src": "/media/the-parkchester-residence/interior-5.jpg",
           "alt": "Living room",
-          "caption": "Living room"
+          "caption": "Living room",
+          "thumb": "/media/the-parkchester-residence/thumbs/interior-5.webp"
         },
         {
           "src": "/media/the-parkchester-residence/interior-6.jpg",
           "alt": "Elevator hall",
-          "caption": "Elevator"
+          "caption": "Elevator",
+          "thumb": "/media/the-parkchester-residence/thumbs/interior-6.webp"
         }
       ],
       "floorplans": [
@@ -227,27 +238,32 @@
         {
           "src": "/media/the-resilience-tse-addo/photo-1.jpg",
           "alt": "The Resilience apartment blocks",
-          "caption": "The development"
+          "caption": "The development",
+          "thumb": "/media/the-resilience-tse-addo/thumbs/photo-1.webp"
         },
         {
           "src": "/media/the-resilience-tse-addo/photo-2.jpg",
           "alt": "Street view of The Resilience",
-          "caption": "Street view"
+          "caption": "Street view",
+          "thumb": "/media/the-resilience-tse-addo/thumbs/photo-2.webp"
         },
         {
           "src": "/media/the-resilience-tse-addo/photo-3.jpg",
           "alt": "Main block and parking court",
-          "caption": "Main block and parking"
+          "caption": "Main block and parking",
+          "thumb": "/media/the-resilience-tse-addo/thumbs/photo-3.webp"
         },
         {
           "src": "/media/the-resilience-tse-addo/photo-4.jpg",
           "alt": "Blocks and landscaped parking",
-          "caption": "Landscaped grounds"
+          "caption": "Landscaped grounds",
+          "thumb": "/media/the-resilience-tse-addo/thumbs/photo-4.webp"
         },
         {
           "src": "/media/the-resilience-tse-addo/photo-5.jpg",
           "alt": "Swimming pool and lounge",
-          "caption": "Pool and lounge"
+          "caption": "Pool and lounge",
+          "thumb": "/media/the-resilience-tse-addo/thumbs/photo-5.webp"
         }
       ],
       "floorplans": [

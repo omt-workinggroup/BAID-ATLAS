@@ -5,11 +5,10 @@ import { MAPTILER_KEY } from "./config.js";
 export const STYLES = { satellite: "hybrid", map: "streets-v2" };
 const styleUrl = (name) => `https://api.maptiler.com/maps/${STYLES[name] ?? name}/style.json?key=${MAPTILER_KEY}`;
 export const ACCRA = [-0.187, 5.6037];
-const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 let loading = null;
 export function loadMapLibre() {
-  if (!document.querySelector('link[href="/css/maplibre-gl.css"]')) {
+  if (!document.querySelector('link[rel="stylesheet"][href="/css/maplibre-gl.css"]')) {
     document.head.append(Object.assign(document.createElement("link"), { rel: "stylesheet", href: "/css/maplibre-gl.css" }));
   }
   loading ??= new Promise((ok, fail) => {
@@ -21,7 +20,9 @@ export function loadMapLibre() {
 export const hasPosition = (p) => typeof p.location?.lat === "number" && typeof p.location?.lng === "number";
 export const lngLat = (p) => [p.location.lng, p.location.lat];
 
-export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 0, style = "satellite", cooperative = false, controls = "bottom-right" } = {}) {
+// Opens straight on its final view (a centre and zoom, or bounds to fit), so only the tiles for that view
+// are fetched. No fading or flying anywhere.
+export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 0, bounds, padding, maxZoom, style = "satellite", cooperative = false, controls = "bottom-right" } = {}) {
   const gl = window.maplibregl;
   const map = new gl.Map({
     container: el,
@@ -30,10 +31,13 @@ export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 
     zoom,
     pitch,
     bearing,
+    ...(bounds ? { bounds, fitBoundsOptions: { padding, maxZoom } } : {}),
     maxPitch: 75,
     attributionControl: { compact: true },
     cooperativeGestures: cooperative,
-    fadeDuration: 200,
+    fadeDuration: 0,
+    pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+    refreshExpiredTiles: false,
   });
   map._pqStyle = style;
   map.on("style.load", () => map._pqStyle === "map" && siteColours(map));
@@ -81,23 +85,9 @@ function siteColours(map) {
   }
 }
 
-// A slow orbit around the current centre, until someone touches the map.
-export function orbit(map) {
-  if (calm) return () => {};
-  let on = true;
-  const step = () => {
-    if (!on) return;
-    if (!map.isMoving()) map.setBearing(map.getBearing() + 0.06);
-    requestAnimationFrame(step);
-  };
-  const stop = () => (on = false);
-  ["mousedown", "touchstart", "wheel", "dragstart"].forEach((ev) => map.on(ev, stop));
-  requestAnimationFrame(step);
-  return stop;
-}
-
-export function flyToProperty(map, p, { zoom = 16.4 } = {}) {
-  map.flyTo({ center: lngLat(p), zoom, pitch: 62, bearing: map.getBearing() - 25, duration: calm ? 0 : 3200, essential: true, curve: 1.6 });
+// Moves straight to a property, tilted a little to show the buildings.
+export function showProperty(map, p, { zoom = 15.6 } = {}) {
+  map.jumpTo({ center: lngLat(p), zoom, pitch: 45 });
 }
 
 // A soft circle (about 450 m) over the area, drawn as a GeoJSON polygon.

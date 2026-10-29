@@ -26,8 +26,13 @@
     <link rel="icon" href="/icon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preconnect" href="https://api.maptiler.com" crossorigin />
+    <link rel="preload" href="/js/vendor/maplibre-gl.js" as="script" />
+    <link rel="preload" href="/data/properties.json" as="fetch" crossorigin />
+    <link rel="preload" href="/fonts/plus-jakarta-sans-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/maplibre-gl.css" />
     <script type="module" src="/js/pages/map.js"></script>
   </head>
   <body class="page-map">
@@ -58,7 +63,6 @@
         </div>
         <div class="mapx__tools">
           <label class="mselect"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a4 4 0 0 1 4-4h6M18 9v6a4 4 0 0 1-4 4H8" /></svg><span class="mselect__long">Distances from</span><span class="mselect__short">From</span><select id="from" aria-label="Measure distances from"></select></label>
-          <button type="button" class="mtool" id="flythrough" aria-pressed="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg><span>Fly-through</span></button>
           <p class="mapx__fromnote" id="from-note" role="status"></p>
         </div>
         <div class="mapx__preview" id="preview" aria-live="polite"></div>

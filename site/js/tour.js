@@ -1,6 +1,6 @@
 // 3D tour: 360° photos of each room, joined by hotspots, in the Pannellum viewer (vendored, MIT).
 // Controls: drag or swipe to look around, scroll or pinch to zoom, arrow keys and +/- on a keyboard,
-// room buttons, auto-rotate, tilt-to-look on phones, and full screen.
+// room buttons, tilt-to-look on phones, and full screen. It does not spin on its own.
 // A tour can instead be an embedded link from a tour service (Matterport, Kuula, YouTube 360).
 import { html, icon, raw, render } from "./core.js";
 import { embedUrl } from "./data.js";
@@ -32,10 +32,8 @@ export function tourConfig(tour) {
   return {
     default: {
       firstScene: tour.scenes[0].id,
-      sceneFadeDuration: 900,
+      sceneFadeDuration: 0,
       autoLoad: true,
-      autoRotate: -2,
-      autoRotateInactivityDelay: 8000,
       showControls: false,
       compass: false,
       keyboardZoom: true,
@@ -68,7 +66,6 @@ export function mountTour(el, tour, { poster, title }) {
         <div class="tour__rooms" role="group" aria-label="Rooms">
           ${tour.scenes.map((s, i) => html`<button type="button" data-room="${s.id}" aria-current="${i === 0 ? "true" : "false"}">${s.title}</button>`)}
         </div>
-        <button type="button" class="tour__ctl" id="tour-rotate" aria-pressed="true" aria-label="Auto-rotate">${icon("tour", 18)}</button>
         <button type="button" class="tour__ctl" id="tour-tilt" aria-pressed="false" aria-label="Look around by moving your phone" hidden>${raw('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v18H8zM11 18h2"/></svg>')}</button>
         <button type="button" class="tour__ctl" id="tour-full" aria-label="Full screen">${icon("expand", 18)}</button>
       </div>
@@ -95,14 +92,6 @@ export function mountTour(el, tour, { poster, title }) {
     const rooms = el.querySelectorAll("[data-room]");
     viewer.on("scenechange", (id) => rooms.forEach((b) => b.setAttribute("aria-current", String(b.dataset.room === id))));
     rooms.forEach((b) => b.addEventListener("click", () => viewer.loadScene(b.dataset.room)));
-
-    const rotate = el.querySelector("#tour-rotate");
-    rotate.addEventListener("click", () => {
-      const on = rotate.getAttribute("aria-pressed") !== "true";
-      rotate.setAttribute("aria-pressed", String(on));
-      if (on) viewer.startAutoRotate(-2);
-      else viewer.stopAutoRotate();
-    });
 
     // Tilt-to-look: only offered where the phone has the sensors (Pannellum asks iOS for permission).
     const tilt = el.querySelector("#tour-tilt");

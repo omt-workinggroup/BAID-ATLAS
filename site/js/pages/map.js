@@ -2,11 +2,16 @@
 // the right with price tags and a floating preview card. Phones: the map fills the screen, filters sit on
 // top and the properties scroll along the bottom; the card in view is the one shown on the map.
 // Extras: the office on the map, straight-line distances from the airport, the office or the visitor
-// (nearest first, with a line to the property picked), a fly-through of every property, and links
-// that open the map on one property (/map?p=slug).
+// (nearest first, with a line to the property picked), and links that open the map on one property
+// (/map?p=slug).
+// Speed: the map library starts downloading at once (it is also preloaded in map.html), alongside the
+// properties; the list shows as soon as the properties arrive, and the map opens directly on its final
+// view, so only those tiles load. Nothing animates.
 import { boot, html, icon, render } from "../core.js";
-import { PURPOSE_LABELS, cover, distanceKm, formatKm, formatPrice, keyFacts, loadPortfolio, place, shortPrice } from "../data.js";
+import { PURPOSE_LABELS, cover, distanceKm, formatKm, formatPrice, keyFacts, loadPortfolio, place, shortPrice, small } from "../data.js";
+import * as m from "../map.js";
 
+const library = m.loadMapLibre();
 boot();
 const portfolio = await loadPortfolio().catch(() => ({ properties: [] }));
 const owner = portfolio.owner ?? {};
@@ -45,7 +50,7 @@ const awayText = (p) => {
 const facts = (p) => keyFacts(p).slice(0, 2);
 const rowCard = (p) => html`<li>
   <button type="button" class="mrow" data-slug="${p.slug}" aria-pressed="false">
-    <span class="mrow__img">${cover(p) ? html`<img src="${cover(p).src}" alt="" loading="lazy" />` : ""}</span>
+    <span class="mrow__img">${cover(p) ? html`<img src="${small(cover(p))}" alt="" loading="lazy" />` : ""}</span>
     <span class="mrow__text">
       <strong>${p.title}</strong>
       <span class="mrow__place">${place(p)}</span>
@@ -57,12 +62,12 @@ const rowCard = (p) => html`<li>
 </li>`;
 const slideCard = (p) => html`<li>
   <button type="button" class="mslide" data-slug="${p.slug}">
-    <span class="mslide__img">${cover(p) ? html`<img src="${cover(p).src}" alt="" loading="lazy" />` : ""}<span class="mslide__tag">${PURPOSE_LABELS[p.purpose] ?? ""}</span>${away(p) != null ? html`<span class="mslide__away">${icon("route", 13)}${formatKm(away(p))}</span>` : ""}</span>
+    <span class="mslide__img">${cover(p) ? html`<img src="${small(cover(p))}" alt="" loading="lazy" />` : ""}<span class="mslide__tag">${PURPOSE_LABELS[p.purpose] ?? ""}</span>${away(p) != null ? html`<span class="mslide__away">${icon("route", 13)}${formatKm(away(p))}</span>` : ""}</span>
     <span class="mslide__text"><b>${shortPrice(p.price)}</b><span>${facts(p).map(([, t]) => t).join(", ")}</span><span class="mslide__place">${p.title} · ${place(p)}</span></span>
   </button>
 </li>`;
 const previewCard = (p) => html`<article class="mpreview">
-  <a href="/properties/${p.slug}" class="mpreview__img">${cover(p) ? html`<img src="${cover(p).src}" alt="" />` : ""}</a>
+  <a href="/properties/${p.slug}" class="mpreview__img">${cover(p) ? html`<img src="${small(cover(p))}" alt="" />` : ""}</a>
   <button type="button" class="mpreview__close" data-close aria-label="Close">${icon("close", 16, 2)}</button>
   <div class="mpreview__text">
     <a href="/properties/${p.slug}"><strong>${p.title}</strong></a>
@@ -100,10 +105,23 @@ fromSel.value = origin;
 drawLists();
 
 // ---- The map -------------------------------------------------------------------------------------------
-const m = await import("../map.js");
-await m.loadMapLibre();
+await library;
 const gl = window.maplibregl;
-const map = m.createMap(document.getElementById("map"), { center: m.ACCRA, zoom: 11.3, pitch: 0, style: "map", controls: "top-left" });
+const wide = matchMedia("(min-width: 900px)").matches;
+const PADDING = wide ? { top: 140, bottom: 120, left: 140, right: 140 } : { top: 210, bottom: 330, left: 60, right: 80 };
+function framing() {
+  const b = new gl.LngLatBounds();
+  visible().forEach((p) => b.extend(m.lngLat(p)));
+  if (ORIGINS[origin]?.at) b.extend(ORIGINS[origin].at);
+  return b.isEmpty() ? null : b;
+}
+// /map?p=slug opens on that property; otherwise on all of them (and the airport) at once.
+const start = new URLSearchParams(location.search).get("p");
+const startAt = placed.find((p) => p.slug === start);
+const map = m.createMap(
+  document.getElementById("map"),
+  startAt ? { center: m.lngLat(startAt), zoom: 15.6, pitch: 45, style: "map", controls: "top-left" } : { bounds: framing() ?? undefined, padding: PADDING, maxZoom: 13.8, style: "map", controls: "top-left" },
+);
 const markers = new Map();
 for (const p of placed) {
   const el = document.createElement("button");
@@ -114,7 +132,6 @@ for (const p of placed) {
   el.querySelector(".tagpin__label").textContent = shortPrice(p.price);
   el.addEventListener("click", (e) => {
     e.stopPropagation();
-    stopTour();
     select(p.slug, { scroll: true });
   });
   markers.set(p.slug, new gl.Marker({ element: el, anchor: "bottom" }).setLngLat(m.lngLat(p)).addTo(map));
@@ -149,8 +166,7 @@ map.on("style.load", drawLine);
 
 const preview = document.getElementById("preview");
 const carousel = document.getElementById("carousel");
-let stopOrbit = () => {};
-function select(slug, { scroll = false, fly = true } = {}) {
+function select(slug, { scroll = false, move = true } = {}) {
   const p = placed.find((x) => x.slug === slug);
   if (!p) return;
   selected = slug;
@@ -161,14 +177,10 @@ function select(slug, { scroll = false, fly = true } = {}) {
   history.replaceState(null, "", `/map?p=${encodeURIComponent(slug)}`);
   drawLine();
   if (scroll) {
-    carousel.querySelector(`[data-slug="${slug}"]`)?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    document.querySelector(`#list [data-slug="${slug}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    carousel.querySelector(`[data-slug="${slug}"]`)?.scrollIntoView({ inline: "center", block: "nearest" });
+    document.querySelector(`#list [data-slug="${slug}"]`)?.scrollIntoView({ block: "nearest" });
   }
-  if (fly) {
-    stopOrbit();
-    m.flyToProperty(map, p, { zoom: 15.6 });
-    map.once("moveend", () => (stopOrbit = m.orbit(map)));
-  }
+  if (move) m.showProperty(map, p);
 }
 function deselect() {
   preview.classList.remove("is-open");
@@ -179,13 +191,8 @@ function deselect() {
   drawLine();
 }
 function fitAll() {
-  const rows = visible();
-  if (!rows.length) return;
-  const b = new gl.LngLatBounds();
-  rows.forEach((p) => b.extend(m.lngLat(p)));
-  if (ORIGINS[origin]?.at) b.extend(ORIGINS[origin].at);
-  const wide = matchMedia("(min-width: 900px)").matches;
-  map.fitBounds(b, { padding: wide ? { top: 140, bottom: 120, left: 140, right: 140 } : { top: 210, bottom: 330, left: 60, right: 80 }, maxZoom: 13.8, pitch: 48, bearing: -15, duration: 2600 });
+  const b = framing();
+  if (b) map.fitBounds(b, { padding: PADDING, maxZoom: 13.8, pitch: 0, bearing: 0, animate: false });
 }
 
 // ---- Distances ---------------------------------------------------------------------------------------
@@ -201,7 +208,7 @@ function setOrigin(key) {
   if (selected) {
     render(preview, previewCard(placed.find((x) => x.slug === selected)));
     drawLine();
-  } else if (map.loaded()) fitAll();
+  } else fitAll();
 }
 fromSel.addEventListener("change", () => {
   if (fromSel.value !== "me") return setOrigin(fromSel.value);
@@ -224,46 +231,16 @@ fromSel.addEventListener("change", () => {
     { timeout: 10000, maximumAge: 300000 },
   );
 });
-setOrigin("airport");
-// /map?p=slug opens on that property; otherwise the map frames them all once it has loaded.
-const start = new URLSearchParams(location.search).get("p");
-if (start && placed.some((p) => p.slug === start)) select(start, { scroll: true });
+if (ORIGINS.airport) airportMark.addTo(map);
+if (startAt) select(startAt.slug, { scroll: true, move: false });
 map.once("load", () => {
   // The map credit starts folded into its small "i" button, so it doesn't cover the map on phones.
   document.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
-  if (!selected) fitAll();
 });
-
-// ---- Fly-through: visits each property in turn until someone touches the map or presses Stop ----------
-const tourBtn = document.getElementById("flythrough");
-let tourTimer = null;
-function stopTour() {
-  if (!tourTimer) return;
-  clearTimeout(tourTimer);
-  tourTimer = null;
-  tourBtn.setAttribute("aria-pressed", "false");
-  render(tourBtn, html`${icon("play", 15)}<span>Fly-through</span>`);
-}
-function startTour() {
-  const rows = visible();
-  if (!rows.length) return;
-  tourBtn.setAttribute("aria-pressed", "true");
-  render(tourBtn, html`${icon("stop", 15)}<span>Stop</span>`);
-  let i = (rows.findIndex((p) => p.slug === selected) + 1) % rows.length;
-  const step = () => {
-    select(rows[i].slug, { scroll: true });
-    i = (i + 1) % rows.length;
-    tourTimer = setTimeout(step, 9000);
-  };
-  step();
-}
-tourBtn.addEventListener("click", () => (tourTimer ? stopTour() : startTour()));
-["mousedown", "touchstart", "wheel"].forEach((ev) => map.getCanvas().addEventListener(ev, stopTour, { passive: true }));
 
 document.addEventListener("click", (e) => {
   const f = e.target.closest("[data-filter]");
   if (f) {
-    stopTour();
     active = Number(f.dataset.filter);
     markers.forEach((mk, s) => (mk.getElement().hidden = !visible().some((p) => p.slug === s)));
     drawLists();
@@ -271,14 +248,8 @@ document.addEventListener("click", (e) => {
     return;
   }
   const row = e.target.closest("#list [data-slug], #carousel [data-slug]");
-  if (row) {
-    stopTour();
-    return select(row.dataset.slug);
-  }
-  if (e.target.closest("[data-close]")) {
-    stopTour();
-    deselect();
-  }
+  if (row) return select(row.dataset.slug);
+  if (e.target.closest("[data-close]")) deselect();
 });
 document.getElementById("map-q").addEventListener("input", (e) => {
   query = e.target.value.trim().toLowerCase();
@@ -286,13 +257,11 @@ document.getElementById("map-q").addEventListener("input", (e) => {
   drawLists();
 });
 
-// Phones: when a card settles in the middle of the carousel, the map goes to it (unless the
-// fly-through is moving it).
+// Phones: when a card settles in the middle of the carousel, the map goes to it.
 let settle;
 carousel.addEventListener("scroll", () => {
   clearTimeout(settle);
   settle = setTimeout(() => {
-    if (tourTimer) return;
     const mid = carousel.getBoundingClientRect().left + carousel.clientWidth / 2;
     let best = null;
     carousel.querySelectorAll("[data-slug]").forEach((b) => {

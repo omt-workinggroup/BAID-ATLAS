@@ -4,7 +4,7 @@
 // Contact Agent); desktop gets the same actions in a side panel. Printing gives a clean details sheet.
 import { SITE_URL } from "../config.js";
 import { boot, html, icon, render, setTitle, toast } from "../core.js";
-import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, money, paymentPlan, place, shortPrice, waLink, whatsappLink } from "../data.js";
+import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, money, paymentPlan, place, shortPrice, small, waLink, whatsappLink } from "../data.js";
 import { artwork, booklet, card } from "../cards.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
@@ -119,7 +119,7 @@ function show(p, owner) {
             ? html`<div class="photos">
                 ${photos.slice(0, 4).map(
                   (ph, i) => html`<button type="button" data-photo="${i}" aria-label="Open image ${i + 1} of ${photos.length}">
-                    <img src="${ph.src}" alt="${ph.alt ?? ""}" loading="${i < 2 ? "eager" : "lazy"}" decoding="async" />
+                    <img src="${small(ph)}" alt="${ph.alt ?? ""}" loading="lazy" decoding="async" />
                     ${i === 3 && photos.length > 4 ? html`<span class="photos__more"><b>${photos.length - 4}+</b>${p.renders ? "Images" : "Photos"}</span>` : ""}
                   </button>`,
                 )}
@@ -252,7 +252,7 @@ function show(p, owner) {
         const on = a.getAttribute("href") === `#${top.target.id}`;
         if (on) a.setAttribute("aria-current", "true");
         else a.removeAttribute("aria-current");
-        if (on) a.parentElement.parentElement.scrollTo({ left: a.offsetLeft - 16, behavior: "smooth" });
+        if (on) a.parentElement.parentElement.scrollTo({ left: a.offsetLeft - 16 });
       });
     },
     { rootMargin: "-35% 0px -55% 0px" },
@@ -285,7 +285,7 @@ function show(p, owner) {
 
   const mapEl = document.getElementById("pd-map");
   if (mapEl) {
-    // The satellite map loads when it is about to scroll into view, then flies in and tilts.
+    // The satellite map loads when it is about to scroll into view, already tilted over the area.
     new IntersectionObserver(
       (entries, obs) => {
         if (!entries.some((x) => x.isIntersecting)) return;
@@ -293,12 +293,8 @@ function show(p, owner) {
         import("../map.js").then(async (m) => {
           await m.loadMapLibre();
           const at = m.lngLat(p);
-          const map = m.createMap(mapEl, { center: at, zoom: 13, cooperative: true });
+          const map = m.createMap(mapEl, { center: at, zoom: 15.3, pitch: 50, cooperative: true });
           m.addArea(map, at);
-          map.once("load", () => {
-            map.flyTo({ center: at, zoom: 15.3, pitch: 58, bearing: -20, duration: 3000, essential: true });
-            map.once("moveend", () => m.orbit(map));
-          });
         });
       },
       { rootMargin: "300px" },

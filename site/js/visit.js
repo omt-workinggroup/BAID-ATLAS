@@ -1,7 +1,7 @@
 // "Book a viewing": a sheet to pick a day and a time, then send the request on WhatsApp or by email with the
 // message already written. Nothing is booked here; the office replies to confirm.
 import { html, icon, render } from "./core.js";
-import { cover, dayLabel, nextDays, viewingMessage, waLink } from "./data.js";
+import { cover, dayLabel, nextDays, viewingMessage, waLink, small } from "./data.js";
 
 const TIMES = [
   ["Morning", "9am – 12pm"],
@@ -21,7 +21,7 @@ export function openVisit(p, owner, url) {
     html`<form class="sheet__panel" novalidate>
       <div class="sheet__grip" aria-hidden="true"></div>
       <header class="sheet__head">
-        ${c ? html`<img src="${c.src}" alt="" />` : ""}
+        ${c ? html`<img src="${small(c)}" alt="" />` : ""}
         <div><h2 id="visit-h">Book a viewing</h2><p>${p.title}</p></div>
         <button type="button" class="round round--soft" data-close-sheet aria-label="Close">${icon("close", 18, 2)}</button>
       </header>

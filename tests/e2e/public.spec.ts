@@ -204,17 +204,14 @@ test("the map page has the list and a preview card on desktop @desktop", async (
   await expect(page.locator(".mpreview")).toContainText("Sample: East Legon Villa");
 });
 
-test("the map measures distances, opens on a linked property and flies through @desktop", async ({ page }) => {
+test("the map measures distances and opens on a linked property @desktop", async ({ page }) => {
   await useSamplePortfolio(page);
   await page.goto("/map?p=sample-cantonments-apartment");
   await expect(page.locator(".mpreview")).toContainText("Sample: Cantonments Apartment");
   await expect(page.locator(".mpreview")).toContainText("from the airport");
   await expect(page.locator("#list .mrow__away").first()).toContainText("from the airport");
-  await page.locator("#from").selectOption("airport");
-  await page.getByRole("button", { name: "Fly-through" }).click();
-  await expect(page.locator("#flythrough")).toHaveAttribute("aria-pressed", "true");
-  await page.locator("#flythrough").click();
-  await expect(page.locator("#flythrough")).toHaveAttribute("aria-pressed", "false");
+  await page.locator("#from").selectOption("office");
+  await expect(page.locator(".mpreview")).toContainText("from our office");
 });
 
 test("a property page links to its place on the map", async ({ page }) => {
@@ -236,7 +233,7 @@ test("desktop shows the main navigation in the header @desktop", async ({ page }
   await page.goto("/");
   await expect(page.locator(".site-nav")).toBeVisible();
   await expect(page.locator(".tabbar")).toBeHidden();
-  await expect(page.locator(".site-footer__cta")).toBeVisible();
+  await expect(page.locator(".site-footer")).toHaveCount(0);
 });
 
 test("manifest, icons and the social image are served", async ({ request }) => {

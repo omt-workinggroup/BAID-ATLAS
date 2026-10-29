@@ -1,4 +1,4 @@
-// Shared engine for every page: safe HTML, icons, the header, menu and footer, and small helpers.
+// Shared engine for every page: safe HTML, icons, the header, menu and bottom bar, and small helpers.
 // There are no accounts: the site is a public listing of the portfolio.
 
 // ---- Safe HTML -----------------------------------------------------------------------------------------
@@ -125,47 +125,12 @@ function bottomNavView(here) {
   </nav>`;
 }
 
-function footerView() {
-  return html`
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <section class="site-footer__cta" aria-labelledby="footer-cta">
-          <h2 id="footer-cta">Seen something you <em>like?</em></h2>
-          <p>Tell us which property and when you'd like to visit. We'll take it from there.</p>
-          <div class="site-footer__buttons" data-owner-buttons></div>
-        </section>
-        <nav class="site-footer__col" aria-label="Browse">
-          <h3>Browse</h3>
-          <ul>
-            <li><a href="/">All properties</a></li>
-            <li><a href="/?cat=sale">For sale</a></li>
-            <li><a href="/?cat=rent">For rent</a></li>
-            <li><a href="/?cat=commercial">Offices &amp; stores</a></li>
-            <li><a href="/map">Map</a></li>
-          </ul>
-        </nav>
-        <div class="site-footer__col">
-          <h3>Talk to us</h3>
-          <ul data-owner-talk></ul>
-        </div>
-        <div class="site-footer__col">
-          <h3>Visit</h3>
-          <address data-owner-address></address>
-        </div>
-      </div>
-      <div class="site-footer__brand">
-        <img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" loading="lazy" data-logo />
-        <p>© ${new Date().getFullYear()} Propertiq · Images of buildings still under way are artist's impressions.</p>
-      </div>
-    </footer>`;
-}
-
-// Draws the header, menu and footer around the page's <main>. Called once per page.
+// Draws the header, menu and bottom bar around the page's <main>. Called once per page.
 export function boot() {
   document.body.classList.add("app");
   document.body.insertAdjacentHTML("afterbegin", markup(headerView()));
   const here = ["/", "/map", "/contact"].includes(location.pathname) ? location.pathname : "";
-  document.body.insertAdjacentHTML("beforeend", markup(footerView()) + markup(bottomNavView(here)));
+  document.body.insertAdjacentHTML("beforeend", markup(bottomNavView(here)));
   // If the logo file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {
     const fallback = () => img.replaceWith(Object.assign(document.createElement("span"), { className: "logo-text", textContent: "Propertiq" }));
@@ -186,64 +151,20 @@ export function boot() {
   menu.addEventListener("click", (e) => e.target.closest("a") && setOpen(false));
   document.addEventListener("keydown", (e) => e.key === "Escape" && !menu.hidden && setOpen(false));
 
-  // The owner's details in the footer and menu come from the data file.
+  // The phone number for the call button and the menu comes from the data file.
   import("./data.js").then(({ loadPortfolio }) =>
     loadPortfolio()
       .then(({ owner = {} }) => {
         const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : null;
-        const wa = owner.whatsapp ? `https://wa.me/${owner.whatsapp.replace(/\D/g, "")}` : null;
-        document.querySelectorAll("[data-owner-talk]").forEach((el) =>
-          render(el, html`${tel ? html`<li><a href="${tel}">${owner.phone}</a></li>` : ""}${wa ? html`<li><a href="${wa}" target="_blank" rel="noopener">WhatsApp</a></li>` : ""}${owner.email ? html`<li><a href="mailto:${owner.email}">${owner.email}</a></li>` : ""}`),
-        );
-        document.querySelectorAll("[data-owner-address]").forEach((el) => render(el, html`<span>${owner.location ?? "Accra, Ghana"}</span><a href="/contact">Directions</a>`));
-        document.querySelectorAll("[data-owner-buttons]").forEach((el) =>
-          render(el, html`${wa ? html`<a class="btn btn--light" href="${wa}" target="_blank" rel="noopener">Message on WhatsApp</a>` : ""}${tel ? html`<a class="btn btn--line" href="${tel}">Call ${owner.phone}</a>` : ""}`),
-        );
         document.querySelectorAll("[data-owner-line]").forEach((el) => (el.textContent = [owner.phone, owner.email].filter(Boolean).join("   ·   ")));
         document.querySelectorAll("[data-owner-tel]").forEach((el) => (tel ? (el.href = tel) : el.remove()));
       })
       .catch(() => {}),
   );
-  // The header link for the page being viewed is marked, so it carries the gold underline.
+  // The header link for the page being viewed is marked, so it carries the underline.
   const here2 = location.pathname + location.search;
   document.querySelectorAll(".site-nav a").forEach((a) => a.getAttribute("href") === here2 && a.setAttribute("aria-current", "page"));
-  reveal();
   if ("serviceWorker" in navigator && location.hostname !== "localhost") navigator.serviceWorker.register("/sw.js").catch(() => {});
-}
-
-// Cards, sections and footer columns rise gently into place as they scroll into view, and photos fade in
-// once loaded. Content drawn later (after the data arrives) is picked up too. Skipped for reduced motion.
-const REVEAL = ".card, .pd-section, .stats, .side, .soon-page, .ways > li, .visit, .site-footer__inner > *, .site-footer__brand";
-function reveal() {
-  if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  document.documentElement.classList.add("rv-on");
-  const io = new IntersectionObserver(
-    (entries) => {
-      const shown = entries.filter((e) => e.isIntersecting);
-      shown.forEach((e, i) => {
-        e.target.style.transitionDelay = `${Math.min(i, 6) * 70}ms`;
-        e.target.classList.add("rv-in");
-        io.unobserve(e.target);
-      });
-    },
-    { rootMargin: "0px 0px -6% 0px" },
-  );
-  const fade = (img) => {
-    if (img.dataset.fade) return;
-    img.dataset.fade = "1";
-    if (img.complete && img.naturalWidth) return;
-    img.classList.add("img-fade");
-    const done = () => img.classList.add("is-loaded");
-    img.addEventListener("load", done, { once: true });
-    img.addEventListener("error", done, { once: true });
-  };
-  const scan = (root) => {
-    if (!(root instanceof Element)) return;
-    [root, ...root.querySelectorAll(REVEAL)].forEach((el) => el.matches(REVEAL) && !el.classList.contains("rv") && (el.classList.add("rv"), io.observe(el)));
-    [root, ...root.querySelectorAll("img")].forEach((img) => img.tagName === "IMG" && img.closest("main") && fade(img));
-  };
-  scan(document.body);
-  new MutationObserver((list) => list.forEach((m) => m.addedNodes.forEach(scan))).observe(document.body, { childList: true, subtree: true });
 }
 
 export const params = () => new URLSearchParams(location.search);

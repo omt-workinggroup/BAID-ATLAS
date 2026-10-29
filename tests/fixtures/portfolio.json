@@ -5,7 +5,11 @@
     "phone": "+233200000000",
     "whatsapp": "+233200000000",
     "email": "sample@example.com",
-    "location": "Accra, Ghana"
+    "location": "Accra, Ghana",
+    "office": {
+      "lat": 5.6,
+      "lng": -0.18
+    }
   },
   "properties": [
     {

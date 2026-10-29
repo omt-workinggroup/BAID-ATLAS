@@ -44,7 +44,10 @@ export function checkPortfolio(data, siteRoot) {
     (p.unit_types ?? []).forEach((u, j) => !u?.name && errors.push(`${at}, unit type ${j + 1}: needs a "name".`));
     const loc = p.location ?? {};
     if ((loc.lat === undefined) !== (loc.lng === undefined) || (loc.lat !== undefined && (typeof loc.lat !== "number" || typeof loc.lng !== "number"))) errors.push(`${at}: "location.lat" and "location.lng" must both be numbers (or both left out).`);
-    (p.photos ?? []).forEach((ph, j) => fileOk(ph?.src, `${at}, photo ${j + 1}`));
+    (p.photos ?? []).forEach((ph, j) => {
+      fileOk(ph?.src, `${at}, photo ${j + 1}`);
+      if (ph?.thumb) fileOk(ph.thumb, `${at}, photo ${j + 1} preview`);
+    });
     (p.floorplans ?? []).forEach((pl, j) => fileOk(pl?.src, `${at}, floor plan ${j + 1}`));
     if (p.brochure) fileOk(p.brochure.src, `${at}, brochure`);
     (p.brochure?.pages ?? []).forEach((src, j) => fileOk(src, `${at}, brochure preview ${j + 1}`));
