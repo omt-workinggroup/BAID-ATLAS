@@ -113,9 +113,10 @@ function framing() {
   const b = new gl.LngLatBounds();
   visible().forEach((p) => b.extend(m.lngLat(p)));
   if (ORIGINS[origin]?.at) b.extend(ORIGINS[origin].at);
+  if (ORIGINS.office) b.extend(ORIGINS.office.at);
   return b.isEmpty() ? null : b;
 }
-// /map?p=slug opens on that property; otherwise on all of them (and the airport) at once.
+// /map?p=slug opens on that property; otherwise on all of them, the office and the starting point at once.
 const start = new URLSearchParams(location.search).get("p");
 const startAt = placed.find((p) => p.slug === start);
 const map = m.createMap(
