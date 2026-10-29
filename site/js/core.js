@@ -57,6 +57,9 @@ const PATHS = {
   photo: "M3 5h18v14H3zM8.5 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM21 16l-5-5-8 8",
   house: "M3 10.5 12 3l9 7.5M5 9v11h14V9M10 20v-5h4v5",
   calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+  locate: "M12 3v3M12 18v3M3 12h3M18 12h3M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  route: "M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a4 4 0 0 1 4-4h6M18 9v6a4 4 0 0 1-4 4H8",
+  stop: "M7 7h10v10H7z",
   print: "M7 9V3h10v6M7 17H4v-8h16v8h-3M7 14h10v7H7z",
   share: "M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v12M7 8l5-5 5 5",
   bed: "M3 19v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 15h18M6 9V6h5v3",
@@ -127,7 +130,7 @@ function footerView() {
     <footer class="site-footer">
       <div class="site-footer__inner">
         <section class="site-footer__cta" aria-labelledby="footer-cta">
-          <h2 id="footer-cta">Seen something you like?</h2>
+          <h2 id="footer-cta">Seen something you <em>like?</em></h2>
           <p>Tell us which property and when you'd like to visit. We'll take it from there.</p>
           <div class="site-footer__buttons" data-owner-buttons></div>
         </section>
@@ -201,6 +204,9 @@ export function boot() {
       })
       .catch(() => {}),
   );
+  // The header link for the page being viewed is marked, so it carries the gold underline.
+  const here2 = location.pathname + location.search;
+  document.querySelectorAll(".site-nav a").forEach((a) => a.getAttribute("href") === here2 && a.setAttribute("aria-current", "page"));
   reveal();
   if ("serviceWorker" in navigator && location.hostname !== "localhost") navigator.serviceWorker.register("/sw.js").catch(() => {});
 }

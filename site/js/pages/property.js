@@ -21,11 +21,11 @@ let portfolio;
 try {
   portfolio = await loadPortfolio();
 } catch {
-  render(root, html`<p class="empty wrap">This page couldn't be loaded. Please refresh.</p>`);
+  render(root, html`<div class="lost"><h1>This page couldn't load.</h1><p>Please check your connection and refresh.</p></div>`);
 }
 const p = portfolio?.properties?.find((x) => x.slug === slug);
 if (portfolio && !p) {
-  render(root, html`<div class="empty wrap"><h1>This property isn't listed any more.</h1><p>It may have been sold or let. <a class="text-link" href="/#properties">See the other properties</a></p></div>`);
+  render(root, html`<div class="lost"><p class="eyebrow">No longer listed</p><h1>This property isn't listed any more.</h1><p>It may have been sold or let.</p><div class="lost__actions"><a class="btn btn--dark" href="/">See the other properties</a></div></div>`);
 }
 if (p) show(p, portfolio.owner ?? {});
 
@@ -91,7 +91,7 @@ function show(p, owner) {
       <section class="pd-top" aria-labelledby="pd-title">
         ${cover(p) ? html`<img src="${cover(p).src}" alt="${cover(p).alt ?? p.title}" fetchpriority="high" />` : ""}
         <div class="pd-top__bar">
-          <a class="round" href="/#properties" aria-label="Back to properties">${icon("back", 20, 2)}</a>
+          <a class="round" href="/" aria-label="Back to properties">${icon("back", 20, 2)}</a>
           <div><button type="button" class="round" id="share" aria-label="Share">${icon("share", 18, 1.8)}</button></div>
         </div>
         ${p.renders ? html`<span class="pd-top__note">Artist's impression</span>` : ""}
@@ -146,8 +146,8 @@ function show(p, owner) {
                 "Payment Plan",
                 html`<div class="planner" id="planner">
                   <div class="planner__inputs">
-                    <label class="range"><span>Deposit <output id="pl-dep-out">30%</output></span><input type="range" id="pl-dep" min="10" max="60" step="5" value="30" /></label>
-                    <label class="range"><span>Balance spread over <output id="pl-mo-out">12 months</output></span><input type="range" id="pl-mo" min="3" max="36" step="3" value="12" /></label>
+                    <label class="range"><span>Deposit <output id="pl-dep-out">30%</output></span><span class="range__rail"><span class="range__fill"></span><input type="range" id="pl-dep" min="10" max="60" step="5" value="30" /></span></label>
+                    <label class="range"><span>Balance spread over <output id="pl-mo-out">12 months</output></span><span class="range__rail"><span class="range__fill"></span><input type="range" id="pl-mo" min="3" max="36" step="3" value="12" /></span></label>
                   </div>
                   <div class="planner__result">
                     <p class="planner__big"><strong id="pl-monthly"></strong><span>a month</span></p>
@@ -189,7 +189,7 @@ function show(p, owner) {
                 "Location",
                 html`${typeof p.location?.lat === "number" ? html`<div class="pd-map" id="pd-map" role="region" aria-label="Satellite map of the area"></div><p class="fineprint">The circle marks the neighbourhood. The exact address is shared when you arrange a viewing.</p>` : html`<p>${place(p)}</p>`}
                   ${p.nearby?.length ? html`<ul class="nearby">${p.nearby.map((x) => html`<li>${icon("pin", 15)}${x}</li>`)}</ul>` : ""}
-                  ${p.website ? html`<p><a class="text-link" href="${p.website}" target="_blank" rel="noopener">Visit the development's website</a></p>` : ""}`,
+                  <p class="pd-links">${typeof p.location?.lat === "number" ? html`<a class="text-link" href="/map?p=${p.slug}">Open on the map</a>` : ""}${p.website ? html`<a class="text-link" href="${p.website}" target="_blank" rel="noopener">Visit the development's website</a>` : ""}</p>`,
               )
             : ""}
         </div>
@@ -234,7 +234,7 @@ function show(p, owner) {
       document.getElementById("pl-deposit").textContent = money(plan.currency, r.deposit);
       document.getElementById("pl-balance").textContent = money(plan.currency, r.balance);
       document.getElementById("pl-bar").style.width = `${dep.value}%`;
-      [dep, mo].forEach((x) => x.style.setProperty("--fill", `${((x.value - x.min) / (x.max - x.min)) * 100}%`));
+      [dep, mo].forEach((x) => x.parentElement.style.setProperty("--fill", `${((x.value - x.min) / (x.max - x.min)) * 100}%`));
       if (ask) ask.href = waLink(owner.whatsapp, `Hello, about "${p.title}" (${url}): could I pay a ${dep.value}% deposit (${money(plan.currency, r.deposit)}) and the balance over ${mo.value} months? What payment terms do you offer?`);
     };
     dep.addEventListener("input", draw);

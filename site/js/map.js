@@ -2,7 +2,7 @@
 // Positions in the data file mark the area of a development, not its gate.
 import { MAPTILER_KEY } from "./config.js";
 
-export const STYLES = { satellite: "hybrid", map: "streets-v2" };
+export const STYLES = { satellite: "hybrid", map: "streets-v2-dark" };
 const styleUrl = (name) => `https://api.maptiler.com/maps/${STYLES[name] ?? name}/style.json?key=${MAPTILER_KEY}`;
 export const ACCRA = [-0.187, 5.6037];
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -80,8 +80,8 @@ export function addArea(map, center) {
   const add = () => {
     if (map.getSource("area")) return;
     map.addSource("area", { type: "geojson", data: areaCircle(center) });
-    map.addLayer({ id: "area-fill", type: "fill", source: "area", paint: { "fill-color": "#ffffff", "fill-opacity": 0.14 } });
-    map.addLayer({ id: "area-line", type: "line", source: "area", paint: { "line-color": "#ffffff", "line-width": 2, "line-dasharray": [2, 2] } });
+    map.addLayer({ id: "area-fill", type: "fill", source: "area", paint: { "fill-color": "#c9a14a", "fill-opacity": 0.16 } });
+    map.addLayer({ id: "area-line", type: "line", source: "area", paint: { "line-color": "#c9a14a", "line-width": 2, "line-dasharray": [2, 2] } });
   };
   if (map.isStyleLoaded()) add();
   map.on("style.load", add);

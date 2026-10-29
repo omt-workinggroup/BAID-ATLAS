@@ -34,7 +34,7 @@ refresh the browser.
 | File | What's in it |
 | --- | --- |
 | `site/index.html` | Homepage: only the properties, filtered by category (`?cat=sale`, `rent`, `townhouses`, `apartments`, `commercial`, `soon`). Properties marked `"coming_soon": true` show their name on a drawn thumbnail until their photos and details are added. |
-| `site/map.html` | The map page (bottom bar's Map tab): list and price-tag pins on a 3D map. |
+| `site/map.html` | The map page (bottom bar's Map tab): list and price-tag pins on a 3D map (dark street map or satellite), the office marked, straight-line distances from the airport, the office or the visitor (nearest first, with a line to the property picked), a fly-through, and `/map?p=slug` links that open on one property. |
 | `site/property.html` | One property: photo hero, facts, section tabs, photos, payment planner (priced sales), 3D tour, floor plans, brochure, location and contact. Printing gives a clean details sheet. Served at `/properties/:slug`. |
 | `site/contact.html` | How to get in touch (WhatsApp, call, email) and the office on a satellite map. |
 | `site/js/data.js` | Reads the properties file; price, area, filter, viewing-message and payment-plan helpers. |

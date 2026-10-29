@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { embedUrl, filterProperties, formatArea, formatPrice, keyFacts, money, nextDays, parseFilters, paymentPlan, shortPrice, toQuery, viewingMessage, whatsappLink } from "../../site/js/data.js";
+import { distanceKm, embedUrl, formatKm, filterProperties, formatArea, formatPrice, keyFacts, money, nextDays, parseFilters, paymentPlan, shortPrice, toQuery, viewingMessage, whatsappLink } from "../../site/js/data.js";
 import { tourConfig } from "../../site/js/tour.js";
 import { checkPortfolio } from "../../scripts/check-properties.mjs";
 
@@ -109,6 +109,14 @@ describe("contact and tours", () => {
     expect(days).toHaveLength(14);
     expect(days[0].getDate()).toBe(1);
     expect(days[0].getMonth()).toBe(10);
+  });
+
+  it("measures straight-line distances", () => {
+    // Central Accra (the map centre) to the airport: about 2.1 km in a straight line.
+    expect(distanceKm([-0.187, 5.6037], [-0.1683, 5.6053])).toBeCloseTo(2.08, 1);
+    expect(formatKm(0.42)).toBe("400 m");
+    expect(formatKm(3.64)).toBe("3.6 km");
+    expect(formatKm(23.4)).toBe("23 km");
   });
 
   it("splits a price into a deposit and equal monthly payments", () => {
