@@ -30,6 +30,14 @@
     <link rel="preload" href="/js/vendor/maplibre-gl.js" as="script" />
     <link rel="preload" href="/data/properties.json" as="fetch" crossorigin />
     <link rel="preload" href="/fonts/plus-jakarta-sans-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="modulepreload" href="/js/core.js" />
+    <link rel="modulepreload" href="/js/data.js" />
+    <link rel="modulepreload" href="/js/map.js" />
+    <link rel="modulepreload" href="/js/config.js" />
+    <link rel="preload" href="/brand/propertiq-logo.webp" as="image" type="image/webp" />
+    <!-- The map style starts downloading with the page. The MapTiler key is public by design and limited to this site's addresses (see js/config.js). -->
+    <link rel="preload" href="https://api.maptiler.com/maps/streets-v2/style.json?key=9g1fE8seqYv83q0AINcI" as="fetch" crossorigin />
+    <link rel="preload" href="https://api.maptiler.com/tiles/v3/tiles.json?key=9g1fE8seqYv83q0AINcI" as="fetch" crossorigin />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/maplibre-gl.css" />
