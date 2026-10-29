@@ -1,7 +1,7 @@
 // Property card: the photo carries the name, price and key facts; badges say what the page offers
 // (3D tour, floor plans, brochure) so visitors know before they click.
 import { html, icon, raw } from "./core.js";
-import { PURPOSE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, hasTour, keyFacts, place } from "./data.js";
+import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, hasTour, keyFacts, place } from "./data.js";
 
 export const noPhoto = () => html`<div class="no-photo">${icon("house", 30, 1.4)}<span>Photos coming soon</span></div>`;
 
@@ -23,6 +23,7 @@ export function propertyCard(p, { eager = false } = {}) {
       <div class="pcard__tags">
         <div>
           <span class="tag tag--light">${PURPOSE_LABELS[p.purpose] ?? ""}</span>
+          ${STAGE_LABELS[p.stage] && p.stage !== "completed" ? html`<span class="tag tag--light">${STAGE_LABELS[p.stage]}</span>` : ""}
           ${closed ? html`<span class="tag tag--dark">${STATUS_LABELS[p.status]}</span>` : ""}
         </div>
         ${heartButton(p)}
@@ -37,6 +38,7 @@ export function propertyCard(p, { eager = false } = {}) {
     </div>
     <div class="pcard__body">
       <p class="pcard__meta">${icon("pin", 14)}${[TYPE_LABELS[p.type], place(p)].filter(Boolean).join(" · ")}</p>
+      ${p.renders ? html`<p class="tiny muted">Images are artist's impressions</p>` : ""}
       ${offers.length ? html`<ul class="pcard__offers">${offers.map(([ic, t]) => html`<li>${icon(ic, 14)}${t}</li>`)}</ul>` : ""}
     </div>
   </article>`;

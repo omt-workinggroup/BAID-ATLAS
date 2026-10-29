@@ -14,6 +14,7 @@ export const TYPE_LABELS = {
   mixed_use: "Mixed use",
 };
 export const STATUS_LABELS = { available: "Available", under_offer: "Under offer", sold: "Sold", let: "Let" };
+export const STAGE_LABELS = { off_plan: "Off-plan", under_construction: "Under construction", completed: "Completed" };
 const PERIODS = { month: "/month", year: "/year", week: "/week", night: "/night" };
 const UNITS = { sqm: "m²", sqft: "sq ft", acre: "acres", hectare: "ha", plot: "plots" };
 const ONE = { acre: "acre", plot: "plot" };
@@ -42,8 +43,14 @@ export function shortPrice(price) {
   return `${price.currency ?? "GHS"} ${v}${PERIODS[price.period] ? PERIODS[price.period].replace("/month", "/mo").replace("/year", "/yr") : ""}`;
 }
 
-export const formatArea = (a) =>
-  a && a.value != null ? `${Number(a.value).toLocaleString("en-GH")} ${(Number(a.value) === 1 && ONE[a.unit]) || UNITS[a.unit] || a.unit || ""}`.trim() : null;
+// One size ({ value, unit }) or a range across units ({ min, max, unit }).
+export function formatArea(a) {
+  if (!a) return null;
+  const n = (v) => Number(v).toLocaleString("en-GH");
+  if (a.min != null && a.max != null) return `${n(a.min)}–${n(a.max)} ${UNITS[a.unit] ?? a.unit ?? ""}`.trim();
+  if (a.value == null) return null;
+  return `${n(a.value)} ${(Number(a.value) === 1 && ONE[a.unit]) || UNITS[a.unit] || a.unit || ""}`.trim();
+}
 export const place = (p) => [p.location?.area, p.location?.city].filter(Boolean).join(", ");
 export const cover = (p) => p.photos?.[0] ?? null;
 // Tours from these services can be embedded; any other link is ignored rather than framed.
@@ -64,7 +71,8 @@ export const hasTour = (p) => Boolean(p.tour?.scenes?.length || embedUrl(p.tour?
 export function keyFacts(p) {
   const home = p.type !== "land";
   return [
-    home && p.bedrooms != null && ["bed", `${p.bedrooms} ${p.bedrooms === 1 ? "Bed" : "Beds"}`],
+    // Bedrooms can be a number or a range written out, e.g. "Studio–2".
+    home && p.bedrooms != null && ["bed", typeof p.bedrooms === "number" ? `${p.bedrooms} ${p.bedrooms === 1 ? "Bed" : "Beds"}` : `${p.bedrooms} Beds`],
     home && p.bathrooms != null && ["bath", `${p.bathrooms} ${p.bathrooms === 1 ? "Bath" : "Baths"}`],
     home && p.parking != null && ["car", `${p.parking} Parking`],
     formatArea(p.size) && ["area", formatArea(p.size)],

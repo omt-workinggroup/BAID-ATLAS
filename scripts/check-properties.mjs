@@ -9,6 +9,7 @@ const TYPES = ["house", "townhouse", "apartment", "land", "commercial", "office"
 const STATUSES = ["available", "under_offer", "sold", "let"];
 const PERIODS = ["total", "month", "year", "week", "night"];
 const UNITS = ["sqm", "sqft", "acre", "hectare", "plot"];
+const STAGES = ["off_plan", "under_construction", "completed"];
 
 // Returns a list of problems (empty when the file is good). siteRoot is where /media/... paths point.
 export function checkPortfolio(data, siteRoot) {
@@ -33,7 +34,12 @@ export function checkPortfolio(data, siteRoot) {
     if (!pr.on_request && !(typeof pr.amount === "number" && pr.amount >= 0)) errors.push(`${at}: give "price.amount" as a number, or set "price.on_request": true.`);
     if (!pr.on_request && !/^[A-Z]{3}$/.test(pr.currency ?? "")) errors.push(`${at}: "price.currency" must be a code like GHS or USD.`);
     if (pr.period && !PERIODS.includes(pr.period)) errors.push(`${at}: "price.period" must be one of ${PERIODS.join(", ")}.`);
-    for (const k of ["size", "land"]) if (p[k] && (typeof p[k].value !== "number" || !UNITS.includes(p[k].unit))) errors.push(`${at}: "${k}" needs a number "value" and a "unit" (${UNITS.join(", ")}).`);
+    if (p.stage && !STAGES.includes(p.stage)) errors.push(`${at}: "stage" must be one of ${STAGES.join(", ")}.`);
+    const area = (a) => UNITS.includes(a.unit) && (typeof a.value === "number" || (typeof a.min === "number" && typeof a.max === "number"));
+    for (const k of ["size", "land"]) if (p[k] && !area(p[k])) errors.push(`${at}: "${k}" needs a number "value" (or "min" and "max") and a "unit" (${UNITS.join(", ")}).`);
+    if (p.bedrooms != null && typeof p.bedrooms !== "number" && typeof p.bedrooms !== "string") errors.push(`${at}: "bedrooms" must be a number, or text such as "Studio–2".`);
+    if (p.website && !/^https:\/\//.test(p.website)) errors.push(`${at}: "website" must start with https://`);
+    (p.unit_types ?? []).forEach((u, j) => !u?.name && errors.push(`${at}, unit type ${j + 1}: needs a "name".`));
     const loc = p.location ?? {};
     if ((loc.lat === undefined) !== (loc.lng === undefined) || (loc.lat !== undefined && (typeof loc.lat !== "number" || typeof loc.lng !== "number"))) errors.push(`${at}: "location.lat" and "location.lng" must both be numbers (or both left out).`);
     (p.photos ?? []).forEach((ph, j) => fileOk(ph?.src, `${at}, photo ${j + 1}`));

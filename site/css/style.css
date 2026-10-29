@@ -2307,3 +2307,41 @@ button.link {
 .page--wide {
   max-width: 80rem;
 }
+.pd-hero__note {
+  position: absolute;
+  right: var(--gutter);
+  top: 4.5rem;
+  z-index: 2;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.units {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+}
+.unit {
+  display: grid;
+  gap: 0.2rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface-muted);
+}
+.unit span {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (min-width: 1024px) {
+  .pd-hero__note {
+    right: 1.5rem;
+    top: 5rem;
+  }
+}
