@@ -249,5 +249,11 @@
         "embed": "https://evil.example.com/tour"
       }
     }
+  ],
+  "upcoming": [
+    {
+      "name": "Sample: Coming Court",
+      "note": "Details and images to follow"
+    }
   ]
 }

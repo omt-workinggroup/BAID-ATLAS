@@ -13,7 +13,12 @@
     "phone": "+233 54 953 9092",
     "whatsapp": "+233 54 953 9092",
     "email": "info@resilienceghana.com",
-    "location": "29 Augustus Akiwumi St, Airport West, Accra"
+    "location": "29 Augustus Akiwumi St, Airport West, Accra",
+    "website": "https://resilienceghana.com",
+    "office": {
+      "lat": 5.6191189,
+      "lng": -0.1826011
+    }
   },
   "properties": [
     {
@@ -133,7 +138,11 @@
       ],
       "brochure": {
         "src": "/media/the-parkchester-residence/brochure.pdf",
-        "label": "The Parkchester Residence brochure"
+        "label": "The Parkchester Residence brochure",
+        "pages": [
+          "/media/the-parkchester-residence/brochure-1.jpg",
+          "/media/the-parkchester-residence/brochure-2.jpg"
+        ]
       },
       "featured": true,
       "listed": "2026-10-29"
@@ -261,10 +270,28 @@
       ],
       "brochure": {
         "src": "/media/the-resilience-tse-addo/brochure.pdf",
-        "label": "The Resilience, Tse Addo brochure"
+        "label": "The Resilience, Tse Addo brochure",
+        "pages": [
+          "/media/the-resilience-tse-addo/brochure-1.jpg",
+          "/media/the-resilience-tse-addo/brochure-2.jpg"
+        ]
       },
       "featured": true,
       "listed": "2026-10-29"
+    }
+  ],
+  "upcoming": [
+    {
+      "name": "Ezekiel Courts",
+      "note": "Details and images to follow"
+    },
+    {
+      "name": "Ghana Airways",
+      "note": "Details and images to follow"
+    },
+    {
+      "name": "Awesome Place",
+      "note": "Offices and stores · details to follow"
     }
   ]
 }

@@ -104,13 +104,12 @@ test.describe("listings", () => {
     await expect(page.getByText("New properties are being prepared.")).toBeVisible();
   });
 
-  test("the locations map loads and lists every placed property", async ({ page }) => {
+  test("shows brochures as booklets and what is coming soon", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await page.locator("#locations").scrollIntoViewIfNeeded();
-    await expect(page.locator("#places li")).toHaveCount(4);
-    await expect(page.locator("#map canvas")).toBeAttached({ timeout: 20_000 });
-    await expect(page.locator(".pin")).toHaveCount(4);
+    await expect(page.locator("#map")).toHaveCount(0);
+    await expect(page.locator(".booklet")).toHaveCount(1);
+    await expect(page.locator(".booklet")).toHaveAttribute("href", "/media/sample/brochure.pdf");
   });
 });
 
@@ -156,10 +155,31 @@ test.describe("property page", () => {
   });
 });
 
+test("the map page lists every placed property and shows price tags", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/map");
+  await expect(page.locator("#carousel li")).toHaveCount(4);
+  await expect(page.locator("#map canvas")).toBeAttached({ timeout: 20_000 });
+  await expect(page.locator(".tagpin")).toHaveCount(4);
+  await page.locator("#chips").getByRole("button", { name: "Rent" }).click();
+  await expect(page.locator("#carousel li")).toHaveCount(1);
+  await expectNoHorizontalScroll(page);
+});
+
+test("the map page has the list and a preview card on desktop @desktop", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/map");
+  await expect(page.locator("#list .mrow")).toHaveCount(4);
+  await page.locator("#list .mrow").first().click();
+  await expect(page.locator(".mpreview")).toBeVisible();
+  await expect(page.locator(".mpreview")).toContainText("Sample: East Legon Villa");
+});
+
 test("contact shows only the details that are filled in", async ({ page }) => {
   await useSamplePortfolio(page, JSON.stringify({ owner: { about: "x", email: "owner@example.com" }, properties: [] }));
   await page.goto("/contact");
   await expect(page.locator(".contact__list > div")).toHaveCount(1);
+  await expect(page.locator(".contact__actions a")).toHaveCount(1);
   await expect(page.locator(".contact__list")).toContainText("owner@example.com");
 });
 

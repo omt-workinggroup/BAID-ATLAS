@@ -1,7 +1,7 @@
-// Homepage: introduction, the listings (filter, search, sort), the satellite map, about and contact.
-import { boot, html, markup, params, raw, render } from "../core.js";
-import { PURPOSE_LABELS, filterProperties, loadPortfolio, parseFilters, place, toQuery, whatsappLink } from "../data.js";
-import { card, mapCard } from "../cards.js";
+// Homepage: search, chips, the listings, brochures, what is coming soon, and about. The map has its own page.
+import { boot, html, params, raw, render } from "../core.js";
+import { filterProperties, loadPortfolio, parseFilters, toQuery, whatsappLink } from "../data.js";
+import { booklet, card } from "../cards.js";
 
 boot();
 const f = parseFilters(params());
@@ -89,74 +89,14 @@ render(
     ${owner.email ? html`<a class="text-link" href="mailto:${owner.email}">${owner.email}</a>` : ""}`,
 );
 
-// ---- Satellite map: loads when it is about to scroll into view ----------------------------------------
-const placed = all.filter((p) => typeof p.location?.lat === "number");
-render(
-  "#places",
-  placed.map((p, i) => html`<li><button type="button" data-place="${p.slug}"><span class="places__n">${String(i + 1).padStart(2, "0")}</span><span><strong>${p.title}</strong><span>${place(p)} · ${PURPOSE_LABELS[p.purpose] ?? ""}</span></span></button></li>`),
-);
-const mapEl = document.getElementById("map");
-new IntersectionObserver(
-  (entries, obs) => {
-    if (!entries.some((e) => e.isIntersecting)) return;
-    obs.disconnect();
-    startMap().catch(() => render(mapEl, html`<p class="empty">The map couldn't load.</p>`));
-  },
-  { rootMargin: "400px" },
-).observe(mapEl);
-
-async function startMap() {
-  const m = await import("../map.js");
-  await m.loadMapLibre();
-  const gl = window.maplibregl;
-  const map = m.createMap(mapEl, { center: m.ACCRA, zoom: 11.2, pitch: 0, cooperative: true });
-  const markers = new Map();
-  let card = null;
-  let stopOrbit = () => {};
-
-  const select = (slug) => {
-    const p = placed.find((x) => x.slug === slug);
-    if (!p) return;
-    stopOrbit();
-    markers.forEach((mk, s) => mk.getElement().classList.toggle("is-active", s === slug));
-    document.querySelectorAll("[data-place]").forEach((b) => b.setAttribute("aria-current", String(b.dataset.place === slug)));
-    m.flyToProperty(map, p);
-    card?.remove();
-    card = new gl.Popup({ closeButton: false, offset: 28, maxWidth: "320px", className: "map-popup" }).setLngLat(m.lngLat(p)).setHTML(markup(mapCard(p))).addTo(map);
-    map.once("moveend", () => (stopOrbit = m.orbit(map)));
-  };
-
-  for (const p of placed) {
-    const el = document.createElement("button");
-    el.type = "button";
-    el.className = "pin";
-    el.setAttribute("aria-label", p.title);
-    el.innerHTML = '<span class="pin__dot"></span><span class="pin__label"></span>';
-    el.querySelector(".pin__label").textContent = p.title;
-    el.addEventListener("click", (e) => {
-      e.stopPropagation();
-      select(p.slug);
-    });
-    markers.set(p.slug, new gl.Marker({ element: el, anchor: "bottom" }).setLngLat(m.lngLat(p)).addTo(map));
-  }
-  document.getElementById("places").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-place]");
-    if (b) select(b.dataset.place);
-  });
-
-  // Opening move: from the city down to the developments, tilted.
-  map.once("load", () => {
-    if (!placed.length) return;
-    const b = new gl.LngLatBounds();
-    placed.forEach((p) => b.extend(m.lngLat(p)));
-    map.fitBounds(b, { padding: { top: 180, bottom: 160, left: 200, right: 200 }, maxZoom: 14, pitch: 55, bearing: -18, duration: 3500 });
-    map.once("moveend", () => (stopOrbit = m.orbit(map)));
-  });
-
-  document.querySelectorAll("[data-style]").forEach((b) =>
-    b.addEventListener("click", () => {
-      document.querySelectorAll("[data-style]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      m.setStyle(map, b.dataset.style);
-    }),
-  );
+// ---- Brochures (shown as open booklets) and coming soon ------------------------------------------------
+const withBrochure = all.filter((p) => p.brochure?.src);
+if (!filtered && withBrochure.length) {
+  document.getElementById("brochures").hidden = false;
+  render("#booklets", withBrochure.map((p) => booklet(p)));
+}
+const upcoming = portfolio.upcoming ?? [];
+if (!filtered && upcoming.length) {
+  document.getElementById("soon").hidden = false;
+  render("#soon-list", upcoming.map((u, i) => html`<li class="soon__item" style="--n:${i}"><span class="soon__mark" aria-hidden="true">${u.name.charAt(0)}</span><span><strong>${u.name}</strong><span>${u.note ?? "Details to follow"}</span></span></li>`));
 }

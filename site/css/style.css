@@ -1364,140 +1364,6 @@ body.app {
   }
 }
 
-/* ---- Contact --------------------------------------------------------------------------------------- */
-.contact {
-  display: grid;
-  gap: 1.25rem;
-  padding-top: 2.5rem;
-}
-.contact h1 {
-  max-width: 18ch;
-  font-family: var(--serif);
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  font-weight: 500;
-  line-height: 1.1;
-}
-.contact__grid {
-  display: grid;
-  gap: 2rem;
-  margin-top: 1rem;
-}
-.contact__grid .lead {
-  color: var(--ink-2);
-}
-.contact__list div {
-  display: grid;
-  gap: 0.15rem;
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--line);
-}
-.contact__list dt {
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-@media (min-width: 900px) {
-  .contact__grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-  }
-}
-/* ---- Homepage: locations (satellite map) ------------------------------------------------------ */
-.locations {
-  position: relative;
-  display: grid;
-  margin-top: clamp(4rem, 8vw, 7rem);
-  background: var(--black);
-  color: #fff;
-}
-.locations__map {
-  height: 72vh;
-  min-height: 26rem;
-  max-height: 52rem;
-  background: #11161b;
-}
-.locations__panel {
-  display: grid;
-  gap: 1.25rem;
-  align-content: start;
-  padding: 2.5rem var(--gutter);
-}
-.locations__panel .eyebrow {
-  color: #9a978f;
-}
-.locations__panel h2 {
-  color: #fff;
-}
-.places {
-  border-top: 1px solid #2a2a2a;
-}
-.places li {
-  border-bottom: 1px solid #2a2a2a;
-}
-.places button {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  padding: 1rem 0;
-  border: 0;
-  background: none;
-  text-align: left;
-  color: #cfccc4;
-  transition: color 0.2s ease, padding 0.3s var(--ease);
-}
-.places button:hover,
-.places button[aria-current="true"] {
-  color: #fff;
-  padding-left: 0.4rem;
-}
-.places__n {
-  font-size: 0.8rem;
-  color: #8c8981;
-  padding-top: 0.25rem;
-}
-.places strong {
-  display: block;
-  font-family: var(--serif);
-  font-size: 1.25rem;
-  font-weight: 400;
-}
-.places span span {
-  font-size: 0.85rem;
-  color: #9a978f;
-}
-.map-style {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.85rem;
-}
-.map-style button {
-  padding: 0 0 2px;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  background: none;
-  color: #9a978f;
-}
-.map-style button[aria-pressed="true"] {
-  color: #fff;
-  border-bottom-color: #fff;
-}
-.locations .fineprint {
-  color: #8c8981;
-}
-@media (min-width: 1000px) {
-  .locations {
-    grid-template-columns: minmax(0, 1fr) 24rem;
-  }
-  .locations__map {
-    height: 86vh;
-    max-height: none;
-  }
-  .locations__panel {
-    padding: 3.5rem 3rem;
-  }
-}
-
 /* ---- Map markers and popup ---------------------------------------------------------------------- */
 .pin {
   display: flex;
@@ -1889,4 +1755,666 @@ body.app {
 }
 .tour:fullscreen .tour__view {
   height: 100vh;
+}
+
+/* ---- Brochure booklets (an open printed brochure, as in the reference) ------------------------------ */
+.booklets {
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 700px) {
+  .booklets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.booklet {
+  display: grid;
+  gap: 0.8rem;
+}
+.booklet__stage {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 2.25rem 1.5rem 2.5rem;
+  border-radius: 22px;
+  background: radial-gradient(120% 90% at 30% 20%, #d9bf95 0%, var(--tan) 45%, #7c5e38 100%);
+  perspective: 1600px;
+}
+.booklet__book {
+  display: flex;
+  width: 100%;
+  max-width: 34rem;
+  transform: rotateX(28deg) rotateZ(-9deg);
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 26px 22px rgb(40 24 6 / 0.45));
+  transition: transform 0.7s var(--ease);
+}
+.booklet:hover .booklet__book {
+  transform: rotateX(14deg) rotateZ(-4deg) scale(1.03);
+}
+.booklet__leaf {
+  width: 50%;
+  height: auto;
+  object-fit: cover;
+  background: #fff;
+}
+.booklet__leaf--l {
+  border-radius: 4px 0 0 4px;
+  transform-origin: right center;
+  transform: rotateY(16deg);
+  box-shadow: inset -18px 0 22px -12px rgb(0 0 0 / 0.45);
+}
+.booklet__leaf--r {
+  border-radius: 0 4px 4px 0;
+  transform-origin: left center;
+  transform: rotateY(-16deg);
+}
+.booklet__cap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 0.25rem;
+}
+.booklet__cap strong {
+  font-size: 1rem;
+}
+.booklet__cap span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--tan-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.pd-section .booklet__stage {
+  padding: 2rem 1rem 2.25rem;
+}
+
+/* ---- Coming soon -------------------------------------------------------------------------------------- */
+.soon {
+  display: grid;
+  gap: 0.75rem;
+}
+@media (min-width: 700px) {
+  .soon {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.soon__item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px dashed #d8d2c7;
+  border-radius: 18px;
+  background: var(--soft);
+  animation: rise 0.6s var(--ease) both;
+  animation-delay: calc(var(--n) * 80ms);
+}
+.soon__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 14px;
+  background: var(--black);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+}
+.soon__item strong {
+  display: block;
+}
+.soon__item span span {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ---- Map page ------------------------------------------------------------------------------------------- */
+.page-map .site-footer {
+  display: none;
+}
+.mapx {
+  position: relative;
+  height: calc(100svh - 4.25rem - 4.4rem - env(safe-area-inset-bottom));
+  min-height: 30rem;
+}
+.mapx__panel {
+  display: none;
+}
+.mapx__stage {
+  position: absolute;
+  inset: 0;
+}
+/* MapLibre sets its container to position: relative, so the map fills the stage by height instead. */
+.mapx__map {
+  width: 100%;
+  height: 100%;
+  background: #e9e6df;
+}
+.mapx__top {
+  position: absolute;
+  inset: 0.75rem 0.75rem auto;
+  z-index: 3;
+  display: grid;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+.mapx__top > * {
+  pointer-events: auto;
+}
+.mapx__search {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  box-shadow: var(--shadow), 0 0 0 1px var(--line);
+}
+.mapx__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--ink);
+}
+.mapx__chips,
+.mapx__filters {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mapx__chips::-webkit-scrollbar,
+.mapx__filters::-webkit-scrollbar {
+  display: none;
+}
+.mapx .chip {
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px -8px rgb(0 0 0 / 0.3);
+}
+.mapx .chip[aria-pressed="true"] {
+  border-color: var(--tan);
+  background: #fff7ee;
+  color: var(--tan-text);
+  font-weight: 600;
+}
+.mapx__carousel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.9rem;
+  z-index: 3;
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 0 1rem;
+}
+.mapx__carousel::-webkit-scrollbar {
+  display: none;
+}
+.mapx__carousel li {
+  flex: 0 0 78%;
+  max-width: 20rem;
+  scroll-snap-align: center;
+}
+.mslide {
+  display: grid;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 18px;
+  background: #fff;
+  text-align: left;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, transform 0.25s var(--ease);
+}
+.mslide[aria-pressed="true"] {
+  border-color: var(--tan);
+  transform: translateY(-4px);
+}
+.mslide__img {
+  position: relative;
+  display: block;
+  height: 7.5rem;
+  background: #ddd;
+}
+.mslide__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mslide__tag {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.55rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.mslide__text {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.7rem 0.9rem 0.85rem;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+.mslide__text b {
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+.mslide__place {
+  color: var(--muted);
+}
+.mapx__preview {
+  display: none;
+}
+.mapx__note {
+  display: none;
+  position: absolute;
+  right: 0.75rem;
+  bottom: 13.6rem;
+  z-index: 2;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.85);
+  font-size: 0.68rem;
+  color: var(--ink-2);
+}
+.mapx .maplibregl-ctrl-bottom-right {
+  bottom: 12.5rem;
+}
+/* Price-tag pins */
+.tagpin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.3));
+  transition: transform 0.25s var(--ease);
+}
+.tagpin__label {
+  padding: 0.38rem 0.7rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tagpin__tip {
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  background: #fff;
+  transform: rotate(45deg);
+}
+.tagpin:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+.tagpin.is-active {
+  transform: scale(1.12);
+  z-index: 5;
+}
+.tagpin.is-active .tagpin__label,
+.tagpin.is-active .tagpin__tip {
+  background: var(--tan);
+  color: #fff;
+}
+.tagpin.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  width: 46px;
+  height: 18px;
+  margin-left: -23px;
+  border-radius: 50%;
+  background: rgb(184 149 106 / 0.35);
+  animation: halo 1.8s ease-out infinite;
+}
+@keyframes halo {
+  from {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+@media (min-width: 900px) {
+  .mapx {
+    display: grid;
+    grid-template-columns: 27rem minmax(0, 1fr);
+    gap: 1rem;
+    height: calc(100vh - 4.25rem);
+    padding: 1rem;
+    background: var(--soft);
+  }
+  .mapx__panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 1rem;
+  }
+  .mapx__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0.5rem 0.25rem 0;
+  }
+  .mapx__head h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .mapx__count {
+    margin-top: 0.3rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .mapx .map-style {
+    display: flex;
+    padding: 0.2rem;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .mapx .map-style button {
+    padding: 0.35rem 0.85rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .mapx .map-style button[aria-pressed="true"] {
+    background: var(--black);
+    color: #fff;
+  }
+  .mapx__filters {
+    flex-wrap: wrap;
+  }
+  .mapx__list {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 0.25rem 0.25rem 1rem;
+  }
+  .mrow {
+    display: grid;
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: 1rem;
+    width: 100%;
+    padding: 0.6rem;
+    border: 2px solid transparent;
+    border-radius: 18px;
+    background: #fff;
+    text-align: left;
+    box-shadow: 0 4px 16px -10px rgb(0 0 0 / 0.25);
+    transition: border-color 0.2s ease, transform 0.25s var(--ease);
+  }
+  .mrow:hover {
+    transform: translateY(-2px);
+  }
+  .mrow[aria-pressed="true"] {
+    border-color: var(--tan);
+  }
+  .mrow__img {
+    display: block;
+    overflow: hidden;
+    border-radius: 12px;
+    aspect-ratio: 4 / 3.3;
+    background: #ddd;
+  }
+  .mrow__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mrow__text {
+    display: grid;
+    gap: 0.3rem;
+    align-content: start;
+    padding: 0.2rem 0;
+  }
+  .mrow__text strong,
+  .mpreview strong {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+  .mrow__place {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .mrow__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.9rem;
+    font-size: 0.78rem;
+    color: var(--ink-2);
+  }
+  .mrow__facts span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .mrow__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .mrow__foot b {
+    color: var(--tan-text);
+    font-size: 0.98rem;
+  }
+  .mapx__empty {
+    padding: 1rem;
+    color: var(--muted);
+  }
+  .mapx__stage {
+    position: relative;
+    inset: auto;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 22px;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .mapx__top {
+    inset: 1rem auto auto 1rem;
+    width: min(26rem, 60%);
+  }
+  .mapx__chips,
+  .mapx__carousel {
+    display: none;
+  }
+  .mapx__preview {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 3;
+    width: 19rem;
+  }
+  .mapx__preview.is-open {
+    display: block;
+    animation: rise 0.35s var(--ease) both;
+  }
+  .mpreview {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 24px 50px -20px rgb(0 0 0 / 0.45);
+  }
+  .mpreview__img {
+    display: block;
+    height: 10.5rem;
+    background: #ddd;
+  }
+  .mpreview__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mpreview__close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+  }
+  .mpreview__text {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.9rem 1rem 1rem;
+  }
+  .mpreview .btn {
+    margin-top: 0.4rem;
+  }
+  .mapx__note {
+    display: block;
+    bottom: 0.75rem;
+    left: 1rem;
+    right: auto;
+  }
+  .mapx .maplibregl-ctrl-bottom-right {
+    bottom: 0.5rem;
+    right: 21.5rem;
+  }
+}
+
+/* ---- Contact ----------------------------------------------------------------------------------------- */
+.contact {
+  display: grid;
+  gap: 2.5rem;
+  max-width: calc(var(--wrap) + var(--gutter) * 2);
+  margin: 0 auto;
+  padding: 2rem var(--gutter) 0;
+}
+.contact__hero {
+  display: grid;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  border-radius: 24px;
+  background: var(--black);
+  color: #fff;
+}
+.contact__hero .eyebrow {
+  color: #a8a8a8;
+}
+.contact__hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 500;
+  line-height: 1.05;
+}
+.contact__tag {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  color: #d9bf95;
+}
+.contact__about {
+  max-width: 40rem;
+  color: #cfcfcf;
+}
+.contact__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+.contact__actions .btn--dark {
+  background: #fff;
+  color: var(--ink);
+}
+.contact__actions .btn--outline-tan {
+  background: transparent;
+  color: #d9bf95;
+}
+.contact__grid {
+  display: grid;
+  gap: 1.5rem;
+}
+.contact__list div {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.contact__list dt {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.contact__list dd {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.contact__list a:hover {
+  color: var(--tan-text);
+}
+.contact__map {
+  height: 20rem;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #11161b;
+}
+.contact__map-wrap {
+  display: grid;
+  gap: 0.5rem;
+}
+.contact__services {
+  display: grid;
+  gap: 0.9rem;
+}
+.contact__services h2 {
+  font-size: 1.3rem;
+}
+@media (min-width: 900px) {
+  .contact {
+    padding-top: 2.5rem;
+  }
+  .contact__hero {
+    padding: 3.5rem;
+  }
+  .contact__grid {
+    grid-template-columns: 1fr 1.3fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  .contact__map {
+    height: 26rem;
+  }
 }

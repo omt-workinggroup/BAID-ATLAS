@@ -41,3 +41,17 @@ export function mapCard(p) {
     ${icon("arrow", 18, 1.8)}
   </a>`;
 }
+
+// A brochure shown as an open printed booklet (its first two pages), linking to the PDF.
+export function booklet(p) {
+  const [left, right] = p.brochure.pages ?? [];
+  return html`<a class="booklet" href="${p.brochure.src}" target="_blank" rel="noopener">
+    <span class="booklet__stage">
+      <span class="booklet__book">
+        ${left ? html`<img class="booklet__leaf booklet__leaf--l" src="${left}" alt="" loading="lazy" />` : ""}
+        ${right ? html`<img class="booklet__leaf booklet__leaf--r" src="${right}" alt="" loading="lazy" />` : ""}
+      </span>
+    </span>
+    <span class="booklet__cap"><strong>${p.title}</strong><span>${icon("download", 15)}Brochure · PDF</span></span>
+  </a>`;
+}

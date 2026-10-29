@@ -45,6 +45,7 @@ export function checkPortfolio(data, siteRoot) {
     (p.photos ?? []).forEach((ph, j) => fileOk(ph?.src, `${at}, photo ${j + 1}`));
     (p.floorplans ?? []).forEach((pl, j) => fileOk(pl?.src, `${at}, floor plan ${j + 1}`));
     if (p.brochure) fileOk(p.brochure.src, `${at}, brochure`);
+    (p.brochure?.pages ?? []).forEach((src, j) => fileOk(src, `${at}, brochure preview ${j + 1}`));
     const scenes = p.tour?.scenes ?? [];
     const ids = new Set(scenes.map((s) => s.id));
     scenes.forEach((s, j) => {
@@ -53,6 +54,7 @@ export function checkPortfolio(data, siteRoot) {
       (s.hotspots ?? []).forEach((h) => !ids.has(h.to) && errors.push(`${at}, tour room ${s.id}: a hotspot leads to "${h.to}", which is not a room in this tour.`));
     });
   });
+  (data.upcoming ?? []).forEach((u, i) => !u?.name && errors.push(`Coming soon ${i + 1}: needs a "name".`));
   return errors;
 }
 

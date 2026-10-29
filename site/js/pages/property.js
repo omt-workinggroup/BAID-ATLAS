@@ -5,7 +5,7 @@
 import { SITE_URL } from "../config.js";
 import { boot, html, icon, render, setTitle, toast } from "../core.js";
 import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, place, shortPrice, whatsappLink } from "../data.js";
-import { card } from "../cards.js";
+import { booklet, card } from "../cards.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
 
@@ -116,7 +116,8 @@ function show(p, owner) {
             ? section(
                 "brochure",
                 "Brochure",
-                html`<div class="doc"><span class="doc__icon">${icon("doc", 22)}</span><span class="doc__text"><strong>${p.brochure.label ?? `${p.title} brochure`}</strong><span>PDF</span></span><a class="text-link" href="${p.brochure.src}" target="_blank" rel="noopener">Open</a><a class="btn btn--dark" href="${p.brochure.src}" download>${icon("download", 16)}Download</a></div>`,
+                html`${p.brochure.pages?.length ? booklet(p) : ""}
+                  <div class="doc"><span class="doc__icon">${icon("doc", 22)}</span><span class="doc__text"><strong>${p.brochure.label ?? `${p.title} brochure`}</strong><span>PDF</span></span><a class="text-link" href="${p.brochure.src}" target="_blank" rel="noopener">Open</a><a class="btn btn--dark" href="${p.brochure.src}" download>${icon("download", 16)}Download</a></div>`,
               )
             : ""}
 

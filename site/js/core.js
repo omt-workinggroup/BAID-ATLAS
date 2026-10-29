@@ -82,7 +82,7 @@ const LINKS = [
   ["/#properties", "Properties"],
   ["/?purpose=sale#properties", "For sale"],
   ["/?purpose=rent#properties", "For rent"],
-  ["/#locations", "Map"],
+  ["/map", "Map"],
   ["/#about", "About"],
 ];
 
@@ -113,7 +113,7 @@ function headerView() {
 function bottomNavView(here) {
   const tabs = [
     ["/", "Home", "home"],
-    ["/#locations", "Map", "map"],
+    ["/map", "Map", "map"],
     ["/contact", "Contact", "chat"],
   ];
   return html`<nav class="tabbar" aria-label="Quick links">
@@ -142,7 +142,7 @@ function footerView() {
 export function boot() {
   document.body.classList.add("app");
   document.body.insertAdjacentHTML("afterbegin", markup(headerView()));
-  const here = location.pathname === "/contact" ? "/contact" : location.pathname === "/" ? "/" : "";
+  const here = ["/", "/map", "/contact"].includes(location.pathname) ? location.pathname : "";
   document.body.insertAdjacentHTML("beforeend", markup(footerView()) + markup(bottomNavView(here)));
   // If the logo file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {
