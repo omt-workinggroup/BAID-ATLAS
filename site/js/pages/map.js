@@ -1,15 +1,16 @@
 // Map page: every development on a 3D map of Accra. Desktop: filters and a list on the left, the map on
 // the right with price tags and a floating preview card. Phones: the map fills the screen, filters sit on
 // top and the properties scroll along the bottom; the card in view is the one shown on the map.
-// Extras: the office on the map, straight-line distances from the airport, the office or the visitor
-// (nearest first, with a line to the property picked), and links that open the map on one property
-// (/map?p=slug).
+// Extras: the office on the map, straight-line distances from the visitor (the page asks for their
+// location when it opens), the airport or the office (nearest first, with a line to the property picked),
+// and links that open the map on one property (/map?p=slug).
 // Speed: the map library starts downloading at once (it is also preloaded in map.html), alongside the
 // properties; the list shows as soon as the properties arrive, and the map opens directly on its final
 // view, so only those tiles load. Nothing animates.
 import { boot, html, icon, render } from "../core.js";
 import { PURPOSE_LABELS, cover, distanceKm, formatKm, formatPrice, keyFacts, loadPortfolio, place, shortPrice, small } from "../data.js";
 import * as m from "../map.js";
+import { locate, quietly } from "../here.js";
 
 const library = m.loadMapLibre();
 boot();
@@ -112,7 +113,9 @@ const PADDING = wide ? { top: 140, bottom: 120, left: 140, right: 140 } : { top:
 function framing() {
   const b = new gl.LngLatBounds();
   visible().forEach((p) => b.extend(m.lngLat(p)));
-  if (ORIGINS[origin]?.at) b.extend(ORIGINS[origin].at);
+  // The starting point is framed too, unless the visitor is far from Accra (then the map stays on Accra).
+  const from = ORIGINS[origin]?.at;
+  if (from && distanceKm(from, m.ACCRA) < 60) b.extend(from);
   if (ORIGINS.office) b.extend(ORIGINS.office.at);
   return b.isEmpty() ? null : b;
 }
@@ -153,7 +156,7 @@ if (ORIGINS.office) landmark("landmark--office", "Our office", owner.location ??
 const airportMark = landmark("landmark--airport", "Airport", "Kotoka International Airport").setLngLat(ORIGINS.airport.at);
 const meMark = landmark("landmark--me", "You", "Your location");
 
-// A dashed gold line from the chosen starting point to the property picked.
+// A dashed line from the chosen starting point to the property picked.
 function drawLine() {
   if (!map.isStyleLoaded()) return;
   const from = ORIGINS[origin]?.at;
@@ -161,7 +164,7 @@ function drawLine() {
   const data = from && p ? { type: "Feature", geometry: { type: "LineString", coordinates: [from, lngLatOf(p)] }, properties: {} } : { type: "FeatureCollection", features: [] };
   if (map.getSource("away")) return map.getSource("away").setData(data);
   map.addSource("away", { type: "geojson", data });
-  map.addLayer({ id: "away-line", type: "line", source: "away", layout: { "line-cap": "round" }, paint: { "line-color": "#1f3b33", "line-width": 2.5, "line-dasharray": [1.5, 2] } });
+  map.addLayer({ id: "away-line", type: "line", source: "away", layout: { "line-cap": "round" }, paint: { "line-color": "#111111", "line-width": 2.5, "line-dasharray": [1.5, 2] } });
 }
 map.on("style.load", drawLine);
 
@@ -211,29 +214,30 @@ function setOrigin(key) {
     drawLine();
   } else fitAll();
 }
-fromSel.addEventListener("change", () => {
-  if (fromSel.value !== "me") return setOrigin(fromSel.value);
-  if (!navigator.geolocation) {
-    note.textContent = "This browser can't share its location.";
-    fromSel.value = origin;
-    return;
-  }
+function fromMe() {
   note.textContent = "Finding you…";
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      ORIGINS.me.at = [pos.coords.longitude, pos.coords.latitude];
+  return locate().then(
+    (at) => {
+      ORIGINS.me.at = at;
       note.textContent = "";
       setOrigin("me");
     },
-    () => {
-      note.textContent = `Location wasn't shared, so distances stay from ${ORIGINS[origin].label}.`;
+    (err) => {
+      note.textContent = `${err.message} Distances are from ${ORIGINS[origin].label}; choose "Where I am" to try again.`;
       fromSel.value = origin;
     },
-    { timeout: 10000, maximumAge: 300000 },
   );
-});
+}
+fromSel.addEventListener("change", () => (fromSel.value === "me" ? fromMe() : setOrigin(fromSel.value)));
 if (ORIGINS.airport) airportMark.addTo(map);
 if (startAt) select(startAt.slug, { scroll: true, move: false });
+// Distances from the visitor: straight away if they have already allowed it; otherwise the browser asks.
+quietly().then((at) => {
+  if (at) {
+    ORIGINS.me.at = at;
+    setOrigin("me");
+  } else if (navigator.geolocation) fromMe();
+});
 map.once("load", () => {
   // The map credit starts folded into its small "i" button, so it doesn't cover the map on phones.
   document.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");

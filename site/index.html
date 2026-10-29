@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Propertiq — Properties in Accra</title>
     <meta name="description" content="Homes, apartments, offices and stores in Accra, with prices, floor plans, brochures and full galleries." />
-    <meta name="theme-color" content="#1f3b33" />
+    <meta name="theme-color" content="#111111" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Propertiq" />
     <meta property="og:locale" content="en_GH" />
@@ -31,6 +31,7 @@
     <link rel="preload" href="/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="modulepreload" href="/js/core.js" />
     <link rel="modulepreload" href="/js/data.js" />
+    <link rel="modulepreload" href="/js/here.js" />
     <link rel="modulepreload" href="/js/cards.js" />
     <link rel="preload" href="/brand/propertiq-logo.webp" as="image" type="image/webp" />
     <link rel="stylesheet" href="/css/fonts.css" />
@@ -44,6 +45,7 @@
           <p class="eyebrow">Accra, Ghana</p>
           <h1>Properties <span class="home__count" id="count"></span></h1>
         </div>
+        <button type="button" class="near" id="near" hidden>Show distances from me</button>
       </header>
       <nav class="cats" aria-label="Categories" id="cats"></nav>
       <div id="results" class="cards" aria-live="polite" aria-busy="true"></div>

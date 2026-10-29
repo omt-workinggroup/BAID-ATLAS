@@ -16,7 +16,8 @@ export function artwork(p) {
   return html`<span class="art" aria-hidden="true"><span class="art__grid"></span><span class="art__mark">${p.title.charAt(0)}</span><span class="art__name">${p.title}</span></span>`;
 }
 
-export function card(p, { eager = false } = {}) {
+// "away" is how far the visitor is from it (when they have shared their location).
+export function card(p, { eager = false, away = null } = {}) {
   if (p.coming_soon) {
     return html`<article class="card card--soon">
       <a class="card__media" href="/properties/${p.slug}" aria-label="${p.title}, coming soon">
@@ -32,7 +33,7 @@ export function card(p, { eager = false } = {}) {
   }
   const c = cover(p);
   const facts = keyFacts(p).slice(0, 3);
-  const factList = facts.length ? html`<ul class="card__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 15)}${t}</li>`)}</ul>` : "";
+  const factList = facts.length || away ? html`<ul class="card__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 15)}${t}</li>`)}${away ? html`<li class="card__away">${icon("locate", 15)}${away} away</li>` : ""}</ul>` : "";
   return html`<article class="card">
     <a class="card__media" href="/properties/${p.slug}" aria-label="${p.title}, ${formatPrice(p.price)}">
       ${c ? html`<img src="${small(c)}" alt="" loading="${eager ? "eager" : "lazy"}" ${eager ? html`fetchpriority="high"` : ""} decoding="async" />` : html`<span class="card__noimg">Images to follow</span>`}

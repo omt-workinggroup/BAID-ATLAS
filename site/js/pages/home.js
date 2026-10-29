@@ -1,7 +1,8 @@
 // Homepage: every property, filtered by category (?cat=). Nothing else.
-import { boot, html, params, raw, render } from "../core.js";
+import { boot, html, params, raw, render, toast } from "../core.js";
 import { loadPortfolio } from "../data.js";
 import { card } from "../cards.js";
+import { awayFrom, locate, quietly } from "../here.js";
 
 boot();
 const commercial = ["commercial", "office", "retail", "warehouse", "mixed_use"];
@@ -38,11 +39,38 @@ const rows = all.filter(current[2]).sort((a, b) => rank(a) - rank(b) || String(b
 document.getElementById("count").textContent = String(rows.length);
 const results = document.getElementById("results");
 results.removeAttribute("aria-busy");
-render(
-  results,
-  rows.length
-    ? rows.map((p, i) => card(p, { eager: i < 3 }))
-    : all.length
-      ? html`<p class="empty">Nothing in this category yet. <a class="text-link" href="/">See all properties</a></p>`
-      : html`<p class="empty">New properties are being prepared. <a class="text-link" href="/contact">Ask us what's coming</a></p>`,
-);
+const placed = (p) => typeof p.location?.lat === "number" && typeof p.location?.lng === "number";
+function draw(here) {
+  render(
+    results,
+    rows.length
+      ? rows.map((p, i) => card(p, { eager: i < 3, away: here && placed(p) ? awayFrom(here, [p.location.lng, p.location.lat]) : null }))
+      : all.length
+        ? html`<p class="empty">Nothing in this category yet. <a class="text-link" href="/">See all properties</a></p>`
+        : html`<p class="empty">New properties are being prepared. <a class="text-link" href="/contact">Ask us what's coming</a></p>`,
+  );
+}
+draw(null);
+
+// Distances from the visitor: shown straight away if they have already allowed it, otherwise on request.
+const near = document.getElementById("near");
+if (rows.some(placed) && navigator.geolocation) {
+  quietly().then((here) => {
+    if (here) return draw(here);
+    near.hidden = false;
+  });
+  near.addEventListener("click", () => {
+    near.disabled = true;
+    near.textContent = "Finding you…";
+    locate()
+      .then((here) => {
+        draw(here);
+        near.hidden = true;
+      })
+      .catch((e) => {
+        toast(e.message);
+        near.disabled = false;
+        near.textContent = "Show distances from me";
+      });
+  });
+}

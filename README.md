@@ -40,6 +40,7 @@ refresh the browser.
 | `site/js/data.js` | Reads the properties file; price, area, filter, viewing-message and payment-plan helpers. |
 | `site/js/tour.js` | 3D tour: [Pannellum](https://pannellum.org) (MIT, in `site/js/vendor`) with room buttons, hotspots, auto-rotate, tilt-to-look and full screen. |
 | `site/js/viewer.js` | Full-screen photo and floor-plan viewer. |
+| `site/js/here.js` | The visitor's location, only for showing how far they are from the properties and the office. The browser asks first; the position stays in that browser tab for 10 minutes and is never sent anywhere. |
 | `site/js/visit.js` | "Book a viewing": pick a day and time, then send the request on WhatsApp or by email, already written. Nothing is booked automatically; the office replies to confirm. |
 | `site/js/map.js` | 3D maps: [MapLibre GL](https://maplibre.org) (BSD-3, in `site/js/vendor`) with MapTiler satellite and street styles; fly-to, tilt and a slow orbit. |
 | `site/css/style.css` | Every style, starting with the colour and spacing tokens at the top. |

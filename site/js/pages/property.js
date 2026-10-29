@@ -9,6 +9,7 @@ import { artwork, booklet, card } from "../cards.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
 import { openVisit } from "../visit.js";
+import { awayFrom, locate, quietly } from "../here.js";
 
 const STAT_NAMES = { bed: "Beds", bath: "Baths", car: "Parking", area: "Size", plot: "Land" };
 
@@ -98,7 +99,7 @@ function show(p, owner) {
         <div class="pd-top__text">
           <div>
             <h1 id="pd-title">${p.title}</h1>
-            <p class="pd-top__place">${icon("pin", 15)}${place(p)}</p>
+            <p class="pd-top__place">${icon("pin", 15)}${place(p)}<span id="pd-away-top"></span></p>
           </div>
           <p class="pd-top__price"><strong>${formatPrice(p.price)}</strong><span>${PURPOSE_LABELS[p.purpose] ?? ""}</span></p>
         </div>
@@ -187,7 +188,7 @@ function show(p, owner) {
             ? section(
                 "location",
                 "Location",
-                html`${typeof p.location?.lat === "number" ? html`<div class="pd-map" id="pd-map" role="region" aria-label="Satellite map of the area"></div><p class="fineprint">The circle marks the neighbourhood. The exact address is shared when you arrange a viewing.</p>` : html`<p>${place(p)}</p>`}
+                html`${typeof p.location?.lat === "number" ? html`<div class="pd-map" id="pd-map" role="region" aria-label="Satellite map of the area"></div><p class="fineprint">The circle marks the neighbourhood. The exact address is shared when you arrange a viewing.</p><p class="away" id="pd-away"><button type="button" class="near" data-near>How far is it from me?</button></p>` : html`<p>${place(p)}</p>`}
                   ${p.nearby?.length ? html`<ul class="nearby">${p.nearby.map((x) => html`<li>${icon("pin", 15)}${x}</li>`)}</ul>` : ""}
                   <p class="pd-links">${typeof p.location?.lat === "number" ? html`<a class="text-link" href="/map?p=${p.slug}">Open on the map</a>` : ""}${p.website ? html`<a class="text-link" href="${p.website}" target="_blank" rel="noopener">Visit the development's website</a>` : ""}</p>`,
               )
@@ -281,6 +282,31 @@ function show(p, owner) {
   if (hasTour(p)) {
     const tour = mountTour(document.getElementById("tour-root"), p.tour, { poster: p.tour.poster ?? cover(p)?.src, title: p.title });
     if (location.hash === "#tour") tour.start();
+  }
+
+  // How far the visitor is: shown at once if they have already allowed it, otherwise on request.
+  const awayLine = document.getElementById("pd-away");
+  if (awayLine) {
+    const at = [p.location.lng, p.location.lat];
+    const showAway = (here) => {
+      const km = awayFrom(here, at);
+      document.getElementById("pd-away-top").textContent = ` · ${km} from you`;
+      render(awayLine, html`${icon("locate", 16)}<span>You're <strong>${km}</strong> away, in a straight line.</span>`);
+    };
+    quietly().then((here) => here && showAway(here));
+    awayLine.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-near]");
+      if (!btn) return;
+      btn.disabled = true;
+      btn.textContent = "Finding you…";
+      locate()
+        .then(showAway)
+        .catch((err) => {
+          toast(err.message);
+          btn.disabled = false;
+          btn.textContent = "How far is it from me?";
+        });
+    });
   }
 
   const mapEl = document.getElementById("pd-map");

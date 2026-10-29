@@ -52,8 +52,8 @@ export function setStyle(map, name) {
   map.setStyle(styleUrl(name));
 }
 
-// Recolours the street map to the site's two colours: cream land, soft green-grey water and parks, pale
-// buildings, white streets with the main roads in sand, evergreen labels in one font, and no shop icons.
+// Recolours the street map in black and white: light grey land, grey water and parks, pale buildings,
+// white streets with darker main roads, dark labels in one font, and no shop icons.
 function siteColours(map) {
   const set = (id, prop, value) => {
     try {
@@ -64,13 +64,13 @@ function siteColours(map) {
   };
   for (const { id, type, "source-layer": source } of map.getStyle().layers) {
     const n = id.toLowerCase();
-    if (type === "background") set(id, "background-color", "#f1ede5");
-    else if (type === "fill") set(id, "fill-color", /water|ocean|sea|lake/.test(n) ? "#cfdcd5" : /building/.test(n) ? "#e3ddd1" : /park|grass|wood|forest|green/.test(n) ? "#dfe6da" : "#ece7dd");
-    else if (type === "fill-extrusion") set(id, "fill-extrusion-color", "#ddd6c9");
+    if (type === "background") set(id, "background-color", "#f2f2f2");
+    else if (type === "fill") set(id, "fill-color", /water|ocean|sea|lake/.test(n) ? "#d6d6d6" : /building/.test(n) ? "#e2e2e2" : /park|grass|wood|forest|green/.test(n) ? "#e9e9e9" : "#eeeeee");
+    else if (type === "fill-extrusion") set(id, "fill-extrusion-color", "#dcdcdc");
     else if (type === "line") {
-      if (/water|river|stream|canal/.test(n)) set(id, "line-color", "#bfd0c8");
-      else if (/motorway|trunk|primary|highway|major/.test(n)) set(id, "line-color", "#d6c39d");
-      else if (/boundary|admin/.test(n)) set(id, "line-color", "#c7bfae");
+      if (/water|river|stream|canal/.test(n)) set(id, "line-color", "#cfcfcf");
+      else if (/motorway|trunk|primary|highway|major/.test(n)) set(id, "line-color", "#bdbdbd");
+      else if (/boundary|admin/.test(n)) set(id, "line-color", "#c4c4c4");
       else set(id, "line-color", "#ffffff");
     } else if (type === "symbol") {
       // Shop, bus-stop and similar icons are hidden; street and area names stay.
@@ -80,7 +80,7 @@ function siteColours(map) {
       }
       // Every label in one font, so the map fetches one set of letter shapes instead of five.
       if (map.getLayoutProperty(id, "text-field") != null) map.setLayoutProperty(id, "text-font", ["Roboto Regular", "Noto Sans Regular"]);
-      set(id, "text-color", "#3d524b");
+      set(id, "text-color", "#444444");
       set(id, "text-halo-color", "#ffffff");
       set(id, "icon-opacity", 0.6);
     }
@@ -108,8 +108,8 @@ export function addArea(map, center) {
   const add = () => {
     if (map.getSource("area")) return;
     map.addSource("area", { type: "geojson", data: areaCircle(center) });
-    map.addLayer({ id: "area-fill", type: "fill", source: "area", paint: { "fill-color": "#1f3b33", "fill-opacity": 0.12 } });
-    map.addLayer({ id: "area-line", type: "line", source: "area", paint: { "line-color": "#cdb791", "line-width": 2.5, "line-dasharray": [2, 2] } });
+    map.addLayer({ id: "area-fill", type: "fill", source: "area", paint: { "fill-color": "#111111", "fill-opacity": 0.1 } });
+    map.addLayer({ id: "area-line", type: "line", source: "area", paint: { "line-color": "#ffffff", "line-width": 2.5, "line-dasharray": [2, 2] } });
   };
   if (map.isStyleLoaded()) add();
   map.on("style.load", add);

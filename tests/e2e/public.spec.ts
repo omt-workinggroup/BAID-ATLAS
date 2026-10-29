@@ -242,3 +242,28 @@ test("manifest, icons and the social image are served", async ({ request }) => {
   for (const icon of manifest.icons) expect((await request.get(icon.src)).status()).toBe(200);
   expect((await request.get("/og.jpg")).headers()["content-type"]).toContain("image/jpeg");
 });
+
+test.describe("distances from the visitor", () => {
+  test.use({ geolocation: { latitude: 5.6037, longitude: -0.187 }, permissions: ["geolocation"] });
+
+  test("cards, property, contact and map show how far the visitor is", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/");
+    await expect(page.locator(".card__away").first()).toContainText("away");
+    await page.goto("/properties/sample-east-legon-villa");
+    await expect(page.locator("#pd-away")).toContainText("away, in a straight line");
+    await page.goto("/contact");
+    await expect(page.locator("#office-away")).toContainText("from the office");
+    await page.goto("/map");
+    await expect(page.locator("#from")).toHaveValue("me");
+    await expect(page.locator(".landmark--me")).toHaveCount(1);
+  });
+});
+
+test("the map falls back to the airport when location isn't shared", async ({ page, context }) => {
+  await context.clearPermissions();
+  await useSamplePortfolio(page);
+  await page.goto("/map");
+  await expect(page.locator("#from-note")).toContainText("Distances are from the airport", { timeout: 15_000 });
+  await expect(page.locator("#from")).toHaveValue("airport");
+});

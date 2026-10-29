@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Contact · Propertiq</title>
     <meta name="description" content="Ask about any property in the portfolio, or arrange a viewing." />
-    <meta name="theme-color" content="#1f3b33" />
+    <meta name="theme-color" content="#111111" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Propertiq" />
     <meta property="og:locale" content="en_GH" />
@@ -31,6 +31,7 @@
     <link rel="preload" href="/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="modulepreload" href="/js/core.js" />
     <link rel="modulepreload" href="/js/data.js" />
+    <link rel="modulepreload" href="/js/here.js" />
     <link rel="preload" href="/brand/propertiq-logo.webp" as="image" type="image/webp" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
@@ -50,6 +51,7 @@
           <h2 id="visit-h" data-office-line>Accra, Ghana</h2>
           <p>Viewings start here or on site. Let us know you're coming and we'll be ready for you.</p>
           <a class="text-link" id="directions" target="_blank" rel="noopener" hidden>Get directions</a>
+          <p class="away" id="office-away" hidden><button type="button" class="near near--light" data-near>How far is it from me?</button></p>
         </div>
         <div class="visit__map" id="office-map" role="region" aria-label="Map of the office"></div>
       </section>
