@@ -5,7 +5,7 @@
 import { SITE_URL } from "../config.js";
 import { boot, html, icon, render, setTitle, toast } from "../core.js";
 import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, place, shortPrice, whatsappLink } from "../data.js";
-import { booklet, card } from "../cards.js";
+import { artwork, booklet, card } from "../cards.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
 
@@ -32,7 +32,29 @@ function section(id, title, body) {
   return html`<section class="pd-section" id="${id}" aria-labelledby="${id}-h"><h2 id="${id}-h">${title}</h2>${body}</section>`;
 }
 
+// A property whose photos and details haven't arrived yet: its name, its drawn thumbnail and how to ask.
+function showSoon(p, owner) {
+  setTitle(p.title);
+  const wa = whatsappLink(owner.whatsapp, p, `${SITE_URL}/properties/${p.slug}`);
+  render(
+    root,
+    html`<section class="soon-page">
+      <a class="round" href="/" aria-label="Back to properties">${icon("back", 20, 2)}</a>
+      <div class="soon-page__art">${artwork(p)}</div>
+      <p class="eyebrow">Coming soon</p>
+      <h1>${p.title}</h1>
+      <p>${p.summary ? `${p.summary} ` : ""}Photos, prices and floor plans are being prepared. Ask us and we'll share what we have.</p>
+      <div class="soon-page__actions">
+        ${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">Ask on WhatsApp</a>` : ""}
+        <a class="btn btn--outline-tan" href="/contact">Contact</a>
+      </div>
+    </section>`,
+  );
+  root.removeAttribute("aria-busy");
+}
+
 function show(p, owner) {
+  if (p.coming_soon) return showSoon(p, owner);
   setTitle(p.title);
   document.querySelector('meta[name="description"]')?.setAttribute("content", p.summary ?? p.title);
   const url = `${SITE_URL}/properties/${p.slug}`;

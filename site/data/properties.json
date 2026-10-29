@@ -278,20 +278,23 @@
       },
       "featured": true,
       "listed": "2026-10-29"
-    }
-  ],
-  "upcoming": [
-    {
-      "name": "Ezekiel Courts",
-      "note": "Details and images to follow"
     },
     {
-      "name": "Ghana Airways",
-      "note": "Details and images to follow"
+      "slug": "ezekiel-courts",
+      "title": "Ezekiel Courts",
+      "coming_soon": true
     },
     {
-      "name": "Awesome Place",
-      "note": "Offices and stores · details to follow"
+      "slug": "ghana-airways",
+      "title": "Ghana Airways",
+      "coming_soon": true
+    },
+    {
+      "slug": "awesome-place",
+      "title": "Awesome Place",
+      "type": "commercial",
+      "summary": "Offices and stores.",
+      "coming_soon": true
     }
   ]
 }

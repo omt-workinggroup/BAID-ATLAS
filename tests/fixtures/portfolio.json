@@ -248,12 +248,11 @@
       "tour": {
         "embed": "https://evil.example.com/tour"
       }
-    }
-  ],
-  "upcoming": [
+    },
     {
-      "name": "Sample: Coming Court",
-      "note": "Details and images to follow"
+      "slug": "sample-coming-court",
+      "title": "Sample: Coming Court",
+      "coming_soon": true
     }
   ]
 }

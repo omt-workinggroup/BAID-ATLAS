@@ -8,7 +8,7 @@ import { checkPortfolio } from "../../scripts/check-properties.mjs";
 const site = fileURLToPath(new URL("../../site", import.meta.url));
 const fixtures = fileURLToPath(new URL("../fixtures", import.meta.url));
 const sample = JSON.parse(readFileSync(`${fixtures}/portfolio.json`, "utf8"));
-const list = sample.properties;
+const list = sample.properties.filter((p) => !p.coming_soon);
 
 describe("the live properties file", () => {
   it("is valid and every file it names exists", () => {

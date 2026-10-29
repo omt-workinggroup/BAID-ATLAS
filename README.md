@@ -33,9 +33,10 @@ refresh the browser.
 
 | File | What's in it |
 | --- | --- |
-| `site/index.html` | Homepage: search (with purpose, type and sort), chips on phones, the listings, a 3D satellite map of the locations, and about. |
+| `site/index.html` | Homepage: only the properties, filtered by category (`?cat=sale`, `rent`, `townhouses`, `apartments`, `commercial`, `soon`). Properties marked `"coming_soon": true` show their name on a drawn thumbnail until their photos and details are added. |
+| `site/map.html` | The map page (bottom bar's Map tab): list and price-tag pins on a 3D map. |
 | `site/property.html` | One property: photo hero, facts, photos, 3D tour, floor plans, brochure, location and contact. Served at `/properties/:slug`. |
-| `site/contact.html` | The owner's contact details. |
+| `site/contact.html` | How to get in touch (WhatsApp, call, email) and the office on a satellite map. |
 | `site/js/data.js` | Reads the properties file; price, area and filter helpers. |
 | `site/js/tour.js` | 3D tour: [Pannellum](https://pannellum.org) (MIT, in `site/js/vendor`) with room buttons, hotspots, auto-rotate, tilt-to-look and full screen. |
 | `site/js/viewer.js` | Full-screen photo and floor-plan viewer. |

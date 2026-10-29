@@ -4,9 +4,11 @@ import { expect, test, type Page } from "@playwright/test";
 const shotDir = "docs/screenshots/static/e2e";
 const FX = "tests/fixtures";
 
+// Phones widen the whole layout when something is too wide, so check the layout width matches the screen too.
 async function expectNoHorizontalScroll(page: Page) {
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  const { overflow, layout } = await page.evaluate(() => ({ overflow: document.documentElement.scrollWidth - window.innerWidth, layout: window.innerWidth }));
   expect(overflow).toBeLessThanOrEqual(0);
+  expect(layout).toBe(page.viewportSize()!.width);
 }
 async function shot(page: Page, name: string, project: string) {
   if (project === "pixel-7") await page.screenshot({ path: `${shotDir}/${name}.png` });
@@ -27,8 +29,8 @@ test.describe("site", () => {
   test("the homepage lists every property", async ({ page }, info) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1, includeHidden: true })).toContainText("Browse Homes, Apartments");
-    await expect(page.locator("#results .card")).toHaveCount(4);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Properties");
+    await expect(page.locator("#results .card")).toHaveCount(5);
     await expect(page.locator("#results .card").first()).toContainText("Sample: East Legon Villa");
     await expectNoHorizontalScroll(page);
     await shot(page, "01-home", info.project.name);
@@ -85,17 +87,13 @@ test.describe("listings", () => {
     await expect(page.locator("#results .card", { hasText: "Airport" }).locator(".card__tag")).toHaveText("Under offer");
   });
 
-  test("filter and search", async ({ page }) => {
+  test("filter by category", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await page.getByRole("navigation", { name: "Filter properties" }).getByRole("link", { name: "For rent" }).click();
-    await expect(page).toHaveURL(/purpose=rent/);
+    await page.getByRole("navigation", { name: "Categories" }).getByRole("link", { name: /For rent/ }).click();
+    await expect(page).toHaveURL(/cat=rent/);
     await expect(page.locator("#results .card")).toHaveCount(1);
-    await page.goto("/");
-    await page.getByPlaceholder("Search your home.").fill("oyarifa");
-    await page.getByPlaceholder("Search your home.").press("Enter");
-    await expect(page.locator("#results .card")).toHaveCount(1);
-    await expect(page.locator("#results .card")).toContainText("Oyarifa");
+    await expect(page.getByRole("navigation", { name: "Categories" }).getByRole("link", { name: /For rent/ })).toHaveAttribute("aria-current", "page");
   });
 
   test("an empty portfolio says new properties are being prepared", async ({ page }) => {
@@ -104,12 +102,14 @@ test.describe("listings", () => {
     await expect(page.getByText("New properties are being prepared.")).toBeVisible();
   });
 
-  test("shows brochures as booklets and what is coming soon", async ({ page }) => {
+  test("lists coming-soon properties with a drawn thumbnail", async ({ page }) => {
     await useSamplePortfolio(page);
-    await page.goto("/");
-    await expect(page.locator("#map")).toHaveCount(0);
-    await expect(page.locator(".booklet")).toHaveCount(1);
-    await expect(page.locator(".booklet")).toHaveAttribute("href", "/media/sample/brochure.pdf");
+    await page.goto("/?cat=soon");
+    await expect(page.locator("#results .card--soon")).toHaveCount(1);
+    await expect(page.locator(".card--soon .art__mark")).toHaveText("S");
+    await page.locator(".card--soon .card__media").click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sample: Coming Court");
+    await expect(page.getByText("Photos, prices and floor plans are being prepared.")).toBeVisible();
   });
 });
 
@@ -178,9 +178,9 @@ test("the map page has the list and a preview card on desktop @desktop", async (
 test("contact shows only the details that are filled in", async ({ page }) => {
   await useSamplePortfolio(page, JSON.stringify({ owner: { about: "x", email: "owner@example.com" }, properties: [] }));
   await page.goto("/contact");
-  await expect(page.locator(".contact__list > div")).toHaveCount(1);
-  await expect(page.locator(".contact__actions a")).toHaveCount(1);
-  await expect(page.locator(".contact__list")).toContainText("owner@example.com");
+  await expect(page.locator(".ways .way")).toHaveCount(1);
+  await expect(page.locator(".ways")).toContainText("owner@example.com");
+  await expect(page.locator("main")).not.toContainText("Resilience");
 });
 
 test("desktop shows the main navigation in the header @desktop", async ({ page }) => {
@@ -188,7 +188,7 @@ test("desktop shows the main navigation in the header @desktop", async ({ page }
   await page.goto("/");
   await expect(page.locator(".site-nav")).toBeVisible();
   await expect(page.locator(".tabbar")).toBeHidden();
-  await expect(page.locator(".perks")).toBeVisible();
+  await expect(page.locator(".site-footer__cta")).toBeVisible();
 });
 
 test("manifest, icons and the social image are served", async ({ request }) => {

@@ -79,11 +79,10 @@ export function icon(name, size = 22, stroke = 1.6) {
 // Desktop: a white bar with links, a black "Contact" button and a menu button.
 // Phones: the logo and a call button at the top, and a bottom bar (Home, Map, Contact).
 const LINKS = [
-  ["/#properties", "Properties"],
-  ["/?purpose=sale#properties", "For sale"],
-  ["/?purpose=rent#properties", "For rent"],
+  ["/", "Properties"],
+  ["/?cat=sale", "For sale"],
+  ["/?cat=rent", "For rent"],
   ["/map", "Map"],
-  ["/#about", "About"],
 ];
 
 function headerView() {
@@ -125,16 +124,34 @@ function footerView() {
   return html`
     <footer class="site-footer">
       <div class="site-footer__inner">
-        <div>
-          <img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" loading="lazy" data-logo />
-          <p class="site-footer__note" data-owner-about></p>
-        </div>
-        <nav aria-label="Footer">
-          <ul>${[...LINKS, ["/contact", "Contact"]].map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul>
+        <section class="site-footer__cta" aria-labelledby="footer-cta">
+          <h2 id="footer-cta">Seen something you like?</h2>
+          <p>Tell us which property and when you'd like to visit. We'll take it from there.</p>
+          <div class="site-footer__buttons" data-owner-buttons></div>
+        </section>
+        <nav class="site-footer__col" aria-label="Browse">
+          <h3>Browse</h3>
+          <ul>
+            <li><a href="/">All properties</a></li>
+            <li><a href="/?cat=sale">For sale</a></li>
+            <li><a href="/?cat=rent">For rent</a></li>
+            <li><a href="/?cat=commercial">Offices &amp; stores</a></li>
+            <li><a href="/map">Map</a></li>
+          </ul>
         </nav>
-        <address data-owner-address></address>
+        <div class="site-footer__col">
+          <h3>Talk to us</h3>
+          <ul data-owner-talk></ul>
+        </div>
+        <div class="site-footer__col">
+          <h3>Visit</h3>
+          <address data-owner-address></address>
+        </div>
       </div>
-      <p class="site-footer__legal">© ${new Date().getFullYear()} Propertiq. Images of developments not yet completed are artist's impressions.</p>
+      <div class="site-footer__brand">
+        <img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" loading="lazy" data-logo />
+        <p>© ${new Date().getFullYear()} Propertiq · Images of buildings still under way are artist's impressions.</p>
+      </div>
     </footer>`;
 }
 
@@ -168,11 +185,17 @@ export function boot() {
   import("./data.js").then(({ loadPortfolio }) =>
     loadPortfolio()
       .then(({ owner = {} }) => {
-        document.querySelectorAll("[data-owner-about]").forEach((el) => (el.textContent = owner.tagline ?? ""));
-        const lines = [owner.name, owner.location, owner.phone, owner.email].filter(Boolean);
-        document.querySelectorAll("[data-owner-address]").forEach((el) => render(el, lines.map((l) => html`<span>${l}</span>`)));
+        const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : null;
+        const wa = owner.whatsapp ? `https://wa.me/${owner.whatsapp.replace(/\D/g, "")}` : null;
+        document.querySelectorAll("[data-owner-talk]").forEach((el) =>
+          render(el, html`${tel ? html`<li><a href="${tel}">${owner.phone}</a></li>` : ""}${wa ? html`<li><a href="${wa}" target="_blank" rel="noopener">WhatsApp</a></li>` : ""}${owner.email ? html`<li><a href="mailto:${owner.email}">${owner.email}</a></li>` : ""}`),
+        );
+        document.querySelectorAll("[data-owner-address]").forEach((el) => render(el, html`<span>${owner.location ?? "Accra, Ghana"}</span><a href="/contact">Directions</a>`));
+        document.querySelectorAll("[data-owner-buttons]").forEach((el) =>
+          render(el, html`${wa ? html`<a class="btn btn--light" href="${wa}" target="_blank" rel="noopener">Message on WhatsApp</a>` : ""}${tel ? html`<a class="btn btn--line" href="${tel}">Call ${owner.phone}</a>` : ""}`),
+        );
         document.querySelectorAll("[data-owner-line]").forEach((el) => (el.textContent = [owner.phone, owner.email].filter(Boolean).join("   ·   ")));
-        document.querySelectorAll("[data-owner-tel]").forEach((el) => (owner.phone ? (el.href = `tel:${owner.phone.replace(/\s/g, "")}`) : el.remove()));
+        document.querySelectorAll("[data-owner-tel]").forEach((el) => (tel ? (el.href = tel) : el.remove()));
       })
       .catch(() => {}),
   );

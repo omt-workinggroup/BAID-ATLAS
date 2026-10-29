@@ -11,7 +11,25 @@ function tag(p) {
   return p.stage && p.stage !== "completed" ? STAGE_LABELS[p.stage] : null;
 }
 
+// Until a property's photos arrive, its thumbnail is drawn: its initial over a dark architectural pattern.
+export function artwork(p) {
+  return html`<span class="art" aria-hidden="true"><span class="art__grid"></span><span class="art__mark">${p.title.charAt(0)}</span><span class="art__name">${p.title}</span></span>`;
+}
+
 export function card(p, { eager = false } = {}) {
+  if (p.coming_soon) {
+    return html`<article class="card card--soon">
+      <a class="card__media" href="/properties/${p.slug}" aria-label="${p.title}, coming soon">
+        ${artwork(p)}
+        <span class="card__tag">Coming soon</span>
+        <span class="card__overlay"><span class="card__row"><span class="card__title">${p.title}</span></span><span class="card__facts"><span>${p.summary ?? "Details and images coming soon"}</span></span></span>
+      </a>
+      <div class="card__body">
+        <div class="card__row"><h3 class="card__title"><a href="/properties/${p.slug}">${p.title}</a></h3><span class="card__price">Coming soon</span></div>
+        <p class="card__place">${p.summary ?? "Details and images coming soon"}</p>
+      </div>
+    </article>`;
+  }
   const c = cover(p);
   const facts = keyFacts(p).slice(0, 3);
   const factList = facts.length ? html`<ul class="card__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 15)}${t}</li>`)}</ul>` : "";
