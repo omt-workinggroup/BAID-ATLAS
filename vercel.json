@@ -10,84 +10,38 @@
     {
       "source": "/properties/:slug",
       "destination": "/property"
-    },
-    {
-      "source": "/providers/:slug",
-      "destination": "/provider"
-    },
-    {
-      "source": "/inbox/:id",
-      "destination": "/conversation"
-    },
-    {
-      "source": "/portal/new",
-      "destination": "/portal-new"
-    },
-    {
-      "source": "/portal/:org/team",
-      "destination": "/team"
-    },
-    {
-      "source": "/portal/:org/settings",
-      "destination": "/org-settings"
-    },
-    {
-      "source": "/portal/:org/leads/:id",
-      "destination": "/lead"
-    },
-    {
-      "source": "/portal/:org/leads",
-      "destination": "/leads"
-    },
-    {
-      "source": "/portal/:org/listings/new",
-      "destination": "/listing-new"
-    },
-    {
-      "source": "/portal/:org/listings/:id",
-      "destination": "/listing-edit"
-    },
-    {
-      "source": "/portal/:org/listings",
-      "destination": "/listings"
-    },
-    {
-      "source": "/portal/:org",
-      "destination": "/org"
-    },
-    {
-      "source": "/ops/reviews/:id",
-      "destination": "/ops-review"
-    },
-    {
-      "source": "/ops/organisations",
-      "destination": "/ops-orgs"
-    },
-    {
-      "source": "/ops/reports",
-      "destination": "/ops-reports"
     }
   ],
   "redirects": [
     {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/explore",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
       "source": "/rentals",
-      "destination": "/explore?purpose=long_term_rent",
-      "permanent": false
+      "destination": "/properties?purpose=rent",
+      "permanent": true
     },
     {
       "source": "/land",
-      "destination": "/explore?type=land",
-      "permanent": false
+      "destination": "/properties?type=land",
+      "permanent": true
     },
     {
       "source": "/short-stays",
-      "destination": "/explore?purpose=short_stay",
-      "permanent": false
+      "destination": "/properties?purpose=short_stay",
+      "permanent": true
     },
     {
       "source": "/commercial",
-      "destination": "/explore?type=commercial",
-      "permanent": false
+      "destination": "/properties?type=commercial",
+      "permanent": true
     },
     {
       "source": "/account/saved",
@@ -95,24 +49,99 @@
       "permanent": true
     },
     {
+      "source": "/sign-in",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/sign-up",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/verify",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
       "source": "/verify-phone",
-      "destination": "/verify",
+      "destination": "/properties",
       "permanent": true
     },
     {
-      "source": "/portal/:org/organisation",
-      "destination": "/portal/:org/settings",
+      "source": "/onboarding",
+      "destination": "/properties",
       "permanent": true
     },
     {
-      "source": "/account/suspended",
-      "destination": "/suspended",
+      "source": "/account",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/account/:path*",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/inbox",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/inbox/:path*",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/portal",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/portal/:path*",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/ops",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/ops/:path*",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/providers/:slug",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/compare",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/trust-and-verification",
+      "destination": "/properties",
       "permanent": true
     },
     {
       "source": "/auth/callback",
-      "destination": "/sign-in?error=link",
-      "permanent": false
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/invitations/:path*",
+      "destination": "/properties",
+      "permanent": true
+    },
+    {
+      "source": "/suspended",
+      "destination": "/properties",
+      "permanent": true
     },
     {
       "source": "/:path*",
@@ -143,7 +172,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ecikayrsbjzgdjkehnhl.supabase.co https://api.maptiler.com; font-src 'self'; connect-src 'self' https://ecikayrsbjzgdjkehnhl.supabase.co wss://ecikayrsbjzgdjkehnhl.supabase.co https://api.maptiler.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://api.maptiler.com; font-src 'self'; connect-src 'self' https://api.maptiler.com; frame-src https://my.matterport.com https://kuula.co https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
         },
         {
           "key": "X-Content-Type-Options",

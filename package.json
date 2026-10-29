@@ -8,9 +8,10 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "check:properties": "node scripts/check-properties.mjs",
     "db:test": "supabase test db",
-    "db:test:local": "scripts/local-db/test.sh",
-    "format": "prettier --write ."
+    "db:test:local": "scripts/local-db/test.sh"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

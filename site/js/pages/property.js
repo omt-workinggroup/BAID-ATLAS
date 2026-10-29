@@ -1,371 +1,214 @@
-// Property page: photos, facts, provider, and the three actions (message, viewing, report).
-import { boot, busy, friendlyDbError, getUser, html, icon, raw, render, sb, setTitle, showErrors, signedUrls, toast } from "../core.js";
-import {
-  COMPLETION_LABELS, CONDITION_LABELS, FURNISHING_LABELS, PROPERTY_TYPE_LABELS, PURPOSE_LABELS, REPORT_REASON_LABELS,
-  formatArea, formatLocation, formatPrice, listedAgo,
-} from "../format.js";
-import { amenityLabel, loadCatalogue, subtypeLabel } from "../catalogue.js";
-import { trustItems, trustPanel } from "../trust.js";
-import { CARD_COLUMNS, listingCard, noPhoto, savedIds, verifiedLabel, wireSaveButtons, withCoverUrls } from "../listings.js";
-import { wireCompareButtons } from "../compare.js";
-const hasPosition = (l) => l.public_latitude !== null && l.public_latitude !== undefined && l.public_longitude !== null;
+// One property: photo hero, key facts, photos, 3D tour, floor plans, brochure, location and contact.
+import { SITE_URL } from "../config.js";
+import { boot, html, icon, raw, render, setTitle, toast, wireSaveButtons } from "../core.js";
+import { PURPOSE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, filterProperties, formatPrice, hasTour, keyFacts, loadPortfolio, place, shortPrice, whatsappLink } from "../data.js";
+import { heartButton, noPhoto, propertyCard } from "../cards.js";
+import { mountTour } from "../tour.js";
+import { openViewer } from "../viewer.js";
 
 boot();
-main();
+const slug = decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] ?? "");
+const root = document.getElementById("pd");
 
-async function main() {
-const slug = decodeURIComponent(location.pathname.split("/").filter(Boolean).pop() ?? "");
-const root = document.getElementById("property");
+let portfolio;
+try {
+  portfolio = await loadPortfolio();
+} catch {
+  render(root, html`<div class="empty"><h1>We couldn't load this property.</h1><p>Please refresh the page.</p></div>`);
+}
+const p = portfolio?.properties?.find((x) => x.slug === slug);
+if (portfolio && !p) {
+  render(root, html`<div class="empty"><h1>This property isn't listed any more.</h1><p>It may have been sold or let. Have a look at the rest of the portfolio.</p><a class="btn" href="/properties">See all properties</a></div>`);
+}
+if (p) show(p, portfolio.owner ?? {});
 
-const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+function show(p, owner) {
+  setTitle(p.title);
+  document.querySelector('meta[name="description"]')?.setAttribute("content", p.summary ?? p.title);
+  const url = `${SITE_URL}/properties/${p.slug}`;
+  const photos = p.photos ?? [];
+  const plans = p.floorplans ?? [];
+  const closed = p.status && p.status !== "available";
+  const wa = whatsappLink(owner.whatsapp, p, url);
+  const sections = [
+    ["overview", "Overview", true],
+    ["photos", `Photos (${photos.length})`, photos.length > 0],
+    ["tour", "3D tour", hasTour(p)],
+    ["plans", "Floor plans", plans.length > 0],
+    ["brochure", "Brochure", Boolean(p.brochure?.src)],
+    ["location", "Location", Boolean(place(p))],
+  ].filter((s) => s[2]);
 
-// ---- Load ------------------------------------------------------------------------------------------------
-const { data: l } = await sb.from("listing_cards").select(`${CARD_COLUMNS}, organization_id`).eq("slug", slug).eq("status", "published").maybeSingle();
-if (!l) {
-  setTitle("This property isn't available");
-  document.head.insertAdjacentHTML("beforeend", '<meta name="robots" content="noindex" />');
+  const contactButtons = (compact) => html`
+    ${wa ? html`<a class="btn btn--whatsapp ${raw(compact ? "" : "btn--full")}" href="${wa}" target="_blank" rel="noopener">${icon("chat", 18)}WhatsApp</a>` : ""}
+    ${owner.phone ? html`<a class="btn ${raw(compact ? "btn--light" : "btn--outline btn--full")}" href="tel:${owner.phone}">${icon("phone", 18)}Call</a>` : ""}
+    ${!compact && owner.email ? html`<a class="btn btn--outline btn--full" href="mailto:${owner.email}?subject=${encodeURIComponent(p.title)}&body=${encodeURIComponent(`Hello, I'm interested in ${p.title} (${url}).`)}">${icon("mail", 18)}Email</a>` : ""}
+    ${!wa && !owner.phone && !owner.email ? html`<a class="btn ${raw(compact ? "btn--light" : "btn--full")}" href="/contact">Contact</a>` : ""}`;
+
+  const facts = keyFacts(p);
+  const similar = filterProperties((portfolio.properties ?? []).filter((x) => x.slug !== p.slug && x.purpose === p.purpose), { sort: "newest" }).slice(0, 3);
+
   render(
     root,
-    html`<div class="empty"><h1>This property isn't available</h1><p>It may have been sold, rented or paused by the provider, or the link may be wrong.</p><a class="btn" href="/explore">Explore other properties</a></div>`,
+    html`
+      <section class="pd-hero" aria-labelledby="pd-title">
+        ${cover(p) ? html`<img src="${cover(p).src}" alt="${cover(p).alt ?? p.title}" fetchpriority="high" />` : noPhoto()}
+        <div class="pd-hero__controls">
+          <a class="round-btn" href="/properties" aria-label="All properties">${icon("back", 20, 2)}</a>
+          <div>
+            <button type="button" class="round-btn" id="share" aria-label="Share">${icon("share", 19)}</button>
+            ${heartButton(p, "Save")}
+          </div>
+        </div>
+        <div class="pd-hero__text">
+          <div class="row wrap" style="gap: 0.4rem">
+            <span class="tag tag--light">${PURPOSE_LABELS[p.purpose] ?? ""}</span>
+            ${TYPE_LABELS[p.type] ? html`<span class="tag tag--light">${TYPE_LABELS[p.type]}</span>` : ""}
+            ${closed ? html`<span class="tag tag--dark">${STATUS_LABELS[p.status]}</span>` : ""}
+          </div>
+          <h1 id="pd-title">${p.title}</h1>
+          ${place(p) ? html`<p class="pd-hero__place">${icon("pin", 16)}${place(p)}</p>` : ""}
+          <p class="pd-hero__price">${formatPrice(p.price)}</p>
+          <div class="pd-hero__actions">
+            ${hasTour(p) ? html`<a class="btn btn--light" href="#tour" data-start-tour>${icon("tour", 18)}Take the 3D tour</a>` : ""}
+            ${photos.length ? html`<button type="button" class="btn btn--glass" data-photo="0">${icon("photo", 18)}${photos.length} photos</button>` : ""}
+            ${plans.length ? html`<a class="btn btn--glass" href="#plans">${icon("plan", 18)}Floor plans</a>` : ""}
+          </div>
+        </div>
+      </section>
+
+      <nav class="pd-tabs" aria-label="On this page">${sections.map(([id, label]) => html`<a href="#${id}">${label}</a>`)}</nav>
+
+      <div class="pd-layout">
+        <div class="pd-main">
+          <section class="pd-section" id="overview" aria-labelledby="overview-h">
+            <h2 id="overview-h">Overview</h2>
+            ${facts.length ? html`<ul class="facts">${facts.map(([ic, t]) => html`<li class="fact">${icon(ic, 22)}<span>${t}</span></li>`)}</ul>` : ""}
+            ${p.summary ? html`<p class="bold" style="font-size: 1.1rem">${p.summary}</p>` : ""}
+            ${p.description ? html`<div class="prose">${String(p.description).split(/\n\s*\n/).map((para) => html`<p>${para}</p>`)}</div>` : ""}
+            ${p.features?.length ? html`<h3 style="margin-top: 0.5rem">Features</h3><ul class="features">${p.features.map((x) => html`<li>${icon("check", 18, 2.2)}${x}</li>`)}</ul>` : ""}
+          </section>
+
+          ${photos.length
+            ? html`<section class="pd-section" id="photos" aria-labelledby="photos-h">
+                <h2 id="photos-h">Photos</h2>
+                <div class="mosaic">
+                  ${photos.slice(0, 5).map(
+                    (ph, i) => html`<button type="button" data-photo="${i}" aria-label="Open photo ${i + 1} of ${photos.length}${ph.caption ? `: ${ph.caption}` : ""}">
+                      <img src="${ph.src}" alt="${ph.alt ?? ""}" loading="lazy" decoding="async" />
+                      ${i === 4 && photos.length > 5 ? html`<span class="mosaic__more">+${photos.length - 5} more</span>` : ""}
+                    </button>`,
+                  )}
+                </div>
+              </section>`
+            : ""}
+
+          ${hasTour(p)
+            ? html`<section class="pd-section" id="tour" aria-labelledby="tour-h">
+                <h2 id="tour-h">3D tour</h2>
+                <p class="muted">Walk through the property: drag to look around, pinch or scroll to zoom, and tap the white circles to move between rooms.</p>
+                <div id="tour-root"></div>
+              </section>`
+            : ""}
+
+          ${plans.length
+            ? html`<section class="pd-section" id="plans" aria-labelledby="plans-h">
+                <h2 id="plans-h">Floor plans</h2>
+                <div class="plans">
+                  ${plans.map((pl, i) => html`<button type="button" class="plan" data-plan="${i}"><img src="${pl.src}" alt="${pl.label ?? "Floor plan"}" loading="lazy" /><span>${pl.label ?? `Plan ${i + 1}`}${icon("expand", 18)}</span></button>`)}
+                </div>
+              </section>`
+            : ""}
+
+          ${p.brochure?.src
+            ? html`<section class="pd-section" id="brochure" aria-labelledby="brochure-h">
+                <h2 id="brochure-h">Brochure</h2>
+                <div class="brochure">
+                  <span class="brochure__icon">${icon("doc", 26)}</span>
+                  <div class="brochure__text"><strong>${p.brochure.label ?? `${p.title} brochure`}</strong><p>PDF with the full details, ready to print or share.</p></div>
+                  <div class="brochure__actions">
+                    <a class="btn btn--light" href="${p.brochure.src}" target="_blank" rel="noopener" aria-label="View the brochure">View</a>
+                    <a class="btn btn--glass" href="${p.brochure.src}" download>${icon("download", 18)}Download</a>
+                  </div>
+                </div>
+              </section>`
+            : ""}
+
+          ${place(p)
+            ? html`<section class="pd-section" id="location" aria-labelledby="location-h">
+                <h2 id="location-h">Location</h2>
+                <p class="row" style="gap: 0.4rem">${icon("pin", 18)}${[p.location?.area, p.location?.city, p.location?.region].filter(Boolean).join(", ")}</p>
+                ${typeof p.location?.lat === "number" ? html`<div id="area-map" class="map--area" role="region" aria-label="Map of the area"></div><p class="tiny muted">The circle shows the area. The exact address is shared when you arrange a viewing.</p>` : ""}
+              </section>`
+            : ""}
+        </div>
+
+        <aside class="enquire" aria-label="Contact about this property">
+          <p class="enquire__status ${raw(closed ? "enquire__status--closed" : "")}">${STATUS_LABELS[p.status ?? "available"]}</p>
+          <p class="enquire__price">${formatPrice(p.price)}</p>
+          ${p.price?.negotiable ? html`<p class="small muted">Open to offers</p>` : ""}
+          <p class="small muted">Ask a question or arrange a viewing.</p>
+          ${contactButtons(false)}
+          ${p.brochure?.src ? html`<a class="btn btn--outline btn--full" href="${p.brochure.src}" download>${icon("download", 18)}Brochure</a>` : ""}
+        </aside>
+      </div>
+
+      ${similar.length
+        ? html`<section class="pd-section" aria-labelledby="similar-h">
+            <h2 id="similar-h">More ${(PURPOSE_LABELS[p.purpose] ?? "").toLowerCase()}</h2>
+            <div class="pgrid">${similar.map((x) => propertyCard(x))}</div>
+          </section>`
+        : ""}
+
+      <div class="action-bar">
+        <span class="action-bar__price">${shortPrice(p.price)}</span>
+        ${contactButtons(true)}
+      </div>`,
   );
   root.removeAttribute("aria-busy");
-  return;
-}
-setTitle(l.title);
+  wireSaveButtons(root);
 
-const [{ data: listing }, { data: media }, user, { data: org }, catalogue] = await Promise.all([
-  sb.from("property_listings").select("description, property_id").eq("id", l.id).maybeSingle(),
-  sb.from("property_media").select("id, storage_path, alt_text, is_render, is_virtually_staged").eq("listing_id", l.id).is("hidden_at", null).eq("media_type", "image").order("sort_order").order("created_at"),
-  getUser(),
-  sb.from("organizations").select("verification_status, verification_scope, verified_at, verification_expires_at").eq("id", l.organization_id).maybeSingle(),
-  loadCatalogue(),
-]);
-const [{ data: details }, { data: amenityRows }] = listing?.property_id
-  ? await Promise.all([
-      sb.from("properties").select("condition, parking_spaces").eq("id", listing.property_id).maybeSingle(),
-      sb.from("property_amenities").select("amenity_code").eq("property_id", listing.property_id),
-    ])
-  : [{ data: null }, { data: [] }];
-const urls = await signedUrls((media ?? []).map((m) => m.storage_path));
-const photos = (media ?? []).map((m) => ({ ...m, url: urls.get(m.storage_path) ?? null })).filter((m) => m.url);
-const saved = (await savedIds([l.id])).has(l.id);
-const price = formatPrice(l.asking_price, l.currency, l.price_period);
-const location_ = formatLocation(l.locality, l.city, l.region);
-
-// ---- Render ----------------------------------------------------------------------------------------------
-const facts = [
-  ["Reference", l.reference],
-  ["Type", subtypeLabel(catalogue, l.property_type, l.subtype) ?? PROPERTY_TYPE_LABELS[l.property_type]],
-  l.bedrooms !== null && ["Bedrooms", l.bedrooms],
-  l.bathrooms !== null && ["Bathrooms", l.bathrooms],
-  formatArea(l.floor_area, l.floor_area_unit) && ["Floor area", formatArea(l.floor_area, l.floor_area_unit)],
-  formatArea(l.land_area, l.land_area_unit) && ["Land area", formatArea(l.land_area, l.land_area_unit)],
-  l.furnishing && ["Furnishing", FURNISHING_LABELS[l.furnishing]],
-  details?.condition && ["Condition", CONDITION_LABELS[details.condition]],
-  l.completion_status && ["Construction", COMPLETION_LABELS[l.completion_status]],
-  details?.parking_spaces != null && ["Parking", `${details.parking_spaces} ${details.parking_spaces === 1 ? "space" : "spaces"}`],
-  ["Price", l.negotiable ? "Negotiable" : "As listed"],
-].filter((x) => x && x[1] !== null && x[1] !== undefined && x[1] !== "");
-const amenities = (amenityRows ?? []).map((a) => amenityLabel(catalogue, a.amenity_code));
-const trust = trustItems(l, org, photos);
-const anyRender = photos.some((p) => p.is_render || p.is_virtually_staged);
-
-// Wide screens: one large photo and up to four small ones; phones keep the swipeable gallery.
-const mosaic = photos.length >= 3
-  ? html`<div class="mosaic mosaic--${Math.min(photos.length, 5)}">
-      ${photos.slice(0, 5).map((p, i) => html`<button type="button" class="mosaic__item" data-photo="${i}" aria-label="Open photo ${i + 1} of ${photos.length}">
-        <img src="${p.url}" alt="${p.alt_text ?? `${l.title}, photo ${i + 1}`}" loading="${i === 0 ? "eager" : "lazy"}" />
-        ${p.is_render || p.is_virtually_staged ? html`<span class="photo-tag">${p.is_render ? "Render" : "Staged"}</span>` : ""}
-      </button>`)}
-      <button type="button" class="btn btn--small mosaic__all" data-photo="0">${icon("grid", 16)} Show all ${photos.length} photos</button>
-    </div>`
-  : "";
-const photosDialog = photos.length
-  ? html`<dialog class="photos-dialog" id="photos-dialog" aria-label="All photos">
-      <div class="photos-dialog__bar"><span class="bold">${photos.length} photos</span><button type="button" class="btn btn--secondary btn--small" data-close>Close</button></div>
-      <div class="photos-dialog__list">${photos.map((p, i) => html`<figure id="photo-${i}"><img src="${p.url}" alt="${p.alt_text ?? `${l.title}, photo ${i + 1}`}" loading="lazy" />${p.is_render ? html`<figcaption>Render — not a photo</figcaption>` : p.is_virtually_staged ? html`<figcaption>Virtually staged</figcaption>` : ""}</figure>`)}</div>
-    </dialog>`
-  : "";
-// Stats card (reference design): number first, label under it.
-const stat = (ic, n, label) => [ic, n, label];
-const keyFacts = [
-  l.bedrooms != null && stat("bed", l.bedrooms, l.bedrooms === 1 ? "Bed" : "Beds"),
-  l.bathrooms != null && stat("bath", l.bathrooms, l.bathrooms === 1 ? "Bath" : "Baths"),
-  details?.parking_spaces != null && stat("car", details.parking_spaces, "Parking"),
-  formatArea(l.floor_area, l.floor_area_unit) && stat("area", formatArea(l.floor_area, l.floor_area_unit), "Floor"),
-  formatArea(l.land_area, l.land_area_unit) && stat("plot", formatArea(l.land_area, l.land_area_unit), "Land"),
-].filter(Boolean).slice(0, 4);
-const periodLabel = { per_month: "Per month", per_year: "Per year", per_week: "Per week", per_night: "Per night" }[l.price_period] ?? "Total price";
-
-// Phones: photo grid under the stats card; the last tile opens every photo.
-const photoGrid = photos.length >= 2
-  ? html`<div class="pd-photos pd-photos--${Math.min(photos.length, 4)}">
-      ${photos.slice(0, 4).map((p, i, arr) => html`<button type="button" class="pd-photos__item" data-photo="${i}" aria-label="Open photo ${i + 1} of ${photos.length}">
-        <img src="${p.url}" alt="" loading="lazy" />
-        ${i === arr.length - 1 && photos.length > arr.length ? html`<span class="pd-photos__more"><b>${photos.length - arr.length + 1}+</b>Photos</span>` : ""}
-      </button>`)}
-    </div>`
-  : "";
-
-const gallery = photos.length
-  ? html`<section class="gallery${mosaic ? " gallery--has-mosaic" : ""}" aria-roledescription="carousel" aria-label="Photos of ${l.title}">
-      <div class="gallery__track" id="track" tabindex="0">
-        ${photos.map((p, i) => html`<figure><img src="${p.url}" alt="${p.alt_text ?? `${l.title}, photo ${i + 1}`}" loading="${i === 0 ? "eager" : "lazy"}" /></figure>`)}
-      </div>
-      <div class="gallery__labels" id="photo-labels"></div>
-      <span class="gallery__counter" id="counter" aria-live="polite">1 / ${photos.length}</span>
-    </section>`
-  : html`<div class="gallery__track">${noPhoto()}</div>`;
-
-render(
-  root,
-  html`
-    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/explore">Explore</a><span aria-hidden="true">/</span><a href="/explore?purpose=${l.purpose}">${PURPOSE_LABELS[l.purpose]}</a></nav>
-    ${mosaic}
-    <div class="pd-hero${mosaic ? " pd-hero--has-mosaic" : ""}">
-      ${gallery}
-      <div class="pd-hero__controls">
-        <a class="round-btn round-btn--light" href="/explore" data-back aria-label="Back">${icon("back", 20, 2)}</a>
-        <span class="row" style="gap: 0.5rem">
-          <button type="button" class="round-btn round-btn--light" data-share aria-label="Share">${icon("share", 18)}</button>
-          <button type="button" class="round-btn round-btn--light" data-save="${l.id}" data-slug="${l.slug}" aria-pressed="${saved}" aria-label="Save">${icon("heart", 18, 2)}</button>
-        </span>
-      </div>
-      <div class="pd-hero__text" aria-hidden="true">
-        <div><p class="pd-hero__title">${l.title}</p><p class="pd-hero__loc">${icon("pin", 14)}${location_}</p></div>
-        <div style="text-align: right"><p class="pd-hero__price">${formatPrice(l.asking_price, l.currency)}</p><p class="pd-hero__loc">${PURPOSE_LABELS[l.purpose]}</p></div>
-      </div>
-    </div>
-    ${photosDialog}
-    <div class="property-layout">
-      <div class="stack-lg">
-        <header class="stack pd-head">
-          <div class="row wrap pd-desk">
-            <span class="tag tag--dark">${PURPOSE_LABELS[l.purpose]}</span>
-            ${l.is_sponsored ? html`<span class="tag tag--sponsored">Sponsored</span>` : ""}
-            <span class="tiny muted">${listedAgo(l.published_at)}</span>
-          </div>
-          <h1 class="pd-h1">${l.title}</h1>
-          <p class="row muted pd-desk" style="gap: 0.375rem">${icon("pin", 16)}${location_}</p>
-          <p class="price-big pd-desk">${price}${l.negotiable ? html` <span class="tag tag--light" style="vertical-align: middle">Negotiable</span>` : ""}</p>
-          <p class="tiny muted">Reference ${l.reference}</p>
-          ${keyFacts.length ? html`<ul class="keyfacts statcard">${keyFacts.map(([ic, n, label]) => html`<li>${icon(ic, 20)}<b>${n}</b><span>${label}</span></li>`)}</ul>` : ""}
-          ${photoGrid}
-          <div class="row wrap pd-desk">
-            <button type="button" class="btn btn--secondary btn--small" data-save="${l.id}" data-slug="${l.slug}" data-label="text" aria-pressed="${saved}">${icon("heart", 18, 2)}<span> ${saved ? "Saved" : "Save"}</span></button>
-            <button type="button" class="btn btn--secondary btn--small" id="share">${icon("share", 18)} Share</button>
-          </div>
-        </header>
-        <section class="stack-sm" aria-labelledby="facts-h">
-          <h2 id="facts-h" style="font-size: 1.5rem">Key facts</h2>
-          <dl class="facts-table">${facts.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>
-        </section>
-        ${trustPanel(trust, { sponsored: l.is_sponsored })}
-        ${listing?.description ? html`<section class="stack-sm"><h2 style="font-size: 1.5rem">About this property</h2><p class="prose clamp" id="about">${listing.description}</p><button type="button" class="see-more" id="see-more" hidden>See more</button></section>` : ""}
-        ${amenities.length ? html`<section class="stack-sm"><h2 style="font-size: 1.5rem">Amenities</h2><ul class="amenity-list">${amenities.map((a) => html`<li>${icon("check", 16, 2)}${a}</li>`)}</ul><p class="tiny muted">As stated by the advertiser.</p></section>` : ""}
-        ${l.completion_status && l.completion_status !== "completed" ? html`<p class="alert alert--warning">${l.completion_status === "off_plan" ? "Off-plan: this property has not been built yet." : "Under construction: this property is not finished yet."} Ask the advertiser for the building permit and the expected completion date.</p>` : ""}
-        ${anyRender ? html`<p class="alert alert--warning">Some images are renders or virtually staged. They don't show the property's current condition, completion or exact dimensions.</p>` : ""}
-        <section class="stack-sm">
-          <h2 style="font-size: 1.5rem">Location</h2>
-          ${hasPosition(l) ? html`<div class="map map--area" id="area-map" role="img" aria-label="Map of the approximate area around ${location_}"></div>` : ""}
-          <div class="location-card stack-sm"><p class="bold">${location_}</p><p class="small muted">Approximate area only${hasPosition(l) ? " — the property is somewhere in the shaded circle" : ""}. The provider shares the exact address once you're in touch.</p></div>
-        </section>
-        <p class="small"><button type="button" class="btn btn--ghost btn--small" data-open="report-sheet" style="padding: 0; color: var(--muted)">${icon("flag", 16)} Report this listing</button></p>
-      </div>
-      <aside class="stack">
-        <section class="card card--lift stack">
-          <p class="tiny muted">Listed by</p>
-          <a href="/providers/${l.organization_slug}" class="row"><span class="monogram">${l.organization_name.slice(0, 1)}</span><span><span class="bold">${l.organization_name}</span><br /><span class="tiny muted">View provider profile</span></span></a>
-          ${l.organization_verification_status === "verified" ? html`<div class="stack-sm">${verifiedLabel(l.organization_verification_scope, false)}<p class="tiny muted">Checked by Propertiq. This doesn't prove ownership of this property — always confirm title documents.</p></div>` : ""}
-          <button type="button" class="btn btn--full" data-open="inquiry-sheet">${icon("chat", 18)} Contact advertiser</button>
-          <button type="button" class="btn btn--outline-warm btn--full" data-open="viewing-sheet">${icon("calendar", 18)} Schedule visit</button>
-        </section>
-        <section class="card stack-sm small">
-          <h2 style="font-size: 1.2rem">Before you pay anything</h2>
-          <ul class="stack-sm muted" style="list-style: disc; padding-left: 1.25rem">
-            <li>Never pay a deposit before viewing in person.</li>
-            <li>Ask for title documents and verify them at the Lands Commission.</li>
-            <li>Propertiq never asks you to pay outside the platform.</li>
-          </ul>
-        </section>
-      </aside>
-    </div>
-    <section class="stack" id="similar" hidden aria-labelledby="similar-h">
-      <div class="section-head"><h2 id="similar-h">Similar properties</h2><a href="/explore?type=${l.property_type}&purpose=${l.purpose}">See more</a></div>
-      <div class="listing-grid" id="similar-grid"></div>
-    </section>
-    <div class="action-bar"><div class="action-bar__inner">
-      <div style="flex: 1; min-width: 0"><p class="tiny bold truncate">${formatPrice(l.asking_price, l.currency)}</p><p class="truncate" style="font-size: 1rem">${periodLabel}</p></div>
-      <button type="button" class="btn btn--outline-warm" data-open="viewing-sheet">Schedule visit</button>
-      <button type="button" class="btn" data-open="inquiry-sheet">Contact</button>
-    </div></div>`,
-);
-root.removeAttribute("aria-busy");
-root.style.paddingBottom = "5rem";
-wireSaveButtons(root);
-
-// ---- Area map (approximate only; loads after the page so it never slows it down) ----------------------------
-if (hasPosition(l)) {
-  import("../map.js").then(async (m) => {
-    await m.loadLeaflet();
-    m.areaMap(document.getElementById("area-map"), Number(l.public_latitude), Number(l.public_longitude));
-  }).catch(() => document.getElementById("area-map")?.remove());
-}
-
-// ---- Hero buttons and "See more" ------------------------------------------------------------------------
-root.querySelector("[data-back]")?.addEventListener("click", (e) => {
-  if (history.length > 1 && document.referrer.startsWith(location.origin)) (e.preventDefault(), history.back());
-});
-root.querySelector("[data-share]")?.addEventListener("click", () => document.getElementById("share").click());
-const about = document.getElementById("about");
-if (about && about.scrollHeight > about.clientHeight + 4) {
-  const more = document.getElementById("see-more");
-  more.hidden = false;
-  more.addEventListener("click", () => {
-    const open = about.classList.toggle("clamp--open");
-    more.textContent = open ? "See less" : "See more";
+  // Photos and plans open full screen.
+  root.addEventListener("click", (e) => {
+    const ph = e.target.closest("[data-photo]");
+    if (ph) openViewer(photos.map((x) => ({ src: x.src, alt: x.alt, caption: x.caption })), Number(ph.dataset.photo));
+    const pl = e.target.closest("[data-plan]");
+    if (pl) openViewer(plans.map((x) => ({ src: x.src, alt: x.label, caption: x.label })), Number(pl.dataset.plan), { plan: true });
   });
-}
 
-// ---- All photos ------------------------------------------------------------------------------------------
-root.addEventListener("click", (e) => {
-  const b = e.target.closest("[data-photo]");
-  if (!b) return;
-  const dlg = document.getElementById("photos-dialog");
-  dlg.showModal();
-  document.getElementById(`photo-${b.dataset.photo}`)?.scrollIntoView({ block: "start" });
-});
-
-// ---- Similar properties: same type and purpose, nearest first by city; real published listings only -------
-(async () => {
-  const { data } = await sb
-    .from("listing_cards")
-    .select(CARD_COLUMNS)
-    .eq("status", "published")
-    .eq("property_type", l.property_type)
-    .eq("purpose", l.purpose)
-    .neq("id", l.id)
-    .order("published_at", { ascending: false })
-    .limit(12);
-  const rows = (data ?? []).sort((a, b) => (b.city === l.city) - (a.city === l.city)).slice(0, 4);
-  if (!rows.length) return;
-  const list = await withCoverUrls(rows);
-  const savedSet = await savedIds(list.map((r) => r.id));
-  const grid = document.getElementById("similar-grid");
-  render(grid, list.map((r) => listingCard(r, { saved: savedSet.has(r.id) })));
-  document.getElementById("similar").hidden = false;
-  wireSaveButtons(grid);
-  wireCompareButtons(grid);
-})();
-
-// JSON-LD for search engines
-const ld = document.createElement("script");
-ld.type = "application/ld+json";
-ld.textContent = JSON.stringify({
-  "@context": "https://schema.org", "@type": "RealEstateListing", name: l.title, datePosted: l.published_at,
-  offers: { "@type": "Offer", price: String(l.asking_price), priceCurrency: l.currency },
-  address: { "@type": "PostalAddress", addressLocality: l.city, addressRegion: l.region, addressCountry: "GH" },
-});
-document.head.append(ld);
-
-// ---- Gallery counter and labels --------------------------------------------------------------------------
-const track = document.getElementById("track");
-if (track) {
-  const update = () => {
-    const i = Math.round(track.scrollLeft / track.clientWidth);
-    document.getElementById("counter").textContent = `${i + 1} / ${photos.length}`;
-    const p = photos[i];
-    render("#photo-labels", [p?.is_render ? html`<span class="tag tag--warning">Render — not a photo</span>` : "", p?.is_virtually_staged ? html`<span class="tag tag--warning">Virtually staged</span>` : ""]);
-  };
-  track.addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
-  update();
-}
-
-// ---- Share -----------------------------------------------------------------------------------------------
-document.getElementById("share").addEventListener("click", async () => {
-  const url = location.href;
-  if (navigator.share) {
-    await navigator.share({ title: l.title, url }).catch(() => {});
-  } else {
-    await navigator.clipboard?.writeText(url);
-    toast("Link copied");
-  }
-});
-
-// ---- Sheets ----------------------------------------------------------------------------------------------
-document.addEventListener("click", (e) => {
-  const open = e.target.closest("[data-open]");
-  if (open) {
-    if (!user) {
-      location.href = `/sign-in?next=${encodeURIComponent(location.pathname)}`;
+  document.getElementById("share").addEventListener("click", async () => {
+    if (navigator.share) {
+      navigator.share({ title: p.title, text: `${p.title} — ${formatPrice(p.price)}`, url }).catch(() => {});
       return;
     }
-    document.getElementById(open.dataset.open).showModal();
-  }
-  if (e.target.closest("[data-close]")) e.target.closest("dialog").close();
-  if (e.target.tagName === "DIALOG") e.target.close();
-});
-document.querySelector("[data-provider-line]").textContent = `To ${l.organization_name}, about “${l.title}”.`;
-
-// A request key per open sheet, so a retried tap (e.g. on a weak connection) never sends twice.
-let inquiryKey = crypto.randomUUID();
-const inquiryForm = document.getElementById("inquiry-form");
-inquiryForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const message = inquiryForm.message.value.trim();
-  if (!showErrors(inquiryForm, message ? {} : { message: "Write a short message." })) return;
-  await busy(inquiryForm, "Sending…", async () => {
-    const { data, error } = await sb.rpc("send_inquiry", { p_listing: l.id, p_message: message, p_share_phone: inquiryForm.share_phone.checked, p_key: inquiryKey });
-    if (error) return showErrors(inquiryForm, { message: error.code === "42501" && /own organisation/.test(error.message) ? "This is your organisation's listing." : friendlyDbError(error) });
-    inquiryKey = crypto.randomUUID();
-    location.href = `/inbox/${data}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Link copied");
+    } catch {
+      toast(url);
+    }
   });
-});
 
-// Viewing: times in the visitor's own timezone (Africa/Accra for most people in Ghana).
-const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Africa/Accra";
-const viewingForm = document.getElementById("viewing-form");
-document.querySelector("[data-timezone]").textContent = `Times are in ${tz.replace("_", " ")}.`;
-const pad = (n) => String(n).padStart(2, "0");
-const today = new Date();
-viewingForm.date.min = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
-const max = new Date(Date.now() + 179 * 86400000);
-viewingForm.date.max = `${max.getFullYear()}-${pad(max.getMonth() + 1)}-${pad(max.getDate())}`;
-render(viewingForm.time, Array.from({ length: 21 }, (_, i) => 8 * 60 + i * 30).map((m) => html`<option value="${pad(Math.floor(m / 60))}:${pad(m % 60)}" ${raw(m === 600 ? "selected" : "")}>${pad(Math.floor(m / 60))}:${pad(m % 60)}</option>`));
-let viewingKey = crypto.randomUUID();
-viewingForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const d = viewingForm.date.value;
-  if (!showErrors(viewingForm, d ? {} : { date: "Choose a date." })) return;
-  const start = new Date(`${d}T${viewingForm.time.value}:00`);
-  const end = new Date(start.getTime() + Number(viewingForm.length.value) * 60000);
-  if (start.getTime() < Date.now() + 3600000) return showErrors(viewingForm, { date: "Choose a time at least an hour from now." });
-  await busy(viewingForm, "Sending…", async () => {
-    // A viewing belongs to a conversation, so make sure there is one first.
-    const { data: inquiry, error: e1 } = await sb.rpc("send_inquiry", {
-      p_listing: l.id, p_message: `I'd like to view this property. ${viewingForm.note.value.trim()}`.trim(), p_share_phone: false, p_key: viewingKey,
+  if (hasTour(p)) {
+    const tour = mountTour(document.getElementById("tour-root"), p.tour, { poster: p.tour.poster ?? cover(p)?.src, title: p.title });
+    root.querySelector("[data-start-tour]")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("tour").scrollIntoView({ behavior: "smooth", block: "start" });
+      tour.start();
     });
-    if (e1) return showErrors(viewingForm, { date: friendlyDbError(e1) });
-    const { error } = await sb.rpc("request_viewing", { p_inquiry: inquiry, p_start: start.toISOString(), p_end: end.toISOString(), p_timezone: tz, p_note: viewingForm.note.value.trim() || null });
-    if (error && error.code !== "23505") return showErrors(viewingForm, { date: error.code === "22023" ? capitalise(error.message) + "." : friendlyDbError(error) });
-    viewingKey = crypto.randomUUID();
-    location.href = `/inbox/${inquiry}${error ? "?viewing=exists" : ""}`;
-  });
-});
+    if (location.hash === "#tour") tour.start();
+  }
 
-// Report
-render("#report-reasons", Object.entries(REPORT_REASON_LABELS).map(([v, label], i) => html`<label class="choice"><input type="radio" name="reason" value="${v}" ${raw(i === 0 ? "checked" : "")} /><span class="small">${label}</span></label>`));
-const reportForm = document.getElementById("report-form");
-reportForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const reason = reportForm.reason.value;
-  const details = reportForm.details.value.trim();
-  if (!showErrors(reportForm, reason === "other" && details.length < 10 ? { details: "Please describe the problem in a sentence." } : {})) return;
-  await busy(reportForm, "Sending…", async () => {
-    const { error } = await sb.rpc("report_listing", { p_listing: l.id, p_reason: reason, p_details: details || null });
-    if (error) return showErrors(reportForm, { details: friendlyDbError(error) });
-    reportForm.closest("dialog").close();
-    toast("Thanks. Our moderators will look into it.");
-  });
-});
+  if (typeof p.location?.lat === "number") {
+    // The map only loads when it is about to scroll into view.
+    const el = document.getElementById("area-map");
+    new IntersectionObserver((entries, obs) => {
+      if (!entries.some((x) => x.isIntersecting)) return;
+      obs.disconnect();
+      import("../map.js").then(async (m) => {
+        await m.loadLeaflet();
+        m.areaMap(el, p.location.lat, p.location.lng);
+      });
+    }, { rootMargin: "300px" }).observe(el);
+  }
 }

@@ -12,7 +12,7 @@ const config = JSON.parse(await readFile(new URL(process.env.VERCEL_CONFIG ?? ".
 const types = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8",
   ".json": "application/json", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png",
-  ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".ico": "image/x-icon", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
+  ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".pdf": "application/pdf", ".ico": "image/x-icon", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
 };
 
 // Turns "/properties/:slug" into a regular expression.
@@ -21,7 +21,11 @@ const rewrites = (config.rewrites ?? []).map((r) => ({ re: toRegex(r.source), de
 // Redirects with ":name" placeholders; host-specific ones only apply on Vercel.
 const redirects = (config.redirects ?? [])
   .filter((r) => !r.has)
-  .map((r) => ({ re: new RegExp(`^${r.source.replace(/:([a-zA-Z]+)/g, "(?<$1>[^/]+)")}/?$`), dest: r.destination, permanent: r.permanent }));
+  .map((r) => ({
+    re: new RegExp(`^${r.source.replace(/:([a-zA-Z]+)\*/g, "(?<$1>.*)").replace(/:([a-zA-Z]+)(?![^(]*>)/g, "(?<$1>[^/]+)")}/?$`),
+    dest: r.destination,
+    permanent: r.permanent,
+  }));
 function redirectFor(url) {
   for (const r of redirects) {
     const m = r.re.exec(url.pathname);

@@ -1,16 +1,8 @@
-// Shared engine for every page: Supabase connection, safe HTML, header/footer/navigation, sign-in checks
-// and small helpers for forms. Pages import what they need from here.
-import { SUPABASE_KEY, SUPABASE_URL, MEDIA_BUCKET } from "./config.js";
-
-// ---- Supabase ------------------------------------------------------------------------------------------
-// The browser session lives in localStorage. Security is enforced by the database (row-level security and
-// checked functions), never by this code.
-export const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "propertiq-auth" },
-});
+// Shared engine for every page: safe HTML, icons, the header, footer and bottom bar, saved properties
+// (kept on this device only) and small helpers. There are no accounts: the site is a public portfolio.
 
 // ---- Safe HTML -----------------------------------------------------------------------------------------
-// html`<p>${value}</p>` escapes every value, so text typed by users can never become markup.
+// html`<p>${value}</p>` escapes every value, so text from the data file can never become markup.
 // Wrap trusted markup (our own icons or other html`` results) in raw() to insert it as-is.
 const RAW = Symbol("raw");
 export const raw = (markup) => ({ [RAW]: String(markup ?? "") });
@@ -43,30 +35,34 @@ export function render(target, view) {
 
 // ---- Icons (outline, 24px grid) ------------------------------------------------------------------------
 const PATHS = {
-  home: "M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
   search: "M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5",
   heart: "M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z",
-  inbox: "M4 13h4l1.5 3h5L16 13h4M5.5 5h13L21 13v6H3v-6z",
-  briefcase: "M3 7h18v13H3zM8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
-  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1.5-4 4.5-6 8-6s6.5 2 8 6",
+  map: "M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14",
+  grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+  phone: "M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2",
+  chat: "M4 5h16v11H8l-4 4z",
+  mail: "M3 6h18v12H3zM3 6l9 7 9-7",
   arrow: "M5 12h14M13 6l6 6-6 6",
   back: "M15 18l-6-6 6-6",
+  next: "M9 18l6-6-6-6",
+  close: "M6 6l12 12M18 6 6 18",
   check: "M5 12l5 5 9-10",
   filter: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4",
   pin: "M12 21s-7-7.4-7-12a7 7 0 0 1 14 0c0 4.6-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   photo: "M3 5h18v14H3zM8.5 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM21 16l-5-5-8 8",
   house: "M3 10.5 12 3l9 7.5M5 9v11h14V9M10 20v-5h4v5",
   share: "M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v12M7 8l5-5 5 5",
-  flag: "M5 21V4M5 4h11l-2 4 2 4H5",
-  calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
-  send: "M4 12 20 4l-6 16-2.5-6.5z",
-  chat: "M4 5h16v11H8l-4 4z",
   bed: "M3 19v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 15h18M6 9V6h5v3",
   bath: "M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM6 12V5a2 2 0 0 1 4 0M7 20l-1 2M17 20l1 2",
   area: "M4 4h16v16H4zM4 9h4M4 14h2M9 4v4M14 4v2",
   plot: "M3 20 8 4h8l5 16zM6 14h12M9.5 9h5",
-  grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
   car: "M4 17v-4l2-6h12l2 6v4zM4 17v2M20 17v2M4 13h16M7.5 15h.01M16.5 15h.01",
+  tour: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12c0 2.2 4 4 9 4s9-1.8 9-4M12 3c2.2 2.5 3 5.5 3 9s-.8 6.5-3 9",
+  plan: "M4 4h16v16H4zM4 12h7M11 4v10M15 12h5M15 12v8",
+  doc: "M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6",
+  download: "M12 4v11M7 10l5 5 5-5M5 20h14",
+  expand: "M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5",
+  play: "M8 5v14l11-7z",
 };
 export function icon(name, size = 22, stroke = 1.6) {
   return raw(
@@ -74,169 +70,84 @@ export function icon(name, size = 22, stroke = 1.6) {
   );
 }
 
-// ---- Session and profile -------------------------------------------------------------------------------
-let sessionPromise;
-export function getSession() {
-  sessionPromise ??= sb.auth.getSession().then(({ data }) => data.session ?? null);
-  return sessionPromise;
-}
-export async function getUser() {
-  return (await getSession())?.user ?? null;
-}
-
-let profilePromise;
-export function getProfile() {
-  profilePromise ??= (async () => {
-    const user = await getUser();
-    if (!user) return null;
-    const { data } = await sb
-      .from("profiles")
-      .select("id, display_name, email, phone, preferred_locale, preferred_currency, account_status, email_verified_at, phone_verified_at, onboarded_at")
-      .eq("id", user.id)
-      .maybeSingle();
-    return data ?? null;
-  })();
-  return profilePromise;
-}
-
-export const isVerified = (p) => Boolean(p?.phone_verified_at || p?.email_verified_at);
-export const contactOf = (p) => p?.phone ?? p?.email ?? "";
-
-let staffPromise;
-export function getStaffRoles() {
-  staffPromise ??= (async () => {
-    const user = await getUser();
-    if (!user) return [];
-    const { data } = await sb.from("staff_roles").select("role").eq("user_id", user.id);
-    return (data ?? []).map((r) => r.role);
-  })();
-  return staffPromise;
-}
-
-const here = () => location.pathname + location.search;
-
-// Sends signed-out visitors to sign in, then back here.
-export async function requireUser() {
-  const user = await getUser();
-  if (!user) {
-    location.replace(`/sign-in?next=${encodeURIComponent(here())}`);
-    return new Promise(() => {});
-  }
-  return user;
-}
-
-// Signed in, active and onboarded (unless allowNotOnboarded).
-export async function requireProfile({ allowNotOnboarded = false } = {}) {
-  await requireUser();
-  const profile = await getProfile();
-  if (!profile) {
-    location.replace(`/sign-in?next=${encodeURIComponent(here())}`);
-    return new Promise(() => {});
-  }
-  if (profile.account_status !== "active") {
-    location.replace("/suspended");
-    return new Promise(() => {});
-  }
-  if (!allowNotOnboarded && !profile.onboarded_at) {
-    location.replace(`/onboarding?next=${encodeURIComponent(here())}`);
-    return new Promise(() => {});
-  }
-  return profile;
-}
-
-// Only allow same-site paths we expect, so ?next= can't send people to another website.
-const NEXT_PREFIXES = ["/account", "/saved", "/inbox", "/onboarding", "/portal", "/invitations", "/ops", "/properties", "/explore", "/providers"];
-export function safeNext(input, fallback = "/account") {
-  const v = String(input ?? "");
-  if (!v.startsWith("/") || v.startsWith("//") || v.includes("\\")) return fallback;
+// ---- Saved properties (this device only, no account needed) -------------------------------------------
+const SAVED_KEY = "propertiq-saved";
+export function savedSlugs() {
   try {
-    const u = new URL(v, "https://x.invalid");
-    if (u.origin !== "https://x.invalid") return fallback;
-    return NEXT_PREFIXES.some((p) => u.pathname === p || u.pathname.startsWith(`${p}/`)) ? u.pathname + u.search : fallback;
+    const v = JSON.parse(localStorage.getItem(SAVED_KEY) ?? "[]");
+    return Array.isArray(v) ? v.filter((s) => typeof s === "string") : [];
   } catch {
-    return fallback;
+    return [];
   }
 }
-
-export async function signOut(scope = "local") {
-  await sb.auth.signOut({ scope });
-  location.href = "/sign-in?signed_out=1";
+export function toggleSaved(slug) {
+  const list = savedSlugs();
+  const next = list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug];
+  try {
+    localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+  } catch {
+    // Private browsing: saving simply doesn't stick.
+  }
+  return next.includes(slug);
+}
+// Heart buttons anywhere inside root: data-save="<slug>".
+export function wireSaveButtons(root = document) {
+  const mark = () => {
+    const saved = savedSlugs();
+    root.querySelectorAll("[data-save]").forEach((b) => b.setAttribute("aria-pressed", String(saved.includes(b.dataset.save))));
+  };
+  root.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-save]");
+    if (!b) return;
+    e.preventDefault();
+    const on = toggleSaved(b.dataset.save);
+    mark();
+    toast(on ? "Saved on this device" : "Removed from saved");
+  });
+  mark();
 }
 
 // ---- Page shell ----------------------------------------------------------------------------------------
 const NAV = [
-  { href: "/home", label: "Home", icon: "home", match: (p) => p === "/home", mobileOnly: true },
-  { href: "/explore", label: "Explore", icon: "search", match: (p) => p.startsWith("/explore") || p.startsWith("/properties") },
-  { href: "/saved", label: "Saved", icon: "heart", match: (p) => p.startsWith("/saved") || p.startsWith("/compare") },
-  { href: "/inbox", label: "Inbox", icon: "inbox", match: (p) => p.startsWith("/inbox"), badge: true },
-  { href: "/portal", label: "For advertisers", icon: "briefcase", match: (p) => p.startsWith("/portal"), desktopOnly: true },
+  { href: "/properties", label: "Properties", icon: "grid", match: (p, s) => (p === "/properties" && !s.includes("view=map")) || p.startsWith("/properties/") },
+  { href: "/properties?view=map", label: "Map", icon: "map", match: (p, s) => p === "/properties" && s.includes("view=map") },
+  { href: "/saved", label: "Saved", icon: "heart", match: (p) => p === "/saved" },
+  { href: "/contact", label: "Contact", icon: "chat", match: (p) => p === "/contact" },
 ];
-
-// Category links in the desktop header; each opens Explore with real filters.
 const CATEGORIES = [
-  ["/explore?purpose=sale", "Buy"],
-  ["/explore?purpose=long_term_rent", "Rent"],
-  ["/explore?type=land", "Land"],
-  ["/explore?type=commercial", "Commercial"],
-  ["/explore?purpose=short_stay", "Short stays"],
-  ["/explore?stage=new", "New developments"],
+  ["/properties?purpose=sale", "For sale"],
+  ["/properties?purpose=rent", "For rent"],
+  ["/properties?type=land", "Land"],
+  ["/properties?type=commercial", "Commercial"],
 ];
 
-function navItems(signedIn) {
-  const account = signedIn
-    ? { href: "/account", label: "Account", icon: "user", match: (p) => p.startsWith("/account") || p.startsWith("/onboarding") }
-    : { href: "/sign-in", label: "Sign in", icon: "user", match: (p) => p.startsWith("/sign-") || p.startsWith("/verify") };
-  return [...NAV, account];
-}
-
-function headerView(signedIn, path) {
-  const here = path + location.search;
+function headerView(path, search) {
+  const here = path + search;
   return html`
     <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
-        <a href="/home" class="logo" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" data-logo /></a>
-        <nav class="cat-nav" aria-label="Categories">
-          <ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}>${label}</a></li>`)}</ul>
-        </nav>
+        <a href="/" class="logo" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" data-logo /></a>
         <nav class="top-nav" aria-label="Primary">
           <ul>
-            ${navItems(signedIn)
-              .filter((n) => !n.mobileOnly)
-              .map(
-                (n) => html`<li><a href="${n.href}" ${raw(n.match(path) ? 'aria-current="page"' : "")}>${n.label}${n.badge ? raw('<span class="badge-count" data-unread hidden></span>') : ""}</a></li>`,
-              )}
+            <li><a href="/properties" ${raw(path === "/properties" && !search ? 'aria-current="page"' : "")}>All properties</a></li>
+            ${CATEGORIES.map(([href, label]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}>${label}</a></li>`)}
+            <li><a href="/saved" ${raw(path === "/saved" ? 'aria-current="page"' : "")}>Saved</a></li>
           </ul>
         </nav>
-        ${signedIn
-          ? html`<div class="header-icons">
-              <a class="round-btn" href="/inbox" aria-label="Inbox">${icon("inbox", 20)}<span class="dot" data-unread-dot hidden></span></a>
-              <a class="round-btn round-btn--avatar" href="/account" aria-label="Your account" data-avatar>${icon("user", 18, 2)}</a>
-            </div>`
-          : html`<a href="/sign-in" class="header-signin">Sign in</a>`}
+        <a href="/contact" class="header-cta">Contact</a>
       </div>
     </header>`;
 }
 
-function bottomNavView(signedIn, path) {
+function bottomNavView(path, search) {
   return html`
     <nav class="bottom-nav" aria-label="Primary">
       <ul>
-        ${navItems(signedIn)
-          .filter((n) => !n.desktopOnly)
-          .map(
-            (n) => html`<li><a href="${n.href}" ${raw(n.match(path) ? 'aria-current="page"' : "")}>${icon(n.icon, 24, 1.7)}${n.badge ? raw('<span class="dot" data-unread-dot hidden></span>') : ""}${n.label}</a></li>`,
-          )}
+        ${NAV.map((n) => html`<li><a href="${n.href}" ${raw(n.match(path, search) ? 'aria-current="page"' : "")}>${icon(n.icon, 24, 1.7)}${n.label}</a></li>`)}
       </ul>
     </nav>`;
 }
-
-const FOOTER_COLS = [
-  ["Find property", [["/explore?purpose=sale", "For sale"], ["/explore?purpose=long_term_rent", "To rent"], ["/explore?purpose=short_stay", "Short stays"], ["/explore?type=land", "Land"], ["/explore?type=commercial", "Commercial"]]],
-  ["Providers", [["/portal", "Provider portal"], ["/sign-up", "List a property"]]],
-  ["Trust", [["/trust-and-verification", "Trust and verification"]]],
-  ["Your account", [["/saved", "Saved properties"], ["/inbox", "Inbox"], ["/account", "Account settings"]]],
-];
 
 function footerView() {
   return html`
@@ -244,180 +155,42 @@ function footerView() {
       <div class="site-footer__inner">
         <div class="site-footer__about">
           <img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" loading="lazy" data-logo />
-          <p>Property listings for Ghana, reviewed before they go live, with verification you can read in full.</p>
+          <p>A private portfolio of homes, land and commercial property in Ghana. Every property here is ours to show you.</p>
         </div>
-        <div class="footer-cols">
-          ${FOOTER_COLS.map(
-            ([title, links]) => html`<nav aria-label="${title}"><h4>${title}</h4><ul>${links.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul></nav>`,
-          )}
-        </div>
+        <nav aria-label="Properties"><h4>Properties</h4><ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}<li><a href="/properties?view=map">On the map</a></li></ul></nav>
+        <nav aria-label="Get in touch"><h4>Get in touch</h4><ul><li><a href="/contact">Contact</a></li><li><a href="/saved">Saved properties</a></li></ul></nav>
       </div>
       <div class="site-footer__legal"><p>© ${new Date().getFullYear()} Propertiq. Always view a property and check its documents before you pay.</p></div>
     </footer>`;
 }
 
-// Draws the header, footer and bottom navigation around the page's <main>. Called once per page.
-export async function boot() {
-  const user = await getUser();
-  const path = location.pathname.replace(/\.html$/, "").replace(/\/index$/, "/") || "/";
+// Draws the header, footer and bottom bar around the page's <main>. Called once per page.
+export function boot() {
+  const path = location.pathname.replace(/\.html$/, "").replace(/\/index$/, "/").replace(/\/$/, "") || "/";
   document.body.classList.add("app");
-  document.body.insertAdjacentHTML("afterbegin", part(headerView(Boolean(user), path)));
-  document.body.insertAdjacentHTML("beforeend", part(footerView()) + part(bottomNavView(Boolean(user), path)));
-  // The logo is the supplied artwork on a transparent background. If the file is missing, show the name in text instead.
+  document.body.insertAdjacentHTML("afterbegin", markup(headerView(path, location.search)));
+  document.body.insertAdjacentHTML("beforeend", markup(footerView()) + markup(bottomNavView(path, location.search)));
+  // If the logo file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {
     const fallback = () => img.replaceWith(Object.assign(document.createElement("span"), { className: "logo-text", textContent: "Propertiq" }));
     if (img.complete && img.naturalWidth === 0) fallback();
     else img.addEventListener("error", fallback, { once: true });
   });
-  if (user) {
-    refreshUnread();
-    // The account button shows the person's initial, like an avatar.
-    getProfile().then((p) => {
-      const initial = (p?.display_name ?? "").trim().charAt(0).toUpperCase();
-      document.querySelectorAll("[data-avatar]").forEach((a) => initial && (a.textContent = initial));
-    }).catch(() => {});
-  }
   if ("serviceWorker" in navigator && location.hostname !== "localhost") navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 
-// Unread inbox count on the navigation (conversations with messages newer than our last read).
-export async function refreshUnread() {
-  const { data, error } = await sb.rpc("unread_conversation_count");
-  if (error) return;
-  const n = Number(data) || 0;
-  document.querySelectorAll("[data-unread]").forEach((el) => {
-    el.hidden = n === 0;
-    el.textContent = n > 9 ? "9+" : String(n);
-  });
-  document.querySelectorAll("[data-unread-dot]").forEach((el) => (el.hidden = n === 0));
-}
-
-// ---- Small helpers ------------------------------------------------------------------------------------
 export const params = () => new URLSearchParams(location.search);
-export const $ = (sel, root = document) => root.querySelector(sel);
-export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-
 export function setTitle(title) {
-  document.title = title ? `${title} · Propertiq` : "Propertiq — Property, understood better";
+  document.title = title ? `${title} · Propertiq` : "Propertiq";
 }
-
 export function toast(message) {
-  document.querySelector(".toast")?.remove();
-  const el = document.createElement("div");
-  el.className = "toast";
-  el.setAttribute("role", "status");
+  let el = document.querySelector(".toast");
+  if (!el) {
+    el = Object.assign(document.createElement("div"), { className: "toast", role: "status" });
+    document.body.append(el);
+  }
   el.textContent = message;
-  document.body.append(el);
-  setTimeout(() => el.remove(), 3200);
-}
-
-export function alertBox(tone, message) {
-  return html`<div class="alert alert--${tone}" role="${tone === "error" ? "alert" : "status"}">${message}</div>`;
-}
-
-// Text field markup. Errors are shown with showErrors(form, errors).
-export function field({ label, name, type = "text", value = "", hint = "", attrs = "" }) {
-  const id = `f-${name}`;
-  return html`<div class="field">
-    <label for="${id}">${label}</label>
-    <input class="input" id="${id}" name="${name}" type="${type}" value="${value ?? ""}" aria-describedby="${id}-msg" ${raw(attrs)} />
-    <p class="hint" id="${id}-msg" data-hint="${hint}">${hint}</p>
-  </div>`;
-}
-
-export function selectField({ label, name, options, value = "", hint = "" }) {
-  const id = `f-${name}`;
-  return html`<div class="field">
-    <label for="${id}">${label}</label>
-    <select class="select" id="${id}" name="${name}" aria-describedby="${id}-msg">
-      ${options.map(([v, l]) => html`<option value="${v}" ${raw(String(v) === String(value ?? "") ? "selected" : "")}>${l}</option>`)}
-    </select>
-    <p class="hint" id="${id}-msg" data-hint="${hint}">${hint}</p>
-  </div>`;
-}
-
-export function textareaField({ label, name, value = "", hint = "", attrs = "" }) {
-  const id = `f-${name}`;
-  return html`<div class="field">
-    <label for="${id}">${label}</label>
-    <textarea class="textarea" id="${id}" name="${name}" aria-describedby="${id}-msg" ${raw(attrs)}>${value ?? ""}</textarea>
-    <p class="hint" id="${id}-msg" data-hint="${hint}">${hint}</p>
-  </div>`;
-}
-
-// Shows field errors under each input (falls back to the hint text when a field has no error).
-export function showErrors(form, errors = {}) {
-  for (const el of form.querySelectorAll("[name]")) {
-    const msg = form.querySelector(`#f-${el.name}-msg`);
-    const err = errors[el.name];
-    if (err) el.setAttribute("aria-invalid", "true");
-    else el.removeAttribute("aria-invalid");
-    if (msg) {
-      msg.textContent = err || msg.dataset.hint || "";
-      msg.className = err ? "error-text" : "hint";
-    }
-  }
-  const first = Object.keys(errors)[0];
-  if (first) form.querySelector(`[name="${first}"]`)?.focus();
-  return Object.keys(errors).length === 0;
-}
-
-// Disables the submit button and swaps its label while work is running.
-export async function busy(form, label, work) {
-  const btn = form.querySelector('button[type="submit"]');
-  const original = btn?.textContent;
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = label;
-  }
-  try {
-    return await work();
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = original;
-    }
-  }
-}
-
-export function formMessage(form, tone, message) {
-  let box = form.querySelector("[data-form-message]");
-  if (!box) {
-    box = document.createElement("div");
-    box.dataset.formMessage = "";
-    form.prepend(box);
-  }
-  render(box, message ? alertBox(tone, message) : "");
-}
-
-// Maps database error codes raised by checked functions to plain messages.
-export function friendlyDbError(error) {
-  const m = error?.message ?? "";
-  switch (error?.code) {
-    case "42501":
-      return m.includes("not verified") ? "Please verify your phone number first." : "You don't have permission to do that.";
-    case "23505":
-      if (m.includes("already a member")) return "That person is already a member.";
-      return "That already exists.";
-    case "23514":
-      return m.includes("owner") ? "An organisation must keep at least one owner." : "Some details are not valid.";
-    case "54000":
-      return "Too many attempts. Please wait a while and try again.";
-    case "P0002":
-      return m.includes("invitation") ? "This invitation is invalid, already used or expired." : "That item no longer exists.";
-    case "22023":
-      return m || "Some details are not valid.";
-    default:
-      return "Something went wrong. Please try again.";
-  }
-}
-
-// Private photos are served through short-lived signed links; storage rules decide what can be signed.
-export async function signedUrls(paths) {
-  const unique = [...new Set(paths.filter(Boolean))];
-  const map = new Map();
-  if (unique.length === 0) return map;
-  const { data } = await sb.storage.from(MEDIA_BUCKET).createSignedUrls(unique, 3600);
-  for (const row of data ?? []) if (row.path && row.signedUrl) map.set(row.path, row.signedUrl);
-  return map;
+  el.classList.add("is-on");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("is-on"), 2200);
 }

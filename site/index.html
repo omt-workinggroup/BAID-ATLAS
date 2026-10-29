@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Propertiq — Find Your Next Property</title>
-    <meta name="description" content="Homes, land and rentals across Ghana. See what has been checked on every listing, and contact advertisers directly." />
+    <meta name="description" content="A private portfolio of homes, land and commercial property in Ghana. Prices, photos, floor plans, brochures and 3D tours." />
     <link rel="canonical" href="https://propertiq-gh.vercel.app/" />
     <meta name="theme-color" content="#000000" />
     <meta property="og:type" content="website" />
@@ -12,7 +12,7 @@
     <meta property="og:locale" content="en_GH" />
     <meta property="og:url" content="https://propertiq-gh.vercel.app/" />
     <meta property="og:title" content="Propertiq — Find Your Next Property" />
-    <meta property="og:description" content="Homes, land and rentals across Ghana. See what has been checked." />
+    <meta property="og:description" content="Homes, land and rentals across Ghana, with floor plans, brochures and 3D tours." />
     <meta property="og:image" content="https://propertiq-gh.vercel.app/og.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -20,7 +20,7 @@
     <meta property="og:image:alt" content="Propertiq: Find Your Next Property. A modern home at dusk." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Propertiq — Find Your Next Property" />
-    <meta name="twitter:description" content="Homes, land and rentals across Ghana. See what has been checked." />
+    <meta name="twitter:description" content="Homes, land and rentals across Ghana, with floor plans, brochures and 3D tours." />
     <meta name="twitter:image" content="https://propertiq-gh.vercel.app/og.jpg" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/icon.png" type="image/png" />
@@ -38,30 +38,29 @@
          Phones get the standalone splash below instead. -->
     <div class="landing">
       <header class="landing__nav">
-        <a href="/home" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" /></a>
+        <a href="/" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" /></a>
         <nav aria-label="Primary">
-          <a href="/explore?purpose=sale">Buy</a>
-          <a href="/explore?purpose=long_term_rent">Rent</a>
-          <a href="/explore?type=land">Land</a>
-          <a href="/explore?type=commercial">Commercial</a>
-          <a href="/explore?stage=new">New developments</a>
-          <a href="/portal">List a property</a>
+          <a href="/properties">All properties</a>
+          <a href="/properties?purpose=sale">For sale</a>
+          <a href="/properties?purpose=rent">For rent</a>
+          <a href="/properties?type=land">Land</a>
+          <a href="/properties?view=map">Map</a>
         </nav>
-        <a class="landing__join" href="/sign-in">Join / Sign in</a>
+        <a class="landing__join" href="/contact">Contact</a>
       </header>
       <section class="landing__hero" aria-labelledby="landing-h">
         <img class="landing__img" src="/brand/hero-home.jpg" width="736" height="1104" alt="A modern two-storey home at dusk" />
         <div class="landing__text">
           <h1 id="landing-h">Find Your Next Property</h1>
-          <p>Explore homes, land, rentals and new developments across Ghana, and see what has been checked before you get in touch.</p>
+          <p>Homes, land and rentals across Ghana, each with prices, photos, floor plans, a brochure and a 3D tour you can walk through.</p>
         </div>
-        <form class="landing__search" action="/explore" method="get" role="search" id="landing-search">
+        <form class="landing__search" action="/properties" method="get" role="search" id="landing-search">
           <p>Search for the property you're looking for</p>
           <div class="landing__fields">
             <label><span class="sr-only">Looking to</span>
               <select name="purpose">
                 <option value="sale">Buy</option>
-                <option value="long_term_rent">Rent</option>
+                <option value="rent">Rent</option>
                 <option value="short_stay">Short stay</option>
                 <option value="lease">Lease</option>
               </select></label>
@@ -94,8 +93,8 @@
       </div>
       <div class="splash__content">
         <h1 id="hero-h">Find Your Next Property</h1>
-        <p class="splash__lede">Explore homes, land and rentals across Ghana, with clear details on what has been checked, all in one place.</p>
-        <a class="btn btn--pill-light splash__cta" href="/home">Get Started</a>
+        <p class="splash__lede">Homes, land and rentals across Ghana, with prices, floor plans, brochures and 3D tours, all in one place.</p>
+        <a class="btn btn--pill-light splash__cta" href="/properties">Get Started</a>
       </div>
     </main>
   </body>

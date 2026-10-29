@@ -4,24 +4,40 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Saved properties · Propertiq</title>
-    <meta name="robots" content="noindex" />
+    <meta name="description" content="Properties you saved on this device." />
     <meta name="theme-color" content="#000000" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Propertiq" />
+    <meta property="og:locale" content="en_GH" />
+    <meta property="og:url" content="https://propertiq-gh.vercel.app/saved" />
+    <link rel="canonical" href="https://propertiq-gh.vercel.app/saved" />
+    <meta property="og:title" content="Saved properties · Propertiq" />
+    <meta property="og:description" content="Properties you saved on this device." />
+    <meta property="og:image" content="https://propertiq-gh.vercel.app/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Propertiq: a modern home at dusk." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Saved properties · Propertiq" />
+    <meta name="twitter:description" content="Properties you saved on this device." />
+    <meta name="twitter:image" content="https://propertiq-gh.vercel.app/og.jpg" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/icon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
-    <script src="/js/vendor/supabase.js" defer></script>
     <script type="module" src="/js/pages/saved.js"></script>
   </head>
   <body>
-    <main id="main" class="page">
-      <div id="root" class="stack-lg" aria-busy="true">
-        <div class="skeleton" style="height: 2.5rem; width: 60%"></div>
-        <div class="skeleton" style="height: 6rem"></div>
-        <div class="skeleton" style="height: 6rem"></div>
+    <main id="main" class="page page--wide">
+      <div class="props-head">
+        <p class="overline">On this device</p>
+        <h1>Saved properties</h1>
+        <p class="muted">Tap the heart on any property to keep it here. Nothing is sent anywhere: saved properties stay in this browser.</p>
       </div>
+      <div class="pgrid" id="results" aria-busy="true" style="margin-top: 1.5rem"></div>
     </main>
   </body>
 </html>

@@ -1,7 +1,7 @@
 // Service worker: offline page for failed navigations, and a cache for files that rarely change
-// (fonts, icons, logo, the Supabase library). Pages, CSS and JS always come fresh from the network,
-// so edits show up immediately. Signed-in data is never cached.
-const CACHE = "propertiq-v4";
+// (fonts, icons, logo, the map and tour libraries). Pages, CSS and JS always come fresh from the network,
+// so edits show up immediately.
+const CACHE = "propertiq-v5";
 const OFFLINE_URL = "/offline.html";
 const LONG_LIVED = ["/fonts/", "/icons/", "/brand/", "/js/vendor/"];
 

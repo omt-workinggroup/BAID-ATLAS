@@ -1,0 +1,253 @@
+{
+  "owner": {
+    "name": "Propertiq",
+    "about": "Sample owner details for tests and screenshots.",
+    "phone": "+233200000000",
+    "whatsapp": "+233200000000",
+    "email": "sample@example.com",
+    "location": "Accra, Ghana"
+  },
+  "properties": [
+    {
+      "slug": "sample-east-legon-villa",
+      "title": "Sample: East Legon Villa",
+      "status": "available",
+      "purpose": "sale",
+      "type": "house",
+      "price": {
+        "amount": 1250000,
+        "currency": "USD",
+        "period": "total",
+        "negotiable": true
+      },
+      "location": {
+        "area": "East Legon",
+        "city": "Accra",
+        "region": "Greater Accra",
+        "lat": 5.64,
+        "lng": -0.16
+      },
+      "bedrooms": 5,
+      "bathrooms": 6,
+      "parking": 3,
+      "size": {
+        "value": 420,
+        "unit": "sqm"
+      },
+      "land": {
+        "value": 1,
+        "unit": "acre"
+      },
+      "summary": "Sample: a five-bedroom villa with a pool, on a quiet street close to schools.",
+      "description": "Sample description. A bright, modern home over two floors, with a double-height living room opening onto the garden and pool.\n\nUpstairs, every bedroom has its own bathroom. The main suite has a dressing room and a balcony.",
+      "features": [
+        "Swimming pool",
+        "Borehole",
+        "Backup generator",
+        "Boys' quarters",
+        "Fitted kitchen",
+        "CCTV"
+      ],
+      "photos": [
+        {
+          "src": "/media/sample/photo-0.jpg",
+          "alt": "Sample photo 1",
+          "caption": "Sample photo 1"
+        },
+        {
+          "src": "/media/sample/photo-1.jpg",
+          "alt": "Sample photo 2",
+          "caption": "Sample photo 2"
+        },
+        {
+          "src": "/media/sample/photo-2.jpg",
+          "alt": "Sample photo 3",
+          "caption": "Sample photo 3"
+        },
+        {
+          "src": "/media/sample/photo-3.jpg",
+          "alt": "Sample photo 4",
+          "caption": "Sample photo 4"
+        },
+        {
+          "src": "/media/sample/photo-4.jpg",
+          "alt": "Sample photo 5",
+          "caption": "Sample photo 5"
+        },
+        {
+          "src": "/media/sample/photo-5.jpg",
+          "alt": "Sample photo 6",
+          "caption": "Sample photo 6"
+        }
+      ],
+      "floorplans": [
+        {
+          "src": "/media/sample/plan-ground.jpg",
+          "label": "Ground floor"
+        }
+      ],
+      "brochure": {
+        "src": "/media/sample/brochure.pdf",
+        "label": "East Legon Villa brochure"
+      },
+      "tour": {
+        "scenes": [
+          {
+            "id": "living",
+            "title": "Living room",
+            "image": "/media/sample/pano-living.jpg",
+            "yaw": 0,
+            "hotspots": [
+              {
+                "to": "kitchen",
+                "yaw": 90,
+                "pitch": -8,
+                "label": "Kitchen"
+              }
+            ]
+          },
+          {
+            "id": "kitchen",
+            "title": "Kitchen",
+            "image": "/media/sample/pano-kitchen.jpg",
+            "yaw": 0,
+            "hotspots": [
+              {
+                "to": "living",
+                "yaw": -90,
+                "pitch": -8,
+                "label": "Living room"
+              }
+            ]
+          }
+        ]
+      },
+      "featured": true,
+      "listed": "2026-10-20"
+    },
+    {
+      "slug": "sample-cantonments-apartment",
+      "title": "Sample: Cantonments Apartment",
+      "status": "available",
+      "purpose": "rent",
+      "type": "apartment",
+      "price": {
+        "amount": 3500,
+        "currency": "USD",
+        "period": "month"
+      },
+      "location": {
+        "area": "Cantonments",
+        "city": "Accra",
+        "region": "Greater Accra",
+        "lat": 5.58,
+        "lng": -0.17
+      },
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "parking": 1,
+      "size": {
+        "value": 140,
+        "unit": "sqm"
+      },
+      "summary": "Sample: a furnished two-bedroom apartment with a gym and pool.",
+      "photos": [
+        {
+          "src": "/media/sample/photo-1.jpg",
+          "alt": "Sample photo 2",
+          "caption": "Sample photo 2"
+        },
+        {
+          "src": "/media/sample/photo-2.jpg",
+          "alt": "Sample photo 3",
+          "caption": "Sample photo 3"
+        },
+        {
+          "src": "/media/sample/photo-3.jpg",
+          "alt": "Sample photo 4",
+          "caption": "Sample photo 4"
+        }
+      ],
+      "floorplans": [
+        {
+          "src": "/media/sample/plan-ground.jpg",
+          "label": "Apartment layout"
+        }
+      ],
+      "listed": "2026-10-18"
+    },
+    {
+      "slug": "sample-oyarifa-plots",
+      "title": "Sample: Oyarifa Plots",
+      "status": "available",
+      "purpose": "sale",
+      "type": "land",
+      "price": {
+        "on_request": true
+      },
+      "location": {
+        "area": "Oyarifa",
+        "city": "Accra",
+        "region": "Greater Accra",
+        "lat": 5.76,
+        "lng": -0.17
+      },
+      "land": {
+        "value": 4,
+        "unit": "plot"
+      },
+      "summary": "Sample: four serviced plots on a tarred road.",
+      "photos": [
+        {
+          "src": "/media/sample/photo-4.jpg",
+          "alt": "Sample photo 5",
+          "caption": "Sample photo 5"
+        }
+      ],
+      "listed": "2026-10-10"
+    },
+    {
+      "slug": "sample-airport-townhouse",
+      "title": "Sample: Airport Townhouse",
+      "status": "under_offer",
+      "purpose": "sale",
+      "type": "townhouse",
+      "price": {
+        "amount": 2100000,
+        "currency": "GHS",
+        "period": "total"
+      },
+      "location": {
+        "area": "Airport Residential",
+        "city": "Accra",
+        "region": "Greater Accra",
+        "lat": 5.61,
+        "lng": -0.18
+      },
+      "bedrooms": 3,
+      "bathrooms": 3,
+      "parking": 2,
+      "size": {
+        "value": 210,
+        "unit": "sqm"
+      },
+      "summary": "Sample: a three-bedroom townhouse in a gated community.",
+      "photos": [
+        {
+          "src": "/media/sample/photo-5.jpg",
+          "alt": "Sample photo 6",
+          "caption": "Sample photo 6"
+        },
+        {
+          "src": "/media/sample/photo-0.jpg",
+          "alt": "Sample photo 1",
+          "caption": "Sample photo 1"
+        }
+      ],
+      "listed": "2026-10-05",
+      "tour": {
+        "embed": "https://evil.example.com/tour"
+      }
+    }
+  ]
+}

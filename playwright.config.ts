@@ -14,7 +14,7 @@ export default defineConfig({
   // Mobile first: every test runs on phone viewports. Chromium is used for both so CI needs one browser.
   projects: [
     { name: "pixel-7", use: { ...devices["Pixel 7"] }, grepInvert: /@desktop/ },
-    { name: "iphone-14", use: { ...devices["iPhone 14"], browserName: "chromium", defaultBrowserType: "chromium" }, grepInvert: /@desktop/, testIgnore: /authenticated/ },
+    { name: "iphone-14", use: { ...devices["iPhone 14"], browserName: "chromium", defaultBrowserType: "chromium" }, grepInvert: /@desktop/ },
     { name: "desktop", use: { ...devices["Desktop Chrome"] }, grep: /@desktop/ },
   ],
   webServer: {
