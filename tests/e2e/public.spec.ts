@@ -122,8 +122,7 @@ test.describe("property page", () => {
     await expect(page.locator(".pd-top__price strong")).toHaveText("USD 1,250,000");
     await expect(page.locator(".stats")).toContainText("Beds");
     await expect(page.locator("#brochure").getByRole("link", { name: "Open" })).toHaveAttribute("href", "/media/sample/brochure.pdf");
-    const wa = await page.getByRole("link", { name: "Schedule Visit" }).first().getAttribute("href");
-    expect(decodeURIComponent(wa!)).toContain("Sample: East Legon Villa");
+    await expect(page.locator(".pd-tabs")).toContainText("Payment plan");
     await expectNoHorizontalScroll(page);
     await shot(page, "03-property", info.project.name);
 
@@ -136,6 +135,36 @@ test.describe("property page", () => {
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: /Enlarge: Ground floor/ }).click();
     await expect(page.locator("#viewer-caption")).toHaveText("Ground floor");
+  });
+
+  test("book a viewing writes the request with the day, time and name", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/properties/sample-east-legon-villa");
+    await page.getByRole("button", { name: "Book a Viewing" }).locator("visible=true").first().click();
+    const sheet = page.getByRole("dialog", { name: "Book a viewing" });
+    await expect(sheet).toBeVisible();
+    await sheet.getByRole("link", { name: "Send on WhatsApp" }).click();
+    await expect(sheet.getByRole("alert")).toHaveText("Pick a day for the viewing.");
+    await sheet.locator(".day").nth(1).click();
+    await sheet.locator(".slot").first().click();
+    await sheet.getByLabel("Your name").fill("Sample Visitor");
+    await expect(sheet.getByRole("alert")).toBeHidden();
+    const wa = decodeURIComponent((await sheet.getByRole("link", { name: "Send on WhatsApp" }).getAttribute("href"))!);
+    expect(wa).toContain('view "Sample: East Legon Villa"');
+    expect(wa).toContain("Time: Morning");
+    expect(wa).toContain("Name: Sample Visitor");
+    await sheet.getByRole("button", { name: "Close" }).click();
+    await expect(sheet).toBeHidden();
+  });
+
+  test("the payment planner updates as the sliders move", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/properties/sample-east-legon-villa");
+    await expect(page.locator("#pl-monthly")).toHaveText("USD 72,917");
+    await page.locator("#pl-dep").fill("50");
+    await expect(page.locator("#pl-deposit")).toHaveText("USD 625,000");
+    await expect(page.locator("#pl-monthly")).toHaveText("USD 52,083");
+    expect(decodeURIComponent((await page.locator("#pl-ask").getAttribute("href"))!)).toContain("50% deposit");
   });
 
   test("the 3D tour loads, and moves between rooms", async ({ page }, info) => {

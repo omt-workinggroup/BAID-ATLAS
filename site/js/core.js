@@ -56,6 +56,8 @@ const PATHS = {
   pin: "M12 21s-7-7.4-7-12a7 7 0 0 1 14 0c0 4.6-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   photo: "M3 5h18v14H3zM8.5 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM21 16l-5-5-8 8",
   house: "M3 10.5 12 3l9 7.5M5 9v11h14V9M10 20v-5h4v5",
+  calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+  print: "M7 9V3h10v6M7 17H4v-8h16v8h-3M7 14h10v7H7z",
   share: "M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v12M7 8l5-5 5 5",
   bed: "M3 19v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 15h18M6 9V6h5v3",
   bath: "M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM6 12V5a2 2 0 0 1 4 0M7 20l-1 2M17 20l1 2",
@@ -199,7 +201,43 @@ export function boot() {
       })
       .catch(() => {}),
   );
+  reveal();
   if ("serviceWorker" in navigator && location.hostname !== "localhost") navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
+
+// Cards, sections and footer columns rise gently into place as they scroll into view, and photos fade in
+// once loaded. Content drawn later (after the data arrives) is picked up too. Skipped for reduced motion.
+const REVEAL = ".card, .pd-section, .stats, .side, .soon-page, .ways > li, .visit, .site-footer__inner > *, .site-footer__brand";
+function reveal() {
+  if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.documentElement.classList.add("rv-on");
+  const io = new IntersectionObserver(
+    (entries) => {
+      const shown = entries.filter((e) => e.isIntersecting);
+      shown.forEach((e, i) => {
+        e.target.style.transitionDelay = `${Math.min(i, 6) * 70}ms`;
+        e.target.classList.add("rv-in");
+        io.unobserve(e.target);
+      });
+    },
+    { rootMargin: "0px 0px -6% 0px" },
+  );
+  const fade = (img) => {
+    if (img.dataset.fade) return;
+    img.dataset.fade = "1";
+    if (img.complete && img.naturalWidth) return;
+    img.classList.add("img-fade");
+    const done = () => img.classList.add("is-loaded");
+    img.addEventListener("load", done, { once: true });
+    img.addEventListener("error", done, { once: true });
+  };
+  const scan = (root) => {
+    if (!(root instanceof Element)) return;
+    [root, ...root.querySelectorAll(REVEAL)].forEach((el) => el.matches(REVEAL) && !el.classList.contains("rv") && (el.classList.add("rv"), io.observe(el)));
+    [root, ...root.querySelectorAll("img")].forEach((img) => img.tagName === "IMG" && img.closest("main") && fade(img));
+  };
+  scan(document.body);
+  new MutationObserver((list) => list.forEach((m) => m.addedNodes.forEach(scan))).observe(document.body, { childList: true, subtree: true });
 }
 
 export const params = () => new URLSearchParams(location.search);

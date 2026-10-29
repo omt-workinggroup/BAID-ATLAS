@@ -115,13 +115,36 @@ export function filterProperties(list, f) {
   return out.sort((a, b) => Boolean(b.featured) - Boolean(a.featured) || String(b.listed ?? "").localeCompare(String(a.listed ?? "")));
 }
 
+// A WhatsApp link that opens a chat with a ready-written message.
+export function waLink(number, text) {
+  if (!number) return null;
+  return `https://wa.me/${String(number).replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
+}
+
 // WhatsApp link with a ready-written message naming the property.
 export function whatsappLink(number, property, url) {
-  if (!number) return null;
-  const digits = String(number).replace(/\D/g, "");
   const text = property ? `Hello, I'm interested in "${property.title}" (${url}). Is it still available?` : "Hello, I'd like to ask about your properties.";
-  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+  return waLink(number, text);
 }
+
+// The next n days starting tomorrow, for picking a viewing day.
+export function nextDays(n, from = new Date()) {
+  return Array.from({ length: n }, (_, i) => new Date(from.getFullYear(), from.getMonth(), from.getDate() + i + 1));
+}
+export const dayLabel = (d) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+
+// The message sent when someone asks for a viewing.
+export function viewingMessage(p, url, { day, time, name, note }) {
+  return [`Hello, I'd like to view "${p.title}" (${url}).`, `Day: ${day}`, `Time: ${time}`, name && `Name: ${name}`, note && `Note: ${note}`].filter(Boolean).join("\n");
+}
+
+// A simple payment split: a deposit, then the balance in equal monthly payments, with no interest added.
+export function paymentPlan(amount, depositPct, months) {
+  const deposit = Math.round((amount * depositPct) / 100);
+  const balance = amount - deposit;
+  return { deposit, balance, monthly: Math.round(balance / months) };
+}
+export const money = (currency, n) => `${currency ?? "GHS"} ${Number(n).toLocaleString("en-GH", { maximumFractionDigits: 0 })}`;
 
 export function toQuery(f) {
   const p = new URLSearchParams();

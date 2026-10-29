@@ -35,11 +35,12 @@ refresh the browser.
 | --- | --- |
 | `site/index.html` | Homepage: only the properties, filtered by category (`?cat=sale`, `rent`, `townhouses`, `apartments`, `commercial`, `soon`). Properties marked `"coming_soon": true` show their name on a drawn thumbnail until their photos and details are added. |
 | `site/map.html` | The map page (bottom bar's Map tab): list and price-tag pins on a 3D map. |
-| `site/property.html` | One property: photo hero, facts, photos, 3D tour, floor plans, brochure, location and contact. Served at `/properties/:slug`. |
+| `site/property.html` | One property: photo hero, facts, section tabs, photos, payment planner (priced sales), 3D tour, floor plans, brochure, location and contact. Printing gives a clean details sheet. Served at `/properties/:slug`. |
 | `site/contact.html` | How to get in touch (WhatsApp, call, email) and the office on a satellite map. |
-| `site/js/data.js` | Reads the properties file; price, area and filter helpers. |
+| `site/js/data.js` | Reads the properties file; price, area, filter, viewing-message and payment-plan helpers. |
 | `site/js/tour.js` | 3D tour: [Pannellum](https://pannellum.org) (MIT, in `site/js/vendor`) with room buttons, hotspots, auto-rotate, tilt-to-look and full screen. |
 | `site/js/viewer.js` | Full-screen photo and floor-plan viewer. |
+| `site/js/visit.js` | "Book a viewing": pick a day and time, then send the request on WhatsApp or by email, already written. Nothing is booked automatically; the office replies to confirm. |
 | `site/js/map.js` | 3D maps: [MapLibre GL](https://maplibre.org) (BSD-3, in `site/js/vendor`) with MapTiler satellite and street styles; fly-to, tilt and a slow orbit. |
 | `site/css/style.css` | Every style, starting with the colour and spacing tokens at the top. |
 | `vercel.json` | Clean URLs, routes, redirects from old addresses and security headers. |

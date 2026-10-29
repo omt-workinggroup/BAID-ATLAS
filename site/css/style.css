@@ -837,7 +837,7 @@ body.app {
   }
   .side {
     position: sticky;
-    top: 5.5rem;
+    top: 9rem;
     display: grid;
     gap: 0.75rem;
     padding: 1.5rem;
@@ -2390,5 +2390,586 @@ body.app {
   }
   .visit__map {
     height: 28rem;
+  }
+}
+
+/* ---- Motion: content rises into place as it scrolls into view; photos fade in once loaded ------------- */
+.rv-on .rv {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease), transform 0.8s var(--ease);
+}
+.rv-on .rv.rv-in {
+  opacity: 1;
+  transform: none;
+}
+.img-fade {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.img-fade.is-loaded {
+  opacity: 1;
+}
+
+/* ---- Property page: section tabs ---------------------------------------------------------------------- */
+.pd-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin-top: 1rem;
+  background: rgb(255 255 255 / 0.9);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom: 1px solid var(--line);
+}
+.pd-tabs ul {
+  position: relative;
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0.55rem var(--gutter);
+  list-style: none;
+}
+.pd-tabs ul::-webkit-scrollbar {
+  display: none;
+}
+.pd-tabs a {
+  display: block;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.pd-tabs a:hover {
+  color: var(--ink);
+}
+.pd-tabs a[aria-current="true"] {
+  background: var(--black);
+  color: #fff;
+}
+@media (min-width: 900px) {
+  .pd-tabs {
+    top: 4.3rem;
+    margin: 1.5rem var(--gutter) 0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: 0 8px 24px -18px rgb(0 0 0 / 0.35);
+  }
+  .pd-tabs ul {
+    padding: 0.4rem;
+  }
+}
+.pd-section {
+  scroll-margin-top: 4.5rem;
+}
+@media (min-width: 900px) {
+  .pd-section {
+    scroll-margin-top: 9rem;
+  }
+}
+
+/* ---- Side panel extras ---------------------------------------------------------------------------------- */
+.side .text-link {
+  justify-self: center;
+  font-size: 0.85rem;
+}
+.side__links {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+.side__links a,
+.side__links button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.side__links a:hover,
+.side__links button:hover {
+  color: var(--tan-text);
+}
+
+/* ---- Payment planner --------------------------------------------------------------------------------------- */
+.planner {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(160deg, #fbfaf7, #f3efe8);
+}
+.planner__inputs {
+  display: grid;
+  gap: 1.1rem;
+  align-content: center;
+}
+.range {
+  display: grid;
+  gap: 0.55rem;
+}
+.range > span {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.range output {
+  font-weight: 700;
+  color: var(--ink);
+}
+.range input {
+  --fill: 50%;
+  width: 100%;
+  height: 6px;
+  margin: 0.5rem 0;
+  border-radius: 999px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: linear-gradient(to right, var(--tan) var(--fill), #ddd6cb var(--fill));
+  cursor: pointer;
+}
+.range input:focus {
+  outline: 0;
+}
+.range input:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px rgb(184 149 106 / 0.45);
+}
+.range input::-webkit-slider-thumb {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--black);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.range input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--black);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+}
+.planner__result {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem;
+  border-radius: 16px;
+  background: var(--black);
+  color: #fff;
+}
+.planner__big {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.pd-section .planner__big {
+  color: #fff;
+}
+.planner__big strong {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.planner__big span {
+  color: rgb(255 255 255 / 0.6);
+  font-size: 0.85rem;
+}
+.planner__bar {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.18);
+}
+.planner__bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--tan);
+  transition: width 0.35s var(--ease);
+}
+.planner dl {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.85rem;
+}
+.planner dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.planner dl div:last-child {
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(255 255 255 / 0.15);
+}
+.planner dt {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: rgb(255 255 255 / 0.65);
+}
+.planner dd {
+  margin: 0;
+  font-weight: 700;
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.4);
+}
+.dot--tan {
+  background: var(--tan);
+}
+.planner .btn {
+  background: #fff;
+  color: var(--ink);
+}
+.planner .btn:hover {
+  background: var(--tan);
+  color: #fff;
+}
+@media (min-width: 700px) {
+  .planner {
+    grid-template-columns: 1fr 1fr;
+    padding: 1.4rem;
+    gap: 1.5rem;
+  }
+}
+
+/* ---- Book a viewing: a bottom sheet on phones, a centred card on desktop ----------------------------------- */
+.sheet {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.sheet::backdrop {
+  background: rgb(10 10 10 / 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.sheet[open] {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet__panel {
+  display: grid;
+  gap: 1.1rem;
+  width: 100%;
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding: 0.6rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+  border-radius: 26px 26px 0 0;
+  background: #fff;
+  animation: sheet-up 0.45s var(--ease);
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+.sheet__grip {
+  justify-self: center;
+  width: 2.5rem;
+  height: 4px;
+  border-radius: 999px;
+  background: #ddd;
+}
+.sheet__head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.sheet__head img {
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 14px;
+  object-fit: cover;
+}
+.sheet__head div {
+  flex: 1;
+  min-width: 0;
+}
+.sheet__head h2 {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+.sheet__head p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.round--soft {
+  border: 0;
+  background: var(--soft);
+  color: var(--ink);
+  cursor: pointer;
+}
+.pick {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.pick legend {
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.pick__days {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -1.25rem;
+  padding: 0.15rem 1.25rem;
+  scroll-snap-type: x proximity;
+}
+.pick__days::-webkit-scrollbar {
+  display: none;
+}
+.pick__times {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.day,
+.slot {
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+.day input,
+.slot input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.day span,
+.slot span {
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.day span {
+  width: 4rem;
+  padding: 0.6rem 0;
+}
+.slot span {
+  padding: 0.7rem 0.4rem;
+  text-align: center;
+}
+.day small,
+.slot small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.day b {
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+.slot b {
+  font-size: 0.85rem;
+}
+.day:hover span,
+.slot:hover span {
+  border-color: #c9c9c9;
+}
+.day input:checked + span,
+.slot input:checked + span {
+  border-color: var(--black);
+  background: var(--black);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.day input:checked + span small,
+.slot input:checked + span small {
+  color: rgb(255 255 255 / 0.65);
+}
+.day input:focus-visible + span,
+.slot input:focus-visible + span {
+  outline: 2px solid var(--tan);
+  outline-offset: 2px;
+}
+.field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.field em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--muted);
+}
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--soft);
+  font: inherit;
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--ink);
+  resize: vertical;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.field input:focus,
+.field textarea:focus {
+  outline: 0;
+  border-color: var(--tan);
+  background: #fff;
+}
+.sheet__error {
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  background: #fbefe9;
+  color: #8a3b1c;
+  font-size: 0.85rem;
+}
+.sheet__actions {
+  display: grid;
+  gap: 0.5rem;
+}
+.sheet__actions .btn {
+  width: 100%;
+  min-height: 3.2rem;
+  border-radius: 14px;
+}
+.sheet .fineprint {
+  text-align: center;
+}
+@media (min-width: 700px) {
+  .sheet[open] {
+    align-items: center;
+  }
+  .sheet__panel {
+    width: min(32rem, calc(100% - 2rem));
+    padding: 1.5rem 1.75rem;
+    border-radius: 26px;
+    box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.45);
+    animation: sheet-in 0.4s var(--ease);
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateY(16px) scale(0.98);
+      opacity: 0;
+    }
+  }
+  .sheet__grip {
+    display: none;
+  }
+  .pick__days {
+    margin: 0 -1.75rem;
+    padding: 0.15rem 1.75rem;
+  }
+  .sheet__actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.print-only {
+  display: none;
+}
+/* ---- Print: a clean details sheet (photo, price, facts, description, plans) ------------------------------ */
+@media print {
+  .site-header,
+  .site-footer,
+  .tabbar,
+  .buybar,
+  .pd-tabs,
+  .pd-top__bar,
+  .side .btn,
+  .side .text-link,
+  .side__links,
+  .see-more,
+  .photos,
+  #tour,
+  #brochure,
+  #payment,
+  #location,
+  .more-props,
+  .toast,
+  .skip-link {
+    display: none !important;
+  }
+  .rv-on .rv {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  body {
+    font-size: 11pt;
+  }
+  .pd-top {
+    height: 9cm;
+    max-height: none;
+    margin: 0;
+    border-radius: 12px;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .stats {
+    margin: 0.5cm 0;
+    box-shadow: none;
+  }
+  .pd-layout {
+    display: block;
+    padding: 0;
+  }
+  .clamp {
+    display: block !important;
+  }
+  .side {
+    position: static;
+    display: block;
+    margin-top: 0.5cm;
+    box-shadow: none;
+  }
+  .pd-section {
+    break-inside: avoid;
+    margin-bottom: 0.6cm;
+  }
+  .plans img {
+    max-height: 9cm;
+  }
+  .print-only {
+    display: block;
+    margin-top: 0.3cm;
+    font-weight: 600;
   }
 }

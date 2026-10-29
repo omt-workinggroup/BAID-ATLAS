@@ -1,13 +1,14 @@
 // One property, laid out like the reference detail screen: a photo with the name, place and price, a
-// stats card, a photo grid, "About Property" with See more, then units, features, 3D tour, floor plans,
-// brochure and location. Phones get a bottom bar (price, Schedule Visit, Contact Agent); desktop gets the
-// same actions in a side panel.
+// stats card, section tabs, a photo grid, "About Property" with See more, then units, features, payment
+// plan, 3D tour, floor plans, brochure and location. Phones get a bottom bar (price, Book a Viewing,
+// Contact Agent); desktop gets the same actions in a side panel. Printing gives a clean details sheet.
 import { SITE_URL } from "../config.js";
 import { boot, html, icon, render, setTitle, toast } from "../core.js";
-import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, place, shortPrice, whatsappLink } from "../data.js";
+import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, money, paymentPlan, place, shortPrice, waLink, whatsappLink } from "../data.js";
 import { artwork, booklet, card } from "../cards.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
+import { openVisit } from "../visit.js";
 
 const STAT_NAMES = { bed: "Beds", bath: "Baths", car: "Parking", area: "Size", plot: "Land" };
 
@@ -35,7 +36,7 @@ function section(id, title, body) {
 // A property whose photos and details haven't arrived yet: its name, its drawn thumbnail and how to ask.
 function showSoon(p, owner) {
   setTitle(p.title);
-  const wa = whatsappLink(owner.whatsapp, p, `${SITE_URL}/properties/${p.slug}`);
+  const wa = waLink(owner.whatsapp, `Hello, please let me know when "${p.title}" is ready to view (${SITE_URL}/properties/${p.slug}).`);
   render(
     root,
     html`<section class="soon-page">
@@ -45,7 +46,7 @@ function showSoon(p, owner) {
       <h1>${p.title}</h1>
       <p>${p.summary ? `${p.summary} ` : ""}Photos, prices and floor plans are being prepared. Ask us and we'll share what we have.</p>
       <div class="soon-page__actions">
-        ${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">Ask on WhatsApp</a>` : ""}
+        ${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">${icon("chat", 18)}Tell me when it's ready</a>` : ""}
         <a class="btn btn--outline-tan" href="/contact">Contact</a>
       </div>
     </section>`,
@@ -66,10 +67,23 @@ function show(p, owner) {
   const status = [p.stage && STAGE_LABELS[p.stage], p.status && p.status !== "available" ? STATUS_LABELS[p.status] : null].filter(Boolean).join(" · ");
   const about = [p.summary, ...String(p.description ?? "").split(/\n\s*\n/)].filter(Boolean);
   const others = filterProperties((portfolio.properties ?? []).filter((x) => x.slug !== p.slug), { sort: "newest" }).slice(0, 3);
+  const canBook = Boolean(owner.whatsapp || owner.email);
   const actions = (variant) => html`
-    <a class="btn btn--outline-tan" href="${wa ?? "/contact"}" ${wa ? html`target="_blank" rel="noopener"` : ""}>Schedule Visit</a>
-    <a class="btn btn--dark" href="${tel}">Contact Agent</a>
-    ${variant === "side" && p.brochure?.src ? html`<a class="text-link" href="${p.brochure.src}" download>Download brochure</a>` : ""}`;
+    ${canBook ? html`<button type="button" class="btn btn--dark" data-visit>${variant === "side" ? icon("calendar", 18) : ""}Book a Viewing</button>` : ""}
+    <a class="btn btn--outline-tan" href="${tel}">Contact Agent</a>
+    ${variant === "side" && wa ? html`<a class="text-link" href="${wa}" target="_blank" rel="noopener">Ask a question on WhatsApp</a>` : ""}
+    ${variant === "side" ? html`<div class="side__links">${p.brochure?.src ? html`<a href="${p.brochure.src}" download>${icon("download", 16)}Brochure</a>` : ""}<button type="button" data-print>${icon("print", 16)}Print details</button></div>` : ""}`;
+  const plan = p.purpose === "sale" && p.price?.amount && !p.price.on_request && p.price.period !== "month" ? p.price : null;
+  const tabs = [
+    ["about-property", "Overview"],
+    p.unit_types?.length && ["units", "Units"],
+    p.features?.length && ["features", "Features"],
+    plan && ["payment", "Payment plan"],
+    hasTour(p) && ["tour", "3D Tour"],
+    plans.length && ["plans", "Floor Plans"],
+    p.brochure?.src && ["brochure", "Brochure"],
+    place(p) && ["location", "Location"],
+  ].filter(Boolean);
 
   render(
     root,
@@ -97,6 +111,8 @@ function show(p, owner) {
           </ul>`
         : ""}
 
+      <nav class="pd-tabs" aria-label="On this page"><ul>${tabs.map(([id, label], i) => html`<li><a href="#${id}" ${i === 0 ? html`aria-current="true"` : ""}>${label}</a></li>`)}</ul></nav>
+
       <div class="pd-layout">
         <div class="pd-main">
           ${photos.length > 1
@@ -123,6 +139,30 @@ function show(p, owner) {
             : ""}
 
           ${p.features?.length ? section("features", "Features", html`<ul class="ticks">${p.features.map((x) => html`<li>${icon("check", 16, 2.2)}${x}</li>`)}</ul>`) : ""}
+
+          ${plan
+            ? section(
+                "payment",
+                "Payment Plan",
+                html`<div class="planner" id="planner">
+                  <div class="planner__inputs">
+                    <label class="range"><span>Deposit <output id="pl-dep-out">30%</output></span><input type="range" id="pl-dep" min="10" max="60" step="5" value="30" /></label>
+                    <label class="range"><span>Balance spread over <output id="pl-mo-out">12 months</output></span><input type="range" id="pl-mo" min="3" max="36" step="3" value="12" /></label>
+                  </div>
+                  <div class="planner__result">
+                    <p class="planner__big"><strong id="pl-monthly"></strong><span>a month</span></p>
+                    <div class="planner__bar" aria-hidden="true"><span id="pl-bar"></span></div>
+                    <dl>
+                      <div><dt><i class="dot dot--tan"></i>Deposit</dt><dd id="pl-deposit"></dd></div>
+                      <div><dt><i class="dot"></i>Balance</dt><dd id="pl-balance"></dd></div>
+                      <div><dt>Total</dt><dd>${money(plan.currency, plan.amount)}</dd></div>
+                    </dl>
+                    ${owner.whatsapp ? html`<a class="btn btn--dark" id="pl-ask" href="#" target="_blank" rel="noopener">Ask about payment terms</a>` : ""}
+                  </div>
+                </div>
+                <p class="fineprint">A guide only: equal monthly payments with no interest added. Ask us for the actual payment terms.</p>`,
+              )
+            : ""}
 
           ${hasTour(p) ? section("tour", "3D Tour", html`<p>Drag to look around, pinch or scroll to zoom, and use the circles to move between rooms.</p><div id="tour-root"></div>`) : ""}
 
@@ -159,6 +199,7 @@ function show(p, owner) {
           <p class="side__price">${formatPrice(p.price)}</p>
           <p class="fineprint">Ask a question, get the payment terms or book a visit.</p>
           ${actions("side")}
+          <p class="print-only">${[owner.phone, owner.email, `${SITE_URL}/properties/${p.slug}`].filter(Boolean).join("  ·  ")}</p>
         </aside>
       </div>
 
@@ -180,7 +221,47 @@ function show(p, owner) {
     more.textContent = open ? "See Less" : "See More";
   });
 
+  // Payment planner: the deposit and the months update the monthly figure as the sliders move.
+  if (plan) {
+    const dep = document.getElementById("pl-dep");
+    const mo = document.getElementById("pl-mo");
+    const ask = document.getElementById("pl-ask");
+    const draw = () => {
+      const r = paymentPlan(plan.amount, Number(dep.value), Number(mo.value));
+      document.getElementById("pl-dep-out").textContent = `${dep.value}%`;
+      document.getElementById("pl-mo-out").textContent = `${mo.value} months`;
+      document.getElementById("pl-monthly").textContent = money(plan.currency, r.monthly);
+      document.getElementById("pl-deposit").textContent = money(plan.currency, r.deposit);
+      document.getElementById("pl-balance").textContent = money(plan.currency, r.balance);
+      document.getElementById("pl-bar").style.width = `${dep.value}%`;
+      [dep, mo].forEach((x) => x.style.setProperty("--fill", `${((x.value - x.min) / (x.max - x.min)) * 100}%`));
+      if (ask) ask.href = waLink(owner.whatsapp, `Hello, about "${p.title}" (${url}): could I pay a ${dep.value}% deposit (${money(plan.currency, r.deposit)}) and the balance over ${mo.value} months? What payment terms do you offer?`);
+    };
+    dep.addEventListener("input", draw);
+    mo.addEventListener("input", draw);
+    draw();
+  }
+
+  // Section tabs: the tab for the section being read is highlighted, and scrolls into view in the bar.
+  const tabLinks = [...root.querySelectorAll(".pd-tabs a")];
+  const spy = new IntersectionObserver(
+    (entries) => {
+      const top = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!top) return;
+      tabLinks.forEach((a) => {
+        const on = a.getAttribute("href") === `#${top.target.id}`;
+        if (on) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+        if (on) a.parentElement.parentElement.scrollTo({ left: a.offsetLeft - 16, behavior: "smooth" });
+      });
+    },
+    { rootMargin: "-35% 0px -55% 0px" },
+  );
+  tabs.forEach(([id]) => document.getElementById(id) && spy.observe(document.getElementById(id)));
+
   root.addEventListener("click", (e) => {
+    if (e.target.closest("[data-visit]")) openVisit(p, owner, url);
+    if (e.target.closest("[data-print]")) window.print();
     const ph = e.target.closest("[data-photo]");
     if (ph) openViewer(photos.map((x) => ({ src: x.src, alt: x.alt, caption: x.caption })), Number(ph.dataset.photo));
     const pl = e.target.closest("[data-plan]");

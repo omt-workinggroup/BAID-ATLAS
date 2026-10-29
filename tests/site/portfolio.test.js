@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { embedUrl, filterProperties, formatArea, formatPrice, keyFacts, parseFilters, shortPrice, toQuery, whatsappLink } from "../../site/js/data.js";
+import { embedUrl, filterProperties, formatArea, formatPrice, keyFacts, money, nextDays, parseFilters, paymentPlan, shortPrice, toQuery, viewingMessage, whatsappLink } from "../../site/js/data.js";
 import { tourConfig } from "../../site/js/tour.js";
 import { checkPortfolio } from "../../scripts/check-properties.mjs";
 
@@ -100,6 +100,20 @@ describe("contact and tours", () => {
     expect(link.startsWith("https://wa.me/233200000000?text=")).toBe(true);
     expect(decodeURIComponent(link.split("text=")[1])).toContain("Sample: East Legon Villa");
     expect(whatsappLink(null, list[0], "u")).toBeNull();
+  });
+
+  it("writes a viewing request and offers the next two weeks", () => {
+    const text = viewingMessage(list[0], "https://x.test/p", { day: "Mon 2 Nov", time: "Morning (9am – 12pm)", name: "Ama", note: "" });
+    expect(text).toBe('Hello, I\'d like to view "Sample: East Legon Villa" (https://x.test/p).\nDay: Mon 2 Nov\nTime: Morning (9am – 12pm)\nName: Ama');
+    const days = nextDays(14, new Date(2026, 9, 31));
+    expect(days).toHaveLength(14);
+    expect(days[0].getDate()).toBe(1);
+    expect(days[0].getMonth()).toBe(10);
+  });
+
+  it("splits a price into a deposit and equal monthly payments", () => {
+    expect(paymentPlan(900000, 30, 12)).toEqual({ deposit: 270000, balance: 630000, monthly: 52500 });
+    expect(money("USD", 52500)).toBe("USD 52,500");
   });
 
   it("embeds only known tour services", () => {
