@@ -1,7 +1,15 @@
 {
   "owner": {
     "name": "Resilience Estate Ltd",
-    "about": "Resilience Estate is a wholly Ghanaian-owned real estate company with offices in Spintex and Airport West, Accra, working in property development, sales, rentals, short stays and property management.",
+    "tagline": "Strong foundations. Enduring legacy.",
+    "about": "Resilience Estate is a wholly Ghanaian-owned company with offices in Spintex and Airport West. For close to a decade the team has developed, sold, let and managed property across Accra, building to GREDA standards and to each client's specification.",
+    "services": [
+      "Property development",
+      "Sales",
+      "Rentals",
+      "Short stays",
+      "Property management"
+    ],
     "phone": "+233 54 953 9092",
     "whatsapp": "+233 54 953 9092",
     "email": "info@resilienceghana.com",
@@ -143,7 +151,9 @@
       "location": {
         "area": "Tse Addo",
         "city": "Accra",
-        "region": "Greater Accra"
+        "region": "Greater Accra",
+        "lat": 5.59,
+        "lng": -0.14
       },
       "bedrooms": "Studio–2",
       "size": {

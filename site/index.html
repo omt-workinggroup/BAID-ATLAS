@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Propertiq — Every property, in full</title>
+    <title>Propertiq — Homes and workspaces in Accra</title>
     <meta name="description" content="Homes, apartments, offices and stores in Accra, with prices, floor plans, brochures and full galleries." />
     <meta name="theme-color" content="#000000" />
     <meta property="og:type" content="website" />
@@ -11,7 +11,7 @@
     <meta property="og:locale" content="en_GH" />
     <meta property="og:url" content="https://propertiq-gh.vercel.app/" />
     <link rel="canonical" href="https://propertiq-gh.vercel.app/" />
-    <meta property="og:title" content="Propertiq — Every property, in full" />
+    <meta property="og:title" content="Propertiq — Homes and workspaces in Accra" />
     <meta property="og:description" content="Homes, apartments, offices and stores in Accra, with prices, floor plans, brochures and full galleries." />
     <meta property="og:image" content="https://propertiq-gh.vercel.app/og.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
@@ -19,7 +19,7 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Propertiq: a modern home at dusk." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Propertiq — Every property, in full" />
+    <meta name="twitter:title" content="Propertiq — Homes and workspaces in Accra" />
     <meta name="twitter:description" content="Homes, apartments, offices and stores in Accra, with prices, floor plans, brochures and full galleries." />
     <meta name="twitter:image" content="https://propertiq-gh.vercel.app/og.jpg" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -28,47 +28,69 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
-    <script type="module" src="/js/pages/properties.js"></script>
+    <script type="module" src="/js/pages/home.js"></script>
   </head>
   <body>
-    <section class="props-hero" aria-labelledby="heading">
-      <div class="props-hero__inner">
-        <p class="overline" id="count-line">The portfolio</p>
-        <h1 id="heading">Every property, <em>in full.</em></h1>
-        <p class="props-hero__lede" id="lede">Homes, apartments, offices and stores in Accra, with prices, floor plans, brochures and full galleries.</p>
-        <form class="search-pill search-pill--dark" role="search" id="search-form" action="/" method="get">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" style="flex: none"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg>
-          <label for="q" class="sr-only">Search by area or name</label>
-          <input id="q" name="q" placeholder="Search an area or a development" enterkeyhint="search" />
-          <button type="submit" class="search-pill__go" aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></button>
-        </form>
-        <nav class="chips chips--dark" aria-label="Filter" id="chips"></nav>
-      </div>
-    </section>
-    <main id="main" class="page page--wide">
-      <div class="props-layout">
-        <div class="results-bar">
-          <p class="small muted" aria-live="polite" id="results-count"></p>
-          <nav class="view-switch" aria-label="View" id="view-switch"></nav>
-          <label><span class="sr-only">Sort by</span>
-            <select class="select" id="sort-select">
-              <option value="newest">Featured first</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-            </select></label>
+    <main id="main">
+      <section class="intro wrap" aria-labelledby="intro-h">
+        <p class="eyebrow">Accra, Ghana</p>
+        <h1 id="intro-h">Homes and workspaces in Accra, built to be lived in for a long time.</h1>
+        <div class="intro__aside">
+          <p>Townhouses in Ridge, apartments in Tse Addo, and offices and stores across the city. Each listing has its price or terms, floor plans, a brochure and the full set of images.</p>
+          <a class="text-link" href="#properties">See the properties</a>
         </div>
-        <div class="props-split">
-          <div class="pgrid" id="results" aria-busy="true"></div>
-          <div class="map-panel" id="map-panel" hidden>
-            <div class="map-frame">
-              <div id="map" class="map" role="region" aria-label="Map of the properties"></div>
-              <div class="map-top" id="map-top"></div>
-              <div class="map-preview" id="map-preview" aria-live="polite"></div>
-            </div>
-            <p class="tiny muted" id="map-note">Pins mark the area, not the exact address.</p>
+      </section>
+
+      <section class="listings wrap" id="properties" aria-labelledby="properties-h">
+        <header class="listings__head">
+          <h2 id="properties-h">Properties <span class="count" id="count"></span></h2>
+          <div class="listings__tools">
+            <nav class="filters" aria-label="Filter properties" id="filters"></nav>
+            <form class="find" role="search" id="search-form" action="/" method="get">
+              <label for="q" class="sr-only">Search by area or name</label>
+              <input id="q" name="q" type="search" placeholder="Search area or name" enterkeyhint="search" />
+            </form>
+            <label class="sort"><span class="sr-only">Sort</span>
+              <select id="sort-select">
+                <option value="newest">Featured</option>
+                <option value="price_asc">Price, low to high</option>
+                <option value="price_desc">Price, high to low</option>
+              </select></label>
+          </div>
+        </header>
+        <div id="results" class="results" aria-live="polite" aria-busy="true"></div>
+      </section>
+
+      <section class="locations" id="locations" aria-labelledby="locations-h">
+        <div class="locations__map" id="map" role="region" aria-label="Satellite map of the developments"></div>
+        <div class="locations__panel">
+          <p class="eyebrow">Locations</p>
+          <h2 id="locations-h">Where we build</h2>
+          <ol class="places" id="places"></ol>
+          <div class="map-style" role="group" aria-label="Map style">
+            <button type="button" data-style="satellite" aria-pressed="true">Satellite</button>
+            <button type="button" data-style="map" aria-pressed="false">Map</button>
+          </div>
+          <p class="fineprint">Markers show the neighbourhood, not the exact plot.</p>
+        </div>
+      </section>
+
+      <section class="about wrap" id="about" aria-labelledby="about-h">
+        <p class="eyebrow">About</p>
+        <div class="about__body">
+          <h2 id="about-h" data-owner-tagline>Strong foundations. Enduring legacy.</h2>
+          <div>
+            <p id="about-text"></p>
+            <ul class="services" id="services"></ul>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section class="cta wrap" aria-labelledby="cta-h">
+        <h2 id="cta-h">Arrange a viewing</h2>
+        <p>Tell us which property you're interested in and when suits you.</p>
+        <div class="cta__links" id="cta-links"></div>
+      </section>
     </main>
   </body>
 </html>

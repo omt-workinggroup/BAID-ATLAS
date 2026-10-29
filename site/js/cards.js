@@ -1,66 +1,51 @@
-// Property card: the photo carries the name, price and key facts; badges say what the page offers
-// (3D tour, floor plans, brochure) so visitors know before they click. A feature card is the large one
-// at the top of the homepage.
-import { html, icon, raw } from "./core.js";
-import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, hasTour, keyFacts, place } from "./data.js";
+// Listings on the homepage: the first property as a large feature, the rest as a two-column list.
+// Plain image, plain text: the place and stage, the name, the price and three facts.
+import { html, icon } from "./core.js";
+import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, keyFacts, place } from "./data.js";
 
-export const noPhoto = () => html`<div class="no-photo">${icon("house", 30, 1.4)}<span>Photos coming soon</span></div>`;
+const eyebrow = (p) =>
+  [place(p), p.stage && p.stage !== "completed" ? STAGE_LABELS[p.stage] : null, p.status && p.status !== "available" ? STATUS_LABELS[p.status] : null].filter(Boolean).join(" — ");
+const priceLine = (p) => `${formatPrice(p.price)}${p.purpose ? ` · ${PURPOSE_LABELS[p.purpose]}` : ""}`;
 
-export function propertyCard(p, { eager = false, feature = false } = {}) {
-  const photo = cover(p);
-  const offers = [
-    hasTour(p) && ["tour", "3D tour"],
-    p.floorplans?.length && ["plan", "Floor plan"],
-    p.brochure?.src && ["doc", "Brochure"],
-  ].filter(Boolean);
-  const closed = p.status && p.status !== "available";
-  return html`<article class="pcard${raw(closed ? " pcard--closed" : "")}${raw(feature ? " pcard--feature" : "")}">
-    <div class="pcard__media">
-      ${photo ? html`<img src="${photo.src}" alt="${photo.alt ?? p.title}" loading="${eager ? "eager" : "lazy"}" decoding="async" />` : noPhoto()}
-      <div class="pcard__tags">
-        <div>
-          <span class="tag tag--light">${PURPOSE_LABELS[p.purpose] ?? ""}</span>
-          ${STAGE_LABELS[p.stage] && p.stage !== "completed" ? html`<span class="tag tag--light">${STAGE_LABELS[p.stage]}</span>` : ""}
-          ${closed ? html`<span class="tag tag--dark">${STATUS_LABELS[p.status]}</span>` : ""}
-        </div>
-        ${feature ? html`<span class="tag tag--dark">Featured</span>` : ""}
-      </div>
-      <div class="pcard__overlay">
-        <div class="pcard__headline">
-          <h3 class="pcard__title"><a href="/properties/${p.slug}">${p.title}</a></h3>
-          <p class="pcard__price">${formatPrice(p.price)}</p>
-        </div>
-        ${feature && p.summary ? html`<p class="pcard__summary">${p.summary}</p>` : ""}
-        ${keyFacts(p).length ? html`<ul class="pcard__facts">${keyFacts(p).slice(0, 3).map(([ic, t]) => html`<li>${icon(ic, 16)}${t}</li>`)}</ul>` : ""}
-        ${feature ? html`<span class="pcard__cta">View development ${icon("arrow", 18, 2)}</span>` : ""}
-      </div>
-    </div>
-    <div class="pcard__body">
-      <p class="pcard__meta">${icon("pin", 14)}${[TYPE_LABELS[p.type], place(p)].filter(Boolean).join(" · ")}</p>
-      ${p.renders ? html`<p class="tiny muted">Images are artist's impressions</p>` : ""}
-      ${offers.length ? html`<ul class="pcard__offers">${offers.map(([ic, t]) => html`<li>${icon(ic, 14)}${t}</li>`)}</ul>` : ""}
+function picture(p, { eager = false, ratio = "" } = {}) {
+  const c = cover(p);
+  return html`<a class="listing__img ${ratio}" href="/properties/${p.slug}" tabindex="-1" aria-hidden="true">
+    ${c ? html`<img src="${c.src}" alt="" loading="${eager ? "eager" : "lazy"}" decoding="async" />` : html`<span class="listing__noimg">Images to follow</span>`}
+  </a>`;
+}
+
+export function featureListing(p) {
+  const facts = keyFacts(p);
+  return html`<article class="listing listing--feature">
+    ${picture(p, { eager: true })}
+    <div class="listing__text">
+      <p class="eyebrow">${eyebrow(p)}</p>
+      <h3><a href="/properties/${p.slug}">${p.title}</a></h3>
+      ${p.summary ? html`<p class="listing__summary">${p.summary}</p>` : ""}
+      ${facts.length ? html`<p class="listing__meta">${[...facts.slice(0, 4).map(([, t]) => t), p.units].filter(Boolean).join(" · ")}</p>` : ""}
+      <p class="listing__price">${priceLine(p)}</p>
+      <a class="text-link" href="/properties/${p.slug}">View property</a>
     </div>
   </article>`;
 }
 
-export function skeletonCards(n = 6) {
-  return Array.from({ length: n }, () => html`<div class="pcard pcard--skeleton" aria-hidden="true"><div class="pcard__media skeleton"></div><div class="skeleton skeleton--line"></div></div>`);
+export function listing(p, { eager = false } = {}) {
+  const facts = keyFacts(p).slice(0, 3).map(([, t]) => t);
+  return html`<article class="listing">
+    ${picture(p, { eager })}
+    <p class="eyebrow">${eyebrow(p)}</p>
+    <h3><a href="/properties/${p.slug}">${p.title}</a></h3>
+    <p class="listing__meta">${[TYPE_LABELS[p.type], ...facts].filter(Boolean).join(" · ")}</p>
+    <p class="listing__price">${priceLine(p)}</p>
+  </article>`;
 }
 
-// Map preview: the property picked on the map, as a card along the bottom of the map.
-export function mapPreviewCard(p) {
-  const photo = cover(p);
-  return html`<article class="mcard">
-    <div class="mcard__media">
-      ${photo ? html`<img src="${photo.src}" alt="${photo.alt ?? p.title}" decoding="async" />` : noPhoto()}
-      <span class="tag tag--light">${PURPOSE_LABELS[p.purpose] ?? ""}</span>
-    </div>
-    <div class="mcard__body">
-      <h3 class="mcard__title"><a href="/properties/${p.slug}">${p.title}</a></h3>
-      <p class="mcard__meta">${icon("pin", 13)}${place(p)}</p>
-      <p class="mcard__price">${formatPrice(p.price)}</p>
-      ${keyFacts(p).length ? html`<ul class="mcard__facts">${keyFacts(p).slice(0, 3).map(([ic, t]) => html`<li>${icon(ic, 14)}${t}</li>`)}</ul>` : ""}
-    </div>
-    <button type="button" class="mcard__close" data-close-preview aria-label="Close preview">${raw("&times;")}</button>
-  </article>`;
+// The property picked on the map.
+export function mapCard(p) {
+  const c = cover(p);
+  return html`<a class="map-card" href="/properties/${p.slug}">
+    ${c ? html`<img src="${c.src}" alt="" />` : ""}
+    <span class="map-card__text"><span class="eyebrow">${place(p)}</span><strong>${p.title}</strong><span>${formatPrice(p.price)}</span></span>
+    ${icon("arrow", 18, 1.8)}
+  </a>`;
 }

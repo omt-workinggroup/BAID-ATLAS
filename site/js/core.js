@@ -1,4 +1,4 @@
-// Shared engine for every page: safe HTML, icons, the header, footer and bottom bar, and small helpers.
+// Shared engine for every page: safe HTML, icons, the header, menu and footer, and small helpers.
 // There are no accounts: the site is a public listing of the portfolio.
 
 // ---- Safe HTML -----------------------------------------------------------------------------------------
@@ -71,73 +71,86 @@ export function icon(name, size = 22, stroke = 1.6) {
 }
 
 // ---- Page shell ----------------------------------------------------------------------------------------
-const NAV = [
-  { href: "/", label: "Properties", icon: "grid", match: (p, s) => p === "/" && !s.includes("view=map") },
-  { href: "/?view=map", label: "Map", icon: "map", match: (p, s) => p === "/" && s.includes("view=map") },
-  { href: "/contact", label: "Contact", icon: "chat", match: (p) => p === "/contact" },
-];
-const CATEGORIES = [
-  ["/?purpose=sale", "For sale"],
-  ["/?purpose=rent", "For rent"],
-  ["/?type=land", "Land"],
-  ["/?type=commercial", "Commercial"],
+const LINKS = [
+  ["/#properties", "Properties"],
+  ["/#locations", "Locations"],
+  ["/#about", "About"],
+  ["/contact", "Contact"],
 ];
 
-function headerView(path, search) {
-  const here = path + search;
+function headerView() {
   return html`
     <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header">
       <div class="site-header__inner">
-        <a href="/" class="logo" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" data-logo /></a>
-        <nav class="top-nav" aria-label="Primary">
-          <ul>
-            <li><a href="/" ${raw(path === "/" && !search ? 'aria-current="page"' : "")}>All properties</a></li>
-            ${CATEGORIES.map(([href, label]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}>${label}</a></li>`)}
-            <li><a href="/?view=map" ${raw(here === "/?view=map" ? 'aria-current="page"' : "")}>Map</a></li>
-          </ul>
+        <a href="/" class="logo" aria-label="Propertiq, home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" data-logo /></a>
+        <nav class="site-nav" aria-label="Main">
+          <ul>${LINKS.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul>
         </nav>
-        <a href="/contact" class="header-cta">Contact</a>
+        <button type="button" class="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
       </div>
-    </header>`;
-}
-
-function bottomNavView(path, search) {
-  return html`
-    <nav class="bottom-nav" aria-label="Primary">
-      <ul>
-        ${NAV.map((n) => html`<li><a href="${n.href}" ${raw(n.match(path, search) ? 'aria-current="page"' : "")}>${icon(n.icon, 24, 1.7)}${n.label}</a></li>`)}
-      </ul>
-    </nav>`;
+    </header>
+    <div class="menu" id="menu" hidden>
+      <nav aria-label="Main">
+        <ul>${LINKS.map(([href, label], i) => html`<li style="--i:${i}"><a href="${href}">${label}</a></li>`)}</ul>
+      </nav>
+      <p class="menu__foot" data-owner-line></p>
+    </div>`;
 }
 
 function footerView() {
   return html`
     <footer class="site-footer">
       <div class="site-footer__inner">
-        <div class="site-footer__about">
+        <div>
           <img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" loading="lazy" data-logo />
-          <p>Homes, apartments, offices and stores in Accra, each with prices, floor plans, brochures and a full gallery.</p>
+          <p class="site-footer__note" data-owner-about></p>
         </div>
-        <nav aria-label="Properties"><h4>Properties</h4><ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}<li><a href="/?view=map">On the map</a></li></ul></nav>
-        <nav aria-label="Get in touch"><h4>Get in touch</h4><ul><li><a href="/contact">Contact</a></li></ul></nav>
+        <nav aria-label="Footer">
+          <ul>${LINKS.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul>
+        </nav>
+        <address data-owner-address></address>
       </div>
-      <div class="site-footer__legal"><p>© ${new Date().getFullYear()} Propertiq. Always view a property and check its documents before you pay.</p></div>
+      <p class="site-footer__legal">© ${new Date().getFullYear()} Propertiq. Images of developments not yet completed are artist's impressions.</p>
     </footer>`;
 }
 
-// Draws the header, footer and bottom bar around the page's <main>. Called once per page.
+// Draws the header, menu and footer around the page's <main>. Called once per page.
 export function boot() {
-  const path = location.pathname.replace(/\.html$/, "").replace(/\/index$/, "/").replace(/\/$/, "") || "/";
   document.body.classList.add("app");
-  document.body.insertAdjacentHTML("afterbegin", markup(headerView(path, location.search)));
-  document.body.insertAdjacentHTML("beforeend", markup(footerView()) + markup(bottomNavView(path, location.search)));
+  document.body.insertAdjacentHTML("afterbegin", markup(headerView()));
+  document.body.insertAdjacentHTML("beforeend", markup(footerView()));
   // If the logo file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {
     const fallback = () => img.replaceWith(Object.assign(document.createElement("span"), { className: "logo-text", textContent: "Propertiq" }));
     if (img.complete && img.naturalWidth === 0) fallback();
     else img.addEventListener("error", fallback, { once: true });
   });
+
+  // Phones: "Menu" opens a full-screen menu; any link, Escape or the button closes it.
+  const btn = document.querySelector(".menu-btn");
+  const menu = document.getElementById("menu");
+  const setOpen = (open) => {
+    menu.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+    btn.textContent = open ? "Close" : "Menu";
+    document.documentElement.classList.toggle("menu-open", open);
+  };
+  btn.addEventListener("click", () => setOpen(menu.hidden));
+  menu.addEventListener("click", (e) => e.target.closest("a") && setOpen(false));
+  document.addEventListener("keydown", (e) => e.key === "Escape" && !menu.hidden && setOpen(false));
+
+  // The owner's details in the footer and menu come from the data file.
+  import("./data.js").then(({ loadPortfolio }) =>
+    loadPortfolio()
+      .then(({ owner = {} }) => {
+        document.querySelectorAll("[data-owner-about]").forEach((el) => (el.textContent = owner.tagline ?? ""));
+        const lines = [owner.name, owner.location, owner.phone, owner.email].filter(Boolean);
+        document.querySelectorAll("[data-owner-address]").forEach((el) => render(el, lines.map((l) => html`<span>${l}</span>`)));
+        document.querySelectorAll("[data-owner-line]").forEach((el) => (el.textContent = [owner.phone, owner.email].filter(Boolean).join("   ·   ")));
+      })
+      .catch(() => {}),
+  );
   if ("serviceWorker" in navigator && location.hostname !== "localhost") navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 

@@ -1,7 +1,7 @@
 # Propertiq
 
-A listing website for a portfolio of homes, apartments, offices and stores in Accra. There are no accounts, no
-sign-in and no landing page: the homepage is the listings. For each property, visitors see:
+A listing website for a portfolio of homes, apartments, offices and stores in Accra: a plain, editorial site with a
+normal header and footer (a "Menu" button on phones), no accounts and no sign-in. For each property, visitors see:
 
 - the price and key facts
 - photos
@@ -31,13 +31,13 @@ refresh the browser.
 
 | File | What's in it |
 | --- | --- |
-| `site/index.html` | Homepage and listings: headline and search, quick filters, sort, a large featured property, then the grid, or a dark map with price pins (`/?view=map`). |
+| `site/index.html` | Homepage: introduction, the listings (filters, search, sort, a large first property), a 3D satellite map of the locations, about, and how to arrange a viewing. |
 | `site/property.html` | One property: photo hero, facts, photos, 3D tour, floor plans, brochure, location and contact. Served at `/properties/:slug`. |
 | `site/contact.html` | The owner's contact details. |
 | `site/js/data.js` | Reads the properties file; price, area and filter helpers. |
 | `site/js/tour.js` | 3D tour: [Pannellum](https://pannellum.org) (MIT, in `site/js/vendor`) with room buttons, hotspots, auto-rotate, tilt-to-look and full screen. |
 | `site/js/viewer.js` | Full-screen photo and floor-plan viewer. |
-| `site/js/map.js` | Maps (Leaflet with MapTiler tiles, OpenStreetMap data). |
+| `site/js/map.js` | 3D maps: [MapLibre GL](https://maplibre.org) (BSD-3, in `site/js/vendor`) with MapTiler satellite and street styles; fly-to, tilt and a slow orbit. |
 | `site/css/style.css` | Every style, starting with the colour and spacing tokens at the top. |
 | `vercel.json` | Clean URLs, routes, redirects from old addresses and security headers. |
 

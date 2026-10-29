@@ -1,99 +1,88 @@
-// Maps (Leaflet + MapTiler tiles). Positions in the data file should be approximate (the area, not the gate).
-import { html, markup } from "./core.js";
-import { MAPTILER_KEY, MAP_STYLE } from "./config.js";
-import { cover, formatPrice, place, shortPrice } from "./data.js";
+// Maps: MapLibre GL (vendored, BSD-3) with MapTiler satellite imagery and labels, tilted in 3D.
+// Positions in the data file mark the area of a development, not its gate.
+import { MAPTILER_KEY } from "./config.js";
 
-export const GHANA_CENTRE = [7.95, -1.03];
-const ATTRIBUTION =
-  '<a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>';
+export const STYLES = { satellite: "hybrid", map: "streets-v2" };
+const styleUrl = (name) => `https://api.maptiler.com/maps/${STYLES[name] ?? name}/style.json?key=${MAPTILER_KEY}`;
+export const ACCRA = [-0.187, 5.6037];
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// 512 px tiles (one zoom level down) keep labels large and sharp; high-density screens get the @2x set.
-export function createMap(el, { center = GHANA_CENTRE, zoom = 7, scrollWheelZoom = true, style = MAP_STYLE, zoomControl = true } = {}) {
-  const L = window.L;
-  const map = L.map(el, { center, zoom, scrollWheelZoom, zoomControl, attributionControl: true, minZoom: 5, maxZoom: 17 });
-  map.attributionControl.setPrefix(false);
-  L.tileLayer(`https://api.maptiler.com/maps/${style}/{z}/{x}/{y}{r}.png?key=${MAPTILER_KEY}`, {
-    attribution: ATTRIBUTION,
-    tileSize: 512,
-    zoomOffset: -1,
-    crossOrigin: true,
-  }).addTo(map);
-  return map;
-}
-
-// Properties without a position (or with only part of one) are left off the map.
-export const hasPosition = (p) => typeof p.location?.lat === "number" && typeof p.location?.lng === "number";
-
-// Price markers grouped into clusters when they overlap, each with a soft circle over its approximate area.
-// With onSelect, a click picks the listing (the page shows its own preview); without it, a small popup opens.
-export function addListingMarkers(map, listings, { onSelect } = {}) {
-  const L = window.L;
-  const group = L.markerClusterGroup({
-    showCoverageOnHover: false,
-    maxClusterRadius: 48,
-    iconCreateFunction: (c) => L.divIcon({ html: `<span>${c.getChildCount()}</span>`, className: "map-cluster", iconSize: [40, 40] }),
-  });
-  const areas = L.layerGroup();
-  const byId = new Map();
-  const priceIcon = (l, selected) =>
-    L.divIcon({ html: markup(html`<span>${shortPrice(l.price)}</span>`), className: `map-price${selected ? " is-selected" : ""}`, iconSize: null });
-  for (const l of listings.filter(hasPosition)) {
-    const at = [Number(l.location.lat), Number(l.location.lng)];
-    L.circle(at, { radius: 700, stroke: false, fillColor: "#ffffff", fillOpacity: 0.12, interactive: false }).addTo(areas);
-    const marker = L.marker(at, { icon: priceIcon(l, false), title: l.title, keyboard: true });
-    if (onSelect) {
-      marker.on("click", () => onSelect(l));
-      marker.on("keypress", (e) => e.originalEvent.key === "Enter" && onSelect(l));
-    } else {
-      marker.bindPopup(
-        markup(html`<a class="map-popup" href="/properties/${l.slug}">
-          ${cover(l) ? html`<img src="${cover(l).src}" alt="" />` : ""}
-          <span class="bold">${formatPrice(l.price)}</span>
-          <span>${l.title}</span>
-          <span class="tiny muted">${place(l)}</span>
-        </a>`),
-        { closeButton: false, minWidth: 220, maxWidth: 260 },
-      );
-    }
-    group.addLayer(marker);
-    byId.set(l.slug, { marker, listing: l });
-  }
-  map.addLayer(areas);
-  map.addLayer(group);
-  let current = null;
-  // Highlights one price pill (or none) and keeps it above its neighbours.
-  const select = (id) => {
-    if (current && byId.has(current)) byId.get(current).marker.setIcon(priceIcon(byId.get(current).listing, false)).setZIndexOffset(0);
-    current = id;
-    if (id && byId.has(id)) byId.get(id).marker.setIcon(priceIcon(byId.get(id).listing, true)).setZIndexOffset(1000);
-  };
-  return { group, areas, byId, select };
-}
-
-// padding keeps pins clear of anything drawn over the map (e.g. { paddingTopLeft: [x, y] }).
-export function fitToListings(map, group, padding = {}) {
-  map.invalidateSize();
-  const b = group.getBounds();
-  if (b.isValid()) map.fitBounds(b.pad(0.2), { maxZoom: 14, ...padding });
-}
-
-// Lazily loads Leaflet (and the cluster plug-in) the first time a page needs a map.
 let loading = null;
-export function loadLeaflet({ clusters = false } = {}) {
-  const script = (src) => new Promise((ok, fail) => document.head.append(Object.assign(document.createElement("script"), { src, onload: ok, onerror: fail })));
-  const css = (href) => document.querySelector(`link[href="${href}"]`) || document.head.append(Object.assign(document.createElement("link"), { rel: "stylesheet", href }));
-  css("/css/leaflet.css");
-  loading ??= script("/js/vendor/leaflet.js");
-  return loading.then(() => {
-    if (!clusters || window.L.markerClusterGroup) return;
-    css("/css/markercluster.css");
-    return script("/js/vendor/leaflet.markercluster.js");
+export function loadMapLibre() {
+  if (!document.querySelector('link[href="/css/maplibre-gl.css"]')) {
+    document.head.append(Object.assign(document.createElement("link"), { rel: "stylesheet", href: "/css/maplibre-gl.css" }));
+  }
+  loading ??= new Promise((ok, fail) => {
+    document.head.append(Object.assign(document.createElement("script"), { src: "/js/vendor/maplibre-gl.js", onload: ok, onerror: fail }));
   });
+  return loading;
 }
 
-// Property page: a shaded circle over the approximate area. There is deliberately no pin.
-export function areaMap(el, lat, lng) {
-  const map = createMap(el, { center: [lat, lng], zoom: 14, scrollWheelZoom: false });
-  window.L.circle([lat, lng], { radius: 900, color: "#0b0b0b", weight: 1.5, fillColor: "#0b0b0b", fillOpacity: 0.12 }).addTo(map);
+export const hasPosition = (p) => typeof p.location?.lat === "number" && typeof p.location?.lng === "number";
+export const lngLat = (p) => [p.location.lng, p.location.lat];
+
+export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 0, style = "satellite", cooperative = false } = {}) {
+  const gl = window.maplibregl;
+  const map = new gl.Map({
+    container: el,
+    style: styleUrl(style),
+    center,
+    zoom,
+    pitch,
+    bearing,
+    maxPitch: 75,
+    attributionControl: { compact: true },
+    cooperativeGestures: cooperative,
+    fadeDuration: 200,
+  });
+  map.addControl(new gl.NavigationControl({ visualizePitch: true }), "bottom-right");
+  map.addControl(new gl.FullscreenControl(), "bottom-right");
   return map;
+}
+
+// Switches between satellite and street map; custom layers are added back by the caller's "style.load".
+export function setStyle(map, name) {
+  map.setStyle(styleUrl(name));
+}
+
+// A slow orbit around the current centre, until someone touches the map.
+export function orbit(map) {
+  if (calm) return () => {};
+  let on = true;
+  const step = () => {
+    if (!on) return;
+    if (!map.isMoving()) map.setBearing(map.getBearing() + 0.06);
+    requestAnimationFrame(step);
+  };
+  const stop = () => (on = false);
+  ["mousedown", "touchstart", "wheel", "dragstart"].forEach((ev) => map.on(ev, stop));
+  requestAnimationFrame(step);
+  return stop;
+}
+
+export function flyToProperty(map, p, { zoom = 16.4 } = {}) {
+  map.flyTo({ center: lngLat(p), zoom, pitch: 62, bearing: map.getBearing() - 25, duration: calm ? 0 : 3200, essential: true, curve: 1.6 });
+}
+
+// A soft circle (about 450 m) over the area, drawn as a GeoJSON polygon.
+export function areaCircle([lng, lat], radiusM = 450, steps = 64) {
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const a = (i / steps) * 2 * Math.PI;
+    const dx = (radiusM * Math.cos(a)) / (111320 * Math.cos((lat * Math.PI) / 180));
+    const dy = (radiusM * Math.sin(a)) / 110540;
+    pts.push([lng + dx, lat + dy]);
+  }
+  return { type: "Feature", geometry: { type: "Polygon", coordinates: [pts] }, properties: {} };
+}
+
+export function addArea(map, center) {
+  const add = () => {
+    if (map.getSource("area")) return;
+    map.addSource("area", { type: "geojson", data: areaCircle(center) });
+    map.addLayer({ id: "area-fill", type: "fill", source: "area", paint: { "fill-color": "#ffffff", "fill-opacity": 0.14 } });
+    map.addLayer({ id: "area-line", type: "line", source: "area", paint: { "line-color": "#ffffff", "line-width": 2, "line-dasharray": [2, 2] } });
+  };
+  if (map.isStyleLoaded()) add();
+  map.on("style.load", add);
 }

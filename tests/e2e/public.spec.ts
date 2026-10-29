@@ -24,19 +24,31 @@ async function useSamplePortfolio(page: Page, body?: string) {
 }
 
 test.describe("site", () => {
-  test("the homepage is the listings, with no splash", async ({ page }) => {
+  test("the homepage lists the properties, with a plain header and no app bar", async ({ page }, info) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Every property, in full.");
-    await expect(page.locator(".pcard").first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Get Started" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Homes and workspaces in Accra");
+    await expect(page.locator(".listing--feature")).toContainText("Sample: East Legon Villa");
+    await expect(page.locator(".listing-grid .listing")).toHaveCount(3);
+    await expect(page.locator(".bottom-nav")).toHaveCount(0);
     await expectNoHorizontalScroll(page);
+    await shot(page, "01-home", info.project.name);
   });
 
-  test("security headers are set and there is no backend in the policy", async ({ request }) => {
+  test("the menu opens and closes on phones", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Menu" }).click();
+    await expect(page.locator("#menu")).toBeVisible();
+    await page.locator("#menu").getByRole("link", { name: "Contact" }).click();
+    await expect(page).toHaveURL(/\/contact$/);
+  });
+
+  test("security headers are set and the map's workers are allowed", async ({ request }) => {
     const h = (await request.get("/")).headers();
     expect(h["content-security-policy"]).toContain("frame-ancestors 'none'");
     expect(h["content-security-policy"]).toContain("script-src 'self'");
+    expect(h["content-security-policy"]).toContain("worker-src 'self' blob:");
     expect(h["content-security-policy"]).not.toContain("supabase");
     expect(h["x-frame-options"]).toBe("DENY");
   });
@@ -54,7 +66,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.locator(".pcard").first()).toBeVisible();
+    await expect(page.locator(".listing").first()).toBeVisible();
     await expectNoHorizontalScroll(page);
     await page.goto("/properties/sample-east-legon-villa");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -62,84 +74,72 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
   });
 }
 
-test.describe("properties", () => {
-  test("lists every property with its price and what it offers", async ({ page }, info) => {
+test.describe("listings", () => {
+  test("show the price, place and stage", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.getByText("4 developments")).toBeVisible();
-    // With no filters, the first property is the large featured card.
-    await expect(page.locator(".pcard--feature")).toContainText("Sample: East Legon Villa");
-    const villa = page.locator(".pcard", { hasText: "Sample: East Legon Villa" });
-    await expect(villa).toContainText("USD 1,250,000");
-    await expect(villa.locator(".pcard__offers")).toHaveText(/3D tour.*Floor plan.*Brochure/);
-    await expect(page.locator(".pcard", { hasText: "Oyarifa" })).toContainText("Price on request");
-    await expect(page.locator(".pcard", { hasText: "Airport" })).toContainText("Under offer");
-    // A tour link from an unknown site is ignored, so it is not advertised.
-    await expect(page.locator(".pcard", { hasText: "Airport" }).locator(".pcard__offers")).toHaveCount(0);
-    await expectNoHorizontalScroll(page);
-    await shot(page, "01-properties", info.project.name);
+    await expect(page.locator(".listing--feature")).toContainText("USD 1,250,000 · For sale");
+    await expect(page.locator(".listing", { hasText: "Oyarifa" })).toContainText("Price on request");
+    await expect(page.locator(".listing", { hasText: "Airport" })).toContainText("Under offer");
   });
 
-  test("filters and searches", async ({ page }) => {
+  test("filter and search", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await page.getByRole("navigation", { name: "Filter" }).getByRole("link", { name: "For rent" }).click();
+    await page.getByRole("navigation", { name: "Filter properties" }).getByRole("link", { name: "For rent" }).click();
     await expect(page).toHaveURL(/purpose=rent/);
-    await expect(page.locator(".pcard")).toHaveCount(1);
+    await expect(page.locator(".listing")).toHaveCount(1);
     await page.goto("/");
-    await page.getByPlaceholder("Search an area or a development").fill("oyarifa");
-    await page.getByPlaceholder("Search an area or a development").press("Enter");
-    await expect(page.locator(".pcard")).toHaveCount(1);
-    await expect(page.locator(".pcard")).toContainText("Oyarifa");
+    await page.getByPlaceholder("Search area or name").fill("oyarifa");
+    await page.getByPlaceholder("Search area or name").press("Enter");
+    await expect(page.locator(".listing")).toHaveCount(1);
+    await expect(page.locator(".listing")).toContainText("Oyarifa");
   });
 
-  test("an empty portfolio says new properties are coming", async ({ page }) => {
+  test("an empty portfolio says new properties are being prepared", async ({ page }) => {
     await useSamplePortfolio(page, JSON.stringify({ owner: {}, properties: [] }));
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "New properties are on their way" })).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Filter" })).toBeHidden();
+    await expect(page.getByText("New properties are being prepared.")).toBeVisible();
   });
 
-  test("the map view shows a preview card for a property", async ({ page }, info) => {
+  test("the locations map loads and lists every placed property", async ({ page }) => {
     await useSamplePortfolio(page);
-    await page.goto("/?view=map");
-    await expect(page.getByRole("heading", { name: "Explore Properties" })).toBeVisible();
-    await expect(page.locator(".mcard")).toContainText("Sample: East Legon Villa");
-    await expectNoHorizontalScroll(page);
-    await shot(page, "02-map", info.project.name);
+    await page.goto("/");
+    await page.locator("#locations").scrollIntoViewIfNeeded();
+    await expect(page.locator("#places li")).toHaveCount(4);
+    await expect(page.locator("#map canvas")).toBeAttached({ timeout: 20_000 });
+    await expect(page.locator(".pin")).toHaveCount(4);
   });
 });
 
 test.describe("property page", () => {
-  test("shows price, facts, photos, floor plans, brochure and contact", async ({ page }, info) => {
+  test("shows price, facts, gallery, floor plans, brochure and contact", async ({ page }, info) => {
     await useSamplePortfolio(page);
     await page.goto("/properties/sample-east-legon-villa");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sample: East Legon Villa");
     await expect(page).toHaveTitle("Sample: East Legon Villa · Propertiq");
-    await expect(page.locator(".pd-hero__price")).toHaveText("USD 1,250,000");
-    await expect(page.locator(".facts")).toContainText("5 Beds");
-    await expect(page.getByRole("link", { name: "View the brochure" })).toHaveAttribute("href", "/media/sample/brochure.pdf");
-    const wa = await page.locator(".action-bar a", { hasText: "WhatsApp" }).getAttribute("href");
+    await expect(page.locator(".pd-head__price")).toHaveText("USD 1,250,000");
+    await expect(page.locator(".facts")).toContainText("Bedrooms");
+    await expect(page.locator("#brochure").getByRole("link", { name: "Open" })).toHaveAttribute("href", "/media/sample/brochure.pdf");
+    const wa = await page.getByRole("link", { name: "Arrange a viewing" }).getAttribute("href");
     expect(decodeURIComponent(wa!)).toContain("Sample: East Legon Villa");
     await expectNoHorizontalScroll(page);
     await shot(page, "03-property", info.project.name);
 
-    // Photos open full screen and step with the arrow keys.
-    await page.locator(".mosaic button").first().click();
+    // Images open full screen and step with the arrow keys.
+    await page.locator(".gallery button").first().click();
     await expect(page.locator("#viewer")).toBeVisible();
     await expect(page.locator("#viewer-count")).toHaveText("1 / 6");
     await page.keyboard.press("ArrowRight");
     await expect(page.locator("#viewer-count")).toHaveText("2 / 6");
     await page.keyboard.press("Escape");
-    // Floor plans too.
-    await page.getByRole("button", { name: /Ground floor/ }).click();
+    await page.getByRole("button", { name: /Enlarge: Ground floor/ }).click();
     await expect(page.locator("#viewer-caption")).toHaveText("Ground floor");
   });
 
   test("the 3D tour loads, and moves between rooms", async ({ page }, info) => {
     await useSamplePortfolio(page);
-    await page.goto("/properties/sample-east-legon-villa");
-    await page.getByRole("link", { name: "Take the 3D tour" }).click();
+    await page.goto("/properties/sample-east-legon-villa#tour");
     await expect(page.locator("#tour-view canvas")).toBeVisible();
     await expect(page.locator(".tour-spot")).toHaveCount(1);
     await page.getByRole("group", { name: "Rooms" }).getByRole("button", { name: "Kitchen" }).click();
@@ -157,16 +157,15 @@ test.describe("property page", () => {
 test("contact shows only the details that are filled in", async ({ page }) => {
   await useSamplePortfolio(page, JSON.stringify({ owner: { about: "x", email: "owner@example.com" }, properties: [] }));
   await page.goto("/contact");
-  await expect(page.locator(".contact-way")).toHaveCount(1);
-  await expect(page.locator(".contact-way")).toContainText("owner@example.com");
+  await expect(page.locator(".contact__list > div")).toHaveCount(1);
+  await expect(page.locator(".contact__list")).toContainText("owner@example.com");
 });
 
-test("desktop property page has the contact panel beside the details @desktop", async ({ page }) => {
+test("desktop shows the main navigation in the header @desktop", async ({ page }) => {
   await useSamplePortfolio(page);
-  await page.goto("/properties/sample-east-legon-villa");
-  await expect(page.locator(".enquire")).toBeVisible();
-  await expect(page.locator(".action-bar")).toBeHidden();
-  await expect(page.getByRole("navigation", { name: "Primary" }).first()).toBeVisible();
+  await page.goto("/");
+  await expect(page.locator(".site-nav")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
 });
 
 test("manifest, icons and the social image are served", async ({ request }) => {
