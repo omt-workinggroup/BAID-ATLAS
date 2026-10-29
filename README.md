@@ -1,7 +1,9 @@
 # Propertiq
 
-A listing website for a portfolio of homes, apartments, offices and stores in Accra: a plain, editorial site with a
-normal header and footer (a "Menu" button on phones), no accounts and no sign-in. For each property, visitors see:
+A listing website for a portfolio of homes, apartments, offices and stores in Accra, with no accounts and no sign-in.
+Phones follow the Homio app screens (search pill, chips, photo cards, a bottom bar, and property pages with a stats
+card and a Schedule Visit / Contact Agent bar); desktop is a classic listings site (white bar, photo hero with a
+floating search, feature strip, three-column cards). For each property, visitors see:
 
 - the price and key facts
 - photos
@@ -31,7 +33,7 @@ refresh the browser.
 
 | File | What's in it |
 | --- | --- |
-| `site/index.html` | Homepage: introduction, the listings (filters, search, sort, a large first property), a 3D satellite map of the locations, about, and how to arrange a viewing. |
+| `site/index.html` | Homepage: search (with purpose, type and sort), chips on phones, the listings, a 3D satellite map of the locations, and about. |
 | `site/property.html` | One property: photo hero, facts, photos, 3D tour, floor plans, brochure, location and contact. Served at `/properties/:slug`. |
 | `site/contact.html` | The owner's contact details. |
 | `site/js/data.js` | Reads the properties file; price, area and filter helpers. |

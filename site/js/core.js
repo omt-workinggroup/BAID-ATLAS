@@ -36,6 +36,11 @@ export function render(target, view) {
 // ---- Icons (outline, 24px grid) ------------------------------------------------------------------------
 const PATHS = {
   search: "M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5",
+  home: "M4 10.5 12 4l8 6.5V20h-5v-5H9v5H4z",
+  menu: "M4 7h16M4 12h16M4 17h16",
+  sliders: "M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4",
+  star: "M12 4l2.4 5 5.6.6-4.2 3.8 1.2 5.6L12 16.3 7 19l1.2-5.6L4 9.6 9.6 9z",
+  layers: "M12 4 3 9l9 5 9-5zM3 14l9 5 9-5",
   heart: "M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z",
   map: "M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14",
   grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
@@ -71,11 +76,14 @@ export function icon(name, size = 22, stroke = 1.6) {
 }
 
 // ---- Page shell ----------------------------------------------------------------------------------------
+// Desktop: a white bar with links, a black "Contact" button and a menu button.
+// Phones: the logo and a call button at the top, and a bottom bar (Home, Map, Contact).
 const LINKS = [
   ["/#properties", "Properties"],
-  ["/#locations", "Locations"],
+  ["/?purpose=sale#properties", "For sale"],
+  ["/?purpose=rent#properties", "For rent"],
+  ["/#locations", "Map"],
   ["/#about", "About"],
-  ["/contact", "Contact"],
 ];
 
 function headerView() {
@@ -87,15 +95,30 @@ function headerView() {
         <nav class="site-nav" aria-label="Main">
           <ul>${LINKS.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul>
         </nav>
-        <button type="button" class="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
+        <div class="site-header__actions">
+          <a class="btn btn--dark" href="/contact">Contact</a>
+          <a class="icon-square" href="tel:" data-owner-tel aria-label="Call us">${icon("phone", 20)}</a>
+          <button type="button" class="icon-square menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Menu">${icon("menu", 20, 1.8)}</button>
+        </div>
       </div>
     </header>
     <div class="menu" id="menu" hidden>
       <nav aria-label="Main">
-        <ul>${LINKS.map(([href, label], i) => html`<li style="--i:${i}"><a href="${href}">${label}</a></li>`)}</ul>
+        <ul>${[...LINKS, ["/contact", "Contact"]].map(([href, label], i) => html`<li style="--i:${i}"><a href="${href}">${label}</a></li>`)}</ul>
       </nav>
       <p class="menu__foot" data-owner-line></p>
     </div>`;
+}
+
+function bottomNavView(here) {
+  const tabs = [
+    ["/", "Home", "home"],
+    ["/#locations", "Map", "map"],
+    ["/contact", "Contact", "chat"],
+  ];
+  return html`<nav class="tabbar" aria-label="Quick links">
+    <ul>${tabs.map(([href, label, ic]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}><span class="tabbar__icon">${icon(ic, 22, 1.7)}</span>${label}</a></li>`)}</ul>
+  </nav>`;
 }
 
 function footerView() {
@@ -107,7 +130,7 @@ function footerView() {
           <p class="site-footer__note" data-owner-about></p>
         </div>
         <nav aria-label="Footer">
-          <ul>${LINKS.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul>
+          <ul>${[...LINKS, ["/contact", "Contact"]].map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul>
         </nav>
         <address data-owner-address></address>
       </div>
@@ -119,7 +142,8 @@ function footerView() {
 export function boot() {
   document.body.classList.add("app");
   document.body.insertAdjacentHTML("afterbegin", markup(headerView()));
-  document.body.insertAdjacentHTML("beforeend", markup(footerView()));
+  const here = location.pathname === "/contact" ? "/contact" : location.pathname === "/" ? "/" : "";
+  document.body.insertAdjacentHTML("beforeend", markup(footerView()) + markup(bottomNavView(here)));
   // If the logo file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {
     const fallback = () => img.replaceWith(Object.assign(document.createElement("span"), { className: "logo-text", textContent: "Propertiq" }));
@@ -133,7 +157,7 @@ export function boot() {
   const setOpen = (open) => {
     menu.hidden = !open;
     btn.setAttribute("aria-expanded", String(open));
-    btn.textContent = open ? "Close" : "Menu";
+    btn.setAttribute("aria-label", open ? "Close menu" : "Menu");
     document.documentElement.classList.toggle("menu-open", open);
   };
   btn.addEventListener("click", () => setOpen(menu.hidden));
@@ -148,6 +172,7 @@ export function boot() {
         const lines = [owner.name, owner.location, owner.phone, owner.email].filter(Boolean);
         document.querySelectorAll("[data-owner-address]").forEach((el) => render(el, lines.map((l) => html`<span>${l}</span>`)));
         document.querySelectorAll("[data-owner-line]").forEach((el) => (el.textContent = [owner.phone, owner.email].filter(Boolean).join("   ·   ")));
+        document.querySelectorAll("[data-owner-tel]").forEach((el) => (owner.phone ? (el.href = `tel:${owner.phone.replace(/\s/g, "")}`) : el.remove()));
       })
       .catch(() => {}),
   );

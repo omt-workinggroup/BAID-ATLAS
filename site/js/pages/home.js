@@ -1,7 +1,7 @@
 // Homepage: introduction, the listings (filter, search, sort), the satellite map, about and contact.
 import { boot, html, markup, params, raw, render } from "../core.js";
 import { PURPOSE_LABELS, filterProperties, loadPortfolio, parseFilters, place, toQuery, whatsappLink } from "../data.js";
-import { featureListing, listing, mapCard } from "../cards.js";
+import { card, mapCard } from "../cards.js";
 
 boot();
 const f = parseFilters(params());
@@ -16,49 +16,66 @@ try {
 const all = portfolio.properties ?? [];
 const owner = portfolio.owner ?? {};
 
-// ---- Listings ----------------------------------------------------------------------------------------
-document.getElementById("count").textContent = all.length ? `(${all.length})` : "";
+// ---- Search, chips and listings ------------------------------------------------------------------------
 const commercial = ["commercial", "office", "retail", "warehouse", "mixed_use"];
-const TABS = [
+const CHIPS = [
   ["All", {}, () => true],
   ["For sale", { purpose: "sale" }, (p) => p.purpose === "sale"],
   ["For rent", { purpose: "rent" }, (p) => p.purpose === "rent"],
+  ["Townhouses", { type: "townhouse" }, (p) => p.type === "townhouse"],
+  ["Apartments", { type: "apartment" }, (p) => p.type === "apartment"],
   ["Commercial", { type: "commercial" }, (p) => commercial.includes(p.type)],
 ];
 render(
-  "#filters",
-  TABS.filter(([, , test], i) => i === 0 || all.some(test)).map(([label, c]) => {
+  "#chips",
+  CHIPS.filter(([, , test], i) => i === 0 || all.some(test)).map(([label, c]) => {
     const on = (c.purpose ?? undefined) === f.purpose && (c.type ?? undefined) === f.type;
-    return html`<a href="${link({ purpose: c.purpose, type: c.type })}" ${raw(on ? 'aria-current="true"' : "")}>${label}</a>`;
+    return html`<a class="chip" href="${link({ purpose: c.purpose, type: c.type, q: undefined })}" ${raw(on ? 'aria-current="true"' : "")}>${label}</a>`;
   }),
 );
+
 const form = document.getElementById("search-form");
 form.q.value = f.q ?? "";
+form.purpose.value = f.purpose ?? "";
+form.type.value = f.type ?? "";
+form.sort.value = f.sort;
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  location.href = link({ q: form.q.value.trim() || undefined });
+  const d = new FormData(form);
+  const v = (k) => String(d.get(k) ?? "").trim() || undefined;
+  location.href = `/${toQuery({ q: v("q"), purpose: v("purpose"), type: v("type"), sort: v("sort") })}#properties`;
 });
-const sort = document.getElementById("sort-select");
-sort.value = f.sort;
-sort.addEventListener("change", () => (location.href = link({ sort: sort.value })));
+// Phones: the square button shows the other search fields.
+const toggle = document.getElementById("filter-toggle");
+toggle.addEventListener("click", () => {
+  const open = toggle.getAttribute("aria-expanded") !== "true";
+  toggle.setAttribute("aria-expanded", String(open));
+  form.classList.toggle("is-open", open);
+});
 
 // "Commercial" covers offices, stores and warehouses too.
 const rows = f.type === "commercial" ? filterProperties(all, { ...f, type: undefined }).filter((p) => commercial.includes(p.type)) : filterProperties(all, f);
 const results = document.getElementById("results");
 results.removeAttribute("aria-busy");
-const plain = !f.purpose && !f.type && !f.q && f.sort === "newest";
+const filtered = Boolean(f.purpose || f.type || f.q);
+if (filtered) document.getElementById("properties-h").textContent = `${rows.length} ${rows.length === 1 ? "property" : "properties"} found`;
 if (rows.length) {
-  const [first, ...rest] = plain ? rows : [null, ...rows];
-  render(
-    results,
-    html`${first ? featureListing(first) : ""}${rest.length ? html`<div class="listing-grid">${rest.map((p, i) => listing(p, { eager: i < 2 }))}</div>` : ""}`,
-  );
+  render(results, rows.map((p, i) => card(p, { eager: i < 2 })));
 } else if (all.length) {
   render(results, html`<p class="empty">Nothing matches that search. <a class="text-link" href="/#properties">Show all properties</a></p>`);
 } else {
   render(results, html`<p class="empty">New properties are being prepared. <a class="text-link" href="/contact">Ask us what's coming</a></p>`);
 }
-if (location.hash === "#properties" && (f.purpose || f.type || f.q)) document.getElementById("properties").scrollIntoView();
+// Unfiltered: a second row by purpose, like the reference's second section.
+if (!filtered && all.length > 3) {
+  const rent = all.filter((p) => p.purpose === "rent");
+  if (rent.length) {
+    document.getElementById("more").hidden = false;
+    document.getElementById("more-h").textContent = "Homes for Rent";
+    render("#more-results", rent.map((p) => card(p)));
+  }
+}
+if (location.hash === "#properties" && filtered) document.getElementById("properties").scrollIntoView();
 
 // ---- About and contact -------------------------------------------------------------------------------
 if (owner.tagline) document.querySelector("[data-owner-tagline]").textContent = owner.tagline;
@@ -67,7 +84,7 @@ render("#services", (owner.services ?? []).map((s) => html`<li>${s}</li>`));
 const wa = whatsappLink(owner.whatsapp);
 render(
   "#cta-links",
-  html`${wa ? html`<a class="button" href="${wa}" target="_blank" rel="noopener">Message us on WhatsApp</a>` : ""}
+  html`${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">Message us on WhatsApp</a>` : ""}
     ${owner.phone ? html`<a class="text-link" href="tel:${owner.phone.replace(/\s/g, "")}">${owner.phone}</a>` : ""}
     ${owner.email ? html`<a class="text-link" href="mailto:${owner.email}">${owner.email}</a>` : ""}`,
 );

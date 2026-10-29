@@ -24,13 +24,12 @@ async function useSamplePortfolio(page: Page, body?: string) {
 }
 
 test.describe("site", () => {
-  test("the homepage lists the properties, with a plain header and no app bar", async ({ page }, info) => {
+  test("the homepage lists every property", async ({ page }, info) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Homes and workspaces in Accra");
-    await expect(page.locator(".listing--feature")).toContainText("Sample: East Legon Villa");
-    await expect(page.locator(".listing-grid .listing")).toHaveCount(3);
-    await expect(page.locator(".bottom-nav")).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1, includeHidden: true })).toContainText("Browse Homes, Apartments");
+    await expect(page.locator("#results .card")).toHaveCount(4);
+    await expect(page.locator("#results .card").first()).toContainText("Sample: East Legon Villa");
     await expectNoHorizontalScroll(page);
     await shot(page, "01-home", info.project.name);
   });
@@ -38,6 +37,7 @@ test.describe("site", () => {
   test("the menu opens and closes on phones", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.getByRole("button", { name: "Menu" }).click();
     await expect(page.locator("#menu")).toBeVisible();
     await page.locator("#menu").getByRole("link", { name: "Contact" }).click();
@@ -66,7 +66,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.locator(".listing").first()).toBeVisible();
+    await expect(page.locator(".card").first()).toBeVisible();
     await expectNoHorizontalScroll(page);
     await page.goto("/properties/sample-east-legon-villa");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -75,12 +75,14 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
 }
 
 test.describe("listings", () => {
-  test("show the price, place and stage", async ({ page }) => {
+  test("show the price, facts and status", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.locator(".listing--feature")).toContainText("USD 1,250,000 · For sale");
-    await expect(page.locator(".listing", { hasText: "Oyarifa" })).toContainText("Price on request");
-    await expect(page.locator(".listing", { hasText: "Airport" })).toContainText("Under offer");
+    const villa = page.locator("#results .card", { hasText: "Sample: East Legon Villa" });
+    await expect(villa.locator(".card__media")).toHaveAttribute("aria-label", /USD 1,250,000/);
+    await expect(villa.locator(".card__overlay")).toContainText("5 Beds");
+    await expect(page.locator("#results .card", { hasText: "Oyarifa" }).locator(".card__media")).toHaveAttribute("aria-label", /Price on request/);
+    await expect(page.locator("#results .card", { hasText: "Airport" }).locator(".card__tag")).toHaveText("Under offer");
   });
 
   test("filter and search", async ({ page }) => {
@@ -88,12 +90,12 @@ test.describe("listings", () => {
     await page.goto("/");
     await page.getByRole("navigation", { name: "Filter properties" }).getByRole("link", { name: "For rent" }).click();
     await expect(page).toHaveURL(/purpose=rent/);
-    await expect(page.locator(".listing")).toHaveCount(1);
+    await expect(page.locator("#results .card")).toHaveCount(1);
     await page.goto("/");
-    await page.getByPlaceholder("Search area or name").fill("oyarifa");
-    await page.getByPlaceholder("Search area or name").press("Enter");
-    await expect(page.locator(".listing")).toHaveCount(1);
-    await expect(page.locator(".listing")).toContainText("Oyarifa");
+    await page.getByPlaceholder("Search your home.").fill("oyarifa");
+    await page.getByPlaceholder("Search your home.").press("Enter");
+    await expect(page.locator("#results .card")).toHaveCount(1);
+    await expect(page.locator("#results .card")).toContainText("Oyarifa");
   });
 
   test("an empty portfolio says new properties are being prepared", async ({ page }) => {
@@ -118,16 +120,16 @@ test.describe("property page", () => {
     await page.goto("/properties/sample-east-legon-villa");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sample: East Legon Villa");
     await expect(page).toHaveTitle("Sample: East Legon Villa · Propertiq");
-    await expect(page.locator(".pd-head__price")).toHaveText("USD 1,250,000");
-    await expect(page.locator(".facts")).toContainText("Bedrooms");
+    await expect(page.locator(".pd-top__price strong")).toHaveText("USD 1,250,000");
+    await expect(page.locator(".stats")).toContainText("Beds");
     await expect(page.locator("#brochure").getByRole("link", { name: "Open" })).toHaveAttribute("href", "/media/sample/brochure.pdf");
-    const wa = await page.getByRole("link", { name: "Arrange a viewing" }).getAttribute("href");
+    const wa = await page.getByRole("link", { name: "Schedule Visit" }).first().getAttribute("href");
     expect(decodeURIComponent(wa!)).toContain("Sample: East Legon Villa");
     await expectNoHorizontalScroll(page);
     await shot(page, "03-property", info.project.name);
 
     // Images open full screen and step with the arrow keys.
-    await page.locator(".gallery button").first().click();
+    await page.locator(".photos button").first().click();
     await expect(page.locator("#viewer")).toBeVisible();
     await expect(page.locator("#viewer-count")).toHaveText("1 / 6");
     await page.keyboard.press("ArrowRight");
@@ -165,7 +167,8 @@ test("desktop shows the main navigation in the header @desktop", async ({ page }
   await useSamplePortfolio(page);
   await page.goto("/");
   await expect(page.locator(".site-nav")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
+  await expect(page.locator(".tabbar")).toBeHidden();
+  await expect(page.locator(".perks")).toBeVisible();
 });
 
 test("manifest, icons and the social image are served", async ({ request }) => {

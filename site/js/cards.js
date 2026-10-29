@@ -1,42 +1,34 @@
-// Listings on the homepage: the first property as a large feature, the rest as a two-column list.
-// Plain image, plain text: the place and stage, the name, the price and three facts.
+// Property card. On phones the name, price and facts sit on the photo (Homio style); on desktop they sit
+// under it (three-column grid). The same markup serves both; CSS decides.
 import { html, icon } from "./core.js";
-import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, keyFacts, place } from "./data.js";
+import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, formatPrice, keyFacts, place } from "./data.js";
 
-const eyebrow = (p) =>
-  [place(p), p.stage && p.stage !== "completed" ? STAGE_LABELS[p.stage] : null, p.status && p.status !== "available" ? STATUS_LABELS[p.status] : null].filter(Boolean).join(" — ");
-const priceLine = (p) => `${formatPrice(p.price)}${p.purpose ? ` · ${PURPOSE_LABELS[p.purpose]}` : ""}`;
+const isNew = (p) => p.listed && Date.now() - new Date(p.listed).getTime() < 30 * 86_400_000;
 
-function picture(p, { eager = false, ratio = "" } = {}) {
+function tag(p) {
+  if (p.status && p.status !== "available") return STATUS_LABELS[p.status];
+  if (isNew(p)) return "New";
+  return p.stage && p.stage !== "completed" ? STAGE_LABELS[p.stage] : null;
+}
+
+export function card(p, { eager = false } = {}) {
   const c = cover(p);
-  return html`<a class="listing__img ${ratio}" href="/properties/${p.slug}" tabindex="-1" aria-hidden="true">
-    ${c ? html`<img src="${c.src}" alt="" loading="${eager ? "eager" : "lazy"}" decoding="async" />` : html`<span class="listing__noimg">Images to follow</span>`}
-  </a>`;
-}
-
-export function featureListing(p) {
-  const facts = keyFacts(p);
-  return html`<article class="listing listing--feature">
-    ${picture(p, { eager: true })}
-    <div class="listing__text">
-      <p class="eyebrow">${eyebrow(p)}</p>
-      <h3><a href="/properties/${p.slug}">${p.title}</a></h3>
-      ${p.summary ? html`<p class="listing__summary">${p.summary}</p>` : ""}
-      ${facts.length ? html`<p class="listing__meta">${[...facts.slice(0, 4).map(([, t]) => t), p.units].filter(Boolean).join(" · ")}</p>` : ""}
-      <p class="listing__price">${priceLine(p)}</p>
-      <a class="text-link" href="/properties/${p.slug}">View property</a>
+  const facts = keyFacts(p).slice(0, 3);
+  const factList = facts.length ? html`<ul class="card__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 15)}${t}</li>`)}</ul>` : "";
+  return html`<article class="card">
+    <a class="card__media" href="/properties/${p.slug}" aria-label="${p.title}, ${formatPrice(p.price)}">
+      ${c ? html`<img src="${c.src}" alt="" loading="${eager ? "eager" : "lazy"}" decoding="async" />` : html`<span class="card__noimg">Images to follow</span>`}
+      ${tag(p) ? html`<span class="card__tag">${tag(p)}</span>` : ""}
+      <span class="card__overlay">
+        <span class="card__row"><span class="card__title">${p.title}</span><span class="card__price">${formatPrice(p.price)}</span></span>
+        ${factList}
+      </span>
+    </a>
+    <div class="card__body">
+      <div class="card__row"><h3 class="card__title"><a href="/properties/${p.slug}">${p.title}</a></h3><span class="card__price">${formatPrice(p.price)}</span></div>
+      <p class="card__place">${place(p)} · ${PURPOSE_LABELS[p.purpose] ?? ""}</p>
+      ${factList}
     </div>
-  </article>`;
-}
-
-export function listing(p, { eager = false } = {}) {
-  const facts = keyFacts(p).slice(0, 3).map(([, t]) => t);
-  return html`<article class="listing">
-    ${picture(p, { eager })}
-    <p class="eyebrow">${eyebrow(p)}</p>
-    <h3><a href="/properties/${p.slug}">${p.title}</a></h3>
-    <p class="listing__meta">${[TYPE_LABELS[p.type], ...facts].filter(Boolean).join(" · ")}</p>
-    <p class="listing__price">${priceLine(p)}</p>
   </article>`;
 }
 
