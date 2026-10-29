@@ -51,6 +51,10 @@
         <div class="mapx__top">
           <label class="mapx__search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg><span class="sr-only">Search the map</span><input id="map-q" type="search" placeholder="Search Ridge, Tse Addo…" /></label>
           <div class="mapx__chips" id="chips" role="group" aria-label="Filter"></div>
+          <div class="map-style mapx__layers" role="group" aria-label="Map style">
+            <button type="button" data-style="map" aria-pressed="true">Map</button>
+            <button type="button" data-style="satellite" aria-pressed="false">Satellite</button>
+          </div>
         </div>
         <div class="mapx__preview" id="preview" aria-live="polite"></div>
         <ul class="mapx__carousel" id="carousel" aria-label="Properties"></ul>

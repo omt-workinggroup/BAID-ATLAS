@@ -160,7 +160,7 @@ carousel.addEventListener("scroll", () => {
 
 document.querySelectorAll("[data-style]").forEach((b) =>
   b.addEventListener("click", () => {
-    document.querySelectorAll("[data-style]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    document.querySelectorAll("[data-style]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.style === b.dataset.style)));
     m.setStyle(map, b.dataset.style);
   }),
 );
