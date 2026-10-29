@@ -2,7 +2,7 @@
 // Positions in the data file mark the area of a development, not its gate.
 import { MAPTILER_KEY } from "./config.js";
 
-export const STYLES = { satellite: "hybrid", map: "streets-v2-dark" };
+export const STYLES = { satellite: "hybrid", map: "streets-v2" };
 const styleUrl = (name) => `https://api.maptiler.com/maps/${STYLES[name] ?? name}/style.json?key=${MAPTILER_KEY}`;
 export const ACCRA = [-0.187, 5.6037];
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -36,7 +36,7 @@ export function createMap(el, { center = ACCRA, zoom = 11, pitch = 0, bearing = 
     fadeDuration: 200,
   });
   map._pqStyle = style;
-  map.on("style.load", () => map._pqStyle === "map" && blackAndGold(map));
+  map.on("style.load", () => map._pqStyle === "map" && siteColours(map));
   map.addControl(new gl.NavigationControl({ visualizePitch: true }), controls);
   map.addControl(new gl.FullscreenControl(), controls);
   return map;
@@ -48,9 +48,9 @@ export function setStyle(map, name) {
   map.setStyle(styleUrl(name));
 }
 
-// Recolours the dark street map to the site's black and gold: black land, near-black water, dark
-// buildings, quiet grey streets with the main roads in muted gold, warm grey labels, and no shop icons.
-function blackAndGold(map) {
+// Recolours the street map to the site's two colours: cream land, soft green-grey water and parks, pale
+// buildings, white streets with the main roads in sand, evergreen labels, and no shop icons.
+function siteColours(map) {
   const set = (id, prop, value) => {
     try {
       map.setPaintProperty(id, prop, value);
@@ -60,22 +60,22 @@ function blackAndGold(map) {
   };
   for (const { id, type } of map.getStyle().layers) {
     const n = id.toLowerCase();
-    if (type === "background") set(id, "background-color", "#0a0a0a");
-    else if (type === "fill") set(id, "fill-color", /water|ocean|sea|lake/.test(n) ? "#0d0f10" : /building/.test(n) ? "#1b1a17" : /park|grass|wood|forest|green/.test(n) ? "#101210" : "#111111");
-    else if (type === "fill-extrusion") set(id, "fill-extrusion-color", "#1e1c18");
+    if (type === "background") set(id, "background-color", "#f1ede5");
+    else if (type === "fill") set(id, "fill-color", /water|ocean|sea|lake/.test(n) ? "#cfdcd5" : /building/.test(n) ? "#e3ddd1" : /park|grass|wood|forest|green/.test(n) ? "#dfe6da" : "#ece7dd");
+    else if (type === "fill-extrusion") set(id, "fill-extrusion-color", "#ddd6c9");
     else if (type === "line") {
-      if (/water|river|stream|canal/.test(n)) set(id, "line-color", "#14171a");
-      else if (/motorway|trunk|primary|highway|major/.test(n)) set(id, "line-color", "#6e5a2e");
-      else if (/boundary|admin/.test(n)) set(id, "line-color", "#3a352c");
-      else set(id, "line-color", "#2a2824");
+      if (/water|river|stream|canal/.test(n)) set(id, "line-color", "#bfd0c8");
+      else if (/motorway|trunk|primary|highway|major/.test(n)) set(id, "line-color", "#d6c39d");
+      else if (/boundary|admin/.test(n)) set(id, "line-color", "#c7bfae");
+      else set(id, "line-color", "#ffffff");
     } else if (type === "symbol") {
       // Shop, bus-stop and similar icons are hidden; street and area names stay.
       if (/poi|transit|bus|station/.test(n)) {
         map.setLayoutProperty(id, "visibility", "none");
         continue;
       }
-      set(id, "text-color", "#a39c8e");
-      set(id, "text-halo-color", "#000000");
+      set(id, "text-color", "#3d524b");
+      set(id, "text-halo-color", "#ffffff");
       set(id, "icon-opacity", 0.6);
     }
   }
@@ -116,8 +116,8 @@ export function addArea(map, center) {
   const add = () => {
     if (map.getSource("area")) return;
     map.addSource("area", { type: "geojson", data: areaCircle(center) });
-    map.addLayer({ id: "area-fill", type: "fill", source: "area", paint: { "fill-color": "#c9a14a", "fill-opacity": 0.16 } });
-    map.addLayer({ id: "area-line", type: "line", source: "area", paint: { "line-color": "#c9a14a", "line-width": 2, "line-dasharray": [2, 2] } });
+    map.addLayer({ id: "area-fill", type: "fill", source: "area", paint: { "fill-color": "#1f3b33", "fill-opacity": 0.12 } });
+    map.addLayer({ id: "area-line", type: "line", source: "area", paint: { "line-color": "#cdb791", "line-width": 2.5, "line-dasharray": [2, 2] } });
   };
   if (map.isStyleLoaded()) add();
   map.on("style.load", add);

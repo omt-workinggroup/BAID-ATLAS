@@ -26,8 +26,8 @@
       ]
     }
   ],
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#1f3b33",
+  "theme_color": "#1f3b33",
   "icons": [
     {
       "src": "/icons/icon-192.png",

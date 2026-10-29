@@ -143,7 +143,7 @@ function drawLine() {
   const data = from && p ? { type: "Feature", geometry: { type: "LineString", coordinates: [from, lngLatOf(p)] }, properties: {} } : { type: "FeatureCollection", features: [] };
   if (map.getSource("away")) return map.getSource("away").setData(data);
   map.addSource("away", { type: "geojson", data });
-  map.addLayer({ id: "away-line", type: "line", source: "away", layout: { "line-cap": "round" }, paint: { "line-color": "#c9a14a", "line-width": 2.5, "line-dasharray": [1.5, 2] } });
+  map.addLayer({ id: "away-line", type: "line", source: "away", layout: { "line-cap": "round" }, paint: { "line-color": "#1f3b33", "line-width": 2.5, "line-dasharray": [1.5, 2] } });
 }
 map.on("style.load", drawLine);
 
