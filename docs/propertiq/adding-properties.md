@@ -68,16 +68,17 @@ Claude the details you want shown.
 If you prefer, edit `site/data/properties.json` on GitHub. `tests/fixtures/portfolio.json` has a complete
 example of every field.
 
-Before publishing, run:
+Before publishing, make the small preview images, then run the check:
 
 ```bash
+python3 scripts/make-thumbs.py   # small, fast previews for cards and the map (needs Pillow)
 pnpm check:properties
 ```
 
 This checks:
 
 - the spelling of every value;
-- that every photo, plan, brochure and 360° image exists;
+- that every photo, preview, plan, brochure and 360° image exists;
 - that tour rooms connect to real rooms.
 
 It explains any mistake in plain words.
