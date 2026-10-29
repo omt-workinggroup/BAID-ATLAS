@@ -23,14 +23,14 @@ async function useSamplePortfolio(page: Page, body?: string) {
   await page.route("https://api.maptiler.com/**", (r) => r.fulfill({ status: 204 }));
 }
 
-test.describe("landing", () => {
-  test("is a standalone splash on phones that leads to the properties", async ({ page }) => {
+test.describe("site", () => {
+  test("the homepage is the listings, with no splash", async ({ page }) => {
+    await useSamplePortfolio(page);
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find Your Next Property");
-    await expect(page.getByRole("navigation")).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Every property, in full.");
+    await expect(page.locator(".pcard").first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Get Started" })).toHaveCount(0);
     await expectNoHorizontalScroll(page);
-    await page.getByRole("link", { name: "Get Started" }).click();
-    await expect(page).toHaveURL(/\/properties$/);
   });
 
   test("security headers are set and there is no backend in the policy", async ({ request }) => {
@@ -41,30 +41,34 @@ test.describe("landing", () => {
     expect(h["x-frame-options"]).toBe("DENY");
   });
 
-  test("old sign-in and portal addresses go to the properties", async ({ page }) => {
-    for (const path of ["/sign-in", "/portal/acme/listings", "/explore", "/account"]) {
+  test("old addresses go to the homepage", async ({ page }) => {
+    for (const path of ["/properties", "/saved", "/sign-in", "/portal/acme/listings", "/explore"]) {
       await page.goto(path);
-      await expect(page).toHaveURL(/\/properties/);
+      await expect(page).toHaveURL(/localhost:\d+\/(\?.*)?$/);
     }
   });
 });
 
-test("desktop landing searches the properties with the chosen filters @desktop", async ({ page }) => {
-  await useSamplePortfolio(page);
-  await page.goto("/");
-  await page.getByLabel("Looking to").selectOption("rent");
-  await page.getByLabel("Property type").selectOption("apartment");
-  await page.getByLabel("Price (GHS)").selectOption("0-500000");
-  await page.getByRole("button", { name: "Search" }).click();
-  await expect(page).toHaveURL(/\/properties\?purpose=rent&type=apartment&max=500000$/);
-  await expect(page.getByRole("heading", { level: 3 })).toHaveText(["Sample: Cantonments Apartment"]);
-});
+for (const width of [320, 375, 414, 768, 1024, 1440]) {
+  test(`homepage and a property fit ${width}px without sideways scrolling`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await useSamplePortfolio(page);
+    await page.goto("/");
+    await expect(page.locator(".pcard").first()).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    await page.goto("/properties/sample-east-legon-villa");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectNoHorizontalScroll(page);
+  });
+}
 
 test.describe("properties", () => {
   test("lists every property with its price and what it offers", async ({ page }, info) => {
     await useSamplePortfolio(page);
-    await page.goto("/properties");
-    await expect(page.getByText("4 properties in the portfolio")).toBeVisible();
+    await page.goto("/");
+    await expect(page.getByText("4 developments")).toBeVisible();
+    // With no filters, the first property is the large featured card.
+    await expect(page.locator(".pcard--feature")).toContainText("Sample: East Legon Villa");
     const villa = page.locator(".pcard", { hasText: "Sample: East Legon Villa" });
     await expect(villa).toContainText("USD 1,250,000");
     await expect(villa.locator(".pcard__offers")).toHaveText(/3D tour.*Floor plan.*Brochure/);
@@ -78,40 +82,31 @@ test.describe("properties", () => {
 
   test("filters and searches", async ({ page }) => {
     await useSamplePortfolio(page);
-    await page.goto("/properties");
-    await page.getByRole("link", { name: "For rent" }).first().click();
+    await page.goto("/");
+    await page.getByRole("navigation", { name: "Filter" }).getByRole("link", { name: "For rent" }).click();
     await expect(page).toHaveURL(/purpose=rent/);
     await expect(page.locator(".pcard")).toHaveCount(1);
-    await page.goto("/properties");
-    await page.getByPlaceholder("Search an area, e.g. East Legon").fill("oyarifa");
-    await page.getByPlaceholder("Search an area, e.g. East Legon").press("Enter");
+    await page.goto("/");
+    await page.getByPlaceholder("Search an area or a development").fill("oyarifa");
+    await page.getByPlaceholder("Search an area or a development").press("Enter");
     await expect(page.locator(".pcard")).toHaveCount(1);
     await expect(page.locator(".pcard")).toContainText("Oyarifa");
   });
 
   test("an empty portfolio says new properties are coming", async ({ page }) => {
     await useSamplePortfolio(page, JSON.stringify({ owner: {}, properties: [] }));
-    await page.goto("/properties");
+    await page.goto("/");
     await expect(page.getByRole("heading", { name: "New properties are on their way" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Filter" })).toBeHidden();
   });
 
   test("the map view shows a preview card for a property", async ({ page }, info) => {
     await useSamplePortfolio(page);
-    await page.goto("/properties?view=map");
+    await page.goto("/?view=map");
     await expect(page.getByRole("heading", { name: "Explore Properties" })).toBeVisible();
     await expect(page.locator(".mcard")).toContainText("Sample: East Legon Villa");
     await expectNoHorizontalScroll(page);
     await shot(page, "02-map", info.project.name);
-  });
-
-  test("saving keeps a property on this device", async ({ page }) => {
-    await useSamplePortfolio(page);
-    await page.goto("/properties");
-    await page.getByRole("button", { name: "Save: Sample: Cantonments Apartment" }).click();
-    await page.goto("/saved");
-    await expect(page.locator(".pcard")).toHaveCount(1);
-    await expect(page.locator(".pcard")).toContainText("Cantonments");
   });
 });
 
@@ -176,7 +171,7 @@ test("desktop property page has the contact panel beside the details @desktop", 
 
 test("manifest, icons and the social image are served", async ({ request }) => {
   const manifest = await (await request.get("/manifest.webmanifest")).json();
-  expect(manifest.start_url).toBe("/properties");
+  expect(manifest.start_url).toBe("/");
   for (const icon of manifest.icons) expect((await request.get(icon.src)).status()).toBe(200);
   expect((await request.get("/og.jpg")).headers()["content-type"]).toContain("image/jpeg");
 });

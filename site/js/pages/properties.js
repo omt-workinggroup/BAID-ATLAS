@@ -1,5 +1,6 @@
-// All properties: search, quick filters, sort, and a grid or a full-screen dark map.
-import { boot, html, icon, params, raw, render, setTitle, wireSaveButtons } from "../core.js";
+// Homepage: every property, with search, quick filters, sort, and a grid or a full-screen dark map.
+// With no filters, the first (featured) property gets a large card.
+import { boot, html, icon, params, raw, render, setTitle } from "../core.js";
 import { PURPOSE_LABELS, TYPE_LABELS, filterProperties, loadPortfolio, parseFilters, toQuery } from "../data.js";
 import { mapPreviewCard, propertyCard, skeletonCards } from "../cards.js";
 
@@ -8,11 +9,11 @@ const f = parseFilters(params());
 const mapView = params().get("view") === "map";
 if (mapView) document.body.classList.add("props--map");
 const base = { ...f, view: mapView ? "map" : undefined };
-const link = (changes) => `/properties${toQuery({ ...base, ...changes })}`;
+const link = (changes) => `/${toQuery({ ...base, ...changes })}`;
 
 const heading = f.purpose ? PURPOSE_LABELS[f.purpose] : f.type ? TYPE_LABELS[f.type] : null;
 if (heading) {
-  document.getElementById("heading").textContent = heading;
+  render("#heading", html`${heading}<em>.</em>`);
   setTitle(heading);
 }
 
@@ -59,15 +60,21 @@ try {
   render(grid, html`<p class="empty">We couldn't load the properties. Please refresh the page.</p>`);
 }
 const rows = filterProperties(all, f);
-document.getElementById("count-line").textContent = `${all.length} ${all.length === 1 ? "property" : "properties"} in the portfolio`;
+document.getElementById("count-line").textContent = `${all.length} ${all.length === 1 ? "development" : "developments"} · ${[...new Set(all.map((p) => p.location?.area).filter(Boolean))].join(" · ")}`;
 document.getElementById("results-count").textContent = `Showing ${rows.length} ${rows.length === 1 ? "property" : "properties"}`;
 grid.removeAttribute("aria-busy");
 
+const unfiltered = !f.purpose && !f.type && !f.q && f.min === undefined && f.max === undefined && f.sort === "newest";
 if (rows.length) {
-  render(grid, rows.map((p, i) => html`<div class="rise" style="animation-delay:${Math.min(i, 8) * 50}ms">${propertyCard(p, { eager: i < 2 })}</div>`));
-  wireSaveButtons(grid);
+  render(
+    grid,
+    rows.map((p, i) => {
+      const feature = unfiltered && i === 0 && rows.length > 1;
+      return html`<div class="rise${raw(feature ? " pgrid__feature" : "")}" style="animation-delay:${Math.min(i, 8) * 60}ms">${propertyCard(p, { eager: i < 2, feature })}</div>`;
+    }),
+  );
 } else if (all.length) {
-  render(grid, html`<div class="empty" style="grid-column: 1 / -1"><h2>Nothing matches that search</h2><p>Try another area or clear the filters.</p><a class="btn" href="/properties">Show all properties</a></div>`);
+  render(grid, html`<div class="empty" style="grid-column: 1 / -1"><h2>Nothing matches that search</h2><p>Try another area or clear the filters.</p><a class="btn" href="/">Show all properties</a></div>`);
 } else {
   // An empty portfolio: no filters to offer yet.
   for (const sel of ["#chips", ".results-bar", "#search-form", "#count-line"]) document.querySelector(sel).hidden = true;

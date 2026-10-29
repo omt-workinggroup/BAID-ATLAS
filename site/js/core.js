@@ -1,5 +1,5 @@
-// Shared engine for every page: safe HTML, icons, the header, footer and bottom bar, saved properties
-// (kept on this device only) and small helpers. There are no accounts: the site is a public portfolio.
+// Shared engine for every page: safe HTML, icons, the header, footer and bottom bar, and small helpers.
+// There are no accounts: the site is a public listing of the portfolio.
 
 // ---- Safe HTML -----------------------------------------------------------------------------------------
 // html`<p>${value}</p>` escapes every value, so text from the data file can never become markup.
@@ -70,55 +70,17 @@ export function icon(name, size = 22, stroke = 1.6) {
   );
 }
 
-// ---- Saved properties (this device only, no account needed) -------------------------------------------
-const SAVED_KEY = "propertiq-saved";
-export function savedSlugs() {
-  try {
-    const v = JSON.parse(localStorage.getItem(SAVED_KEY) ?? "[]");
-    return Array.isArray(v) ? v.filter((s) => typeof s === "string") : [];
-  } catch {
-    return [];
-  }
-}
-export function toggleSaved(slug) {
-  const list = savedSlugs();
-  const next = list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug];
-  try {
-    localStorage.setItem(SAVED_KEY, JSON.stringify(next));
-  } catch {
-    // Private browsing: saving simply doesn't stick.
-  }
-  return next.includes(slug);
-}
-// Heart buttons anywhere inside root: data-save="<slug>".
-export function wireSaveButtons(root = document) {
-  const mark = () => {
-    const saved = savedSlugs();
-    root.querySelectorAll("[data-save]").forEach((b) => b.setAttribute("aria-pressed", String(saved.includes(b.dataset.save))));
-  };
-  root.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-save]");
-    if (!b) return;
-    e.preventDefault();
-    const on = toggleSaved(b.dataset.save);
-    mark();
-    toast(on ? "Saved on this device" : "Removed from saved");
-  });
-  mark();
-}
-
 // ---- Page shell ----------------------------------------------------------------------------------------
 const NAV = [
-  { href: "/properties", label: "Properties", icon: "grid", match: (p, s) => (p === "/properties" && !s.includes("view=map")) || p.startsWith("/properties/") },
-  { href: "/properties?view=map", label: "Map", icon: "map", match: (p, s) => p === "/properties" && s.includes("view=map") },
-  { href: "/saved", label: "Saved", icon: "heart", match: (p) => p === "/saved" },
+  { href: "/", label: "Properties", icon: "grid", match: (p, s) => p === "/" && !s.includes("view=map") },
+  { href: "/?view=map", label: "Map", icon: "map", match: (p, s) => p === "/" && s.includes("view=map") },
   { href: "/contact", label: "Contact", icon: "chat", match: (p) => p === "/contact" },
 ];
 const CATEGORIES = [
-  ["/properties?purpose=sale", "For sale"],
-  ["/properties?purpose=rent", "For rent"],
-  ["/properties?type=land", "Land"],
-  ["/properties?type=commercial", "Commercial"],
+  ["/?purpose=sale", "For sale"],
+  ["/?purpose=rent", "For rent"],
+  ["/?type=land", "Land"],
+  ["/?type=commercial", "Commercial"],
 ];
 
 function headerView(path, search) {
@@ -130,9 +92,9 @@ function headerView(path, search) {
         <a href="/" class="logo" aria-label="Propertiq home"><img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" data-logo /></a>
         <nav class="top-nav" aria-label="Primary">
           <ul>
-            <li><a href="/properties" ${raw(path === "/properties" && !search ? 'aria-current="page"' : "")}>All properties</a></li>
+            <li><a href="/" ${raw(path === "/" && !search ? 'aria-current="page"' : "")}>All properties</a></li>
             ${CATEGORIES.map(([href, label]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}>${label}</a></li>`)}
-            <li><a href="/saved" ${raw(path === "/saved" ? 'aria-current="page"' : "")}>Saved</a></li>
+            <li><a href="/?view=map" ${raw(here === "/?view=map" ? 'aria-current="page"' : "")}>Map</a></li>
           </ul>
         </nav>
         <a href="/contact" class="header-cta">Contact</a>
@@ -155,10 +117,10 @@ function footerView() {
       <div class="site-footer__inner">
         <div class="site-footer__about">
           <img class="logo-img" src="/brand/propertiq-logo.webp" alt="Propertiq" width="880" height="216" loading="lazy" data-logo />
-          <p>A private portfolio of homes, land and commercial property in Ghana. Every property here is ours to show you.</p>
+          <p>Homes, apartments, offices and stores in Accra, each with prices, floor plans, brochures and a full gallery.</p>
         </div>
-        <nav aria-label="Properties"><h4>Properties</h4><ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}<li><a href="/properties?view=map">On the map</a></li></ul></nav>
-        <nav aria-label="Get in touch"><h4>Get in touch</h4><ul><li><a href="/contact">Contact</a></li><li><a href="/saved">Saved properties</a></li></ul></nav>
+        <nav aria-label="Properties"><h4>Properties</h4><ul>${CATEGORIES.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}<li><a href="/?view=map">On the map</a></li></ul></nav>
+        <nav aria-label="Get in touch"><h4>Get in touch</h4><ul><li><a href="/contact">Contact</a></li></ul></nav>
       </div>
       <div class="site-footer__legal"><p>© ${new Date().getFullYear()} Propertiq. Always view a property and check its documents before you pay.</p></div>
     </footer>`;

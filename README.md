@@ -1,7 +1,7 @@
 # Propertiq
 
-A private portfolio of homes, land and commercial property in Ghana. There are no accounts and no sign-in:
-visitors browse every property and see, for each one:
+A listing website for a portfolio of homes, apartments, offices and stores in Accra. There are no accounts, no
+sign-in and no landing page: the homepage is the listings. For each property, visitors see:
 
 - the price and key facts
 - photos
@@ -9,10 +9,11 @@ visitors browse every property and see, for each one:
 - a brochure to download
 - a 3D tour they can walk through
 
-Visitors can also save properties on their own device and contact the owner on WhatsApp, by phone or by email.
+Visitors contact the owner on WhatsApp, by phone or by email. The site is mobile first and is tested from
+320 px phones to 1440 px desktops.
 
 Live site: https://propertiq-gh.vercel.app. The old addresses redirect here, as do the old sign-in and portal
-pages. Vercel project: `propertiq`.
+pages; `/properties` redirects to the homepage. Vercel project: `propertiq`.
 
 ## Adding properties
 
@@ -30,10 +31,9 @@ refresh the browser.
 
 | File | What's in it |
 | --- | --- |
-| `site/index.html` | Landing page. A splash screen on phones; on desktop, a nav bar, photo and search panel. |
-| `site/properties.html` | All properties: search, quick filters, sort, and a grid or a dark map with price pins. |
+| `site/index.html` | Homepage and listings: headline and search, quick filters, sort, a large featured property, then the grid, or a dark map with price pins (`/?view=map`). |
 | `site/property.html` | One property: photo hero, facts, photos, 3D tour, floor plans, brochure, location and contact. Served at `/properties/:slug`. |
-| `site/saved.html`, `site/contact.html` | Saved properties (kept in the browser) and the owner's contact details. |
+| `site/contact.html` | The owner's contact details. |
 | `site/js/data.js` | Reads the properties file; price, area and filter helpers. |
 | `site/js/tour.js` | 3D tour: [Pannellum](https://pannellum.org) (MIT, in `site/js/vendor`) with room buttons, hotspots, auto-rotate, tilt-to-look and full screen. |
 | `site/js/viewer.js` | Full-screen photo and floor-plan viewer. |

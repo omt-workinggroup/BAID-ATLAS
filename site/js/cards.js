@@ -1,15 +1,12 @@
 // Property card: the photo carries the name, price and key facts; badges say what the page offers
-// (3D tour, floor plans, brochure) so visitors know before they click.
+// (3D tour, floor plans, brochure) so visitors know before they click. A feature card is the large one
+// at the top of the homepage.
 import { html, icon, raw } from "./core.js";
 import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, hasTour, keyFacts, place } from "./data.js";
 
 export const noPhoto = () => html`<div class="no-photo">${icon("house", 30, 1.4)}<span>Photos coming soon</span></div>`;
 
-export function heartButton(p, label = "Save") {
-  return html`<button type="button" class="heart" data-save="${p.slug}" aria-pressed="false" aria-label="${label}: ${p.title}">${icon("heart", 18, 2)}</button>`;
-}
-
-export function propertyCard(p, { eager = false } = {}) {
+export function propertyCard(p, { eager = false, feature = false } = {}) {
   const photo = cover(p);
   const offers = [
     hasTour(p) && ["tour", "3D tour"],
@@ -17,7 +14,7 @@ export function propertyCard(p, { eager = false } = {}) {
     p.brochure?.src && ["doc", "Brochure"],
   ].filter(Boolean);
   const closed = p.status && p.status !== "available";
-  return html`<article class="pcard${raw(closed ? " pcard--closed" : "")}">
+  return html`<article class="pcard${raw(closed ? " pcard--closed" : "")}${raw(feature ? " pcard--feature" : "")}">
     <div class="pcard__media">
       ${photo ? html`<img src="${photo.src}" alt="${photo.alt ?? p.title}" loading="${eager ? "eager" : "lazy"}" decoding="async" />` : noPhoto()}
       <div class="pcard__tags">
@@ -26,14 +23,16 @@ export function propertyCard(p, { eager = false } = {}) {
           ${STAGE_LABELS[p.stage] && p.stage !== "completed" ? html`<span class="tag tag--light">${STAGE_LABELS[p.stage]}</span>` : ""}
           ${closed ? html`<span class="tag tag--dark">${STATUS_LABELS[p.status]}</span>` : ""}
         </div>
-        ${heartButton(p)}
+        ${feature ? html`<span class="tag tag--dark">Featured</span>` : ""}
       </div>
       <div class="pcard__overlay">
         <div class="pcard__headline">
           <h3 class="pcard__title"><a href="/properties/${p.slug}">${p.title}</a></h3>
           <p class="pcard__price">${formatPrice(p.price)}</p>
         </div>
+        ${feature && p.summary ? html`<p class="pcard__summary">${p.summary}</p>` : ""}
         ${keyFacts(p).length ? html`<ul class="pcard__facts">${keyFacts(p).slice(0, 3).map(([ic, t]) => html`<li>${icon(ic, 16)}${t}</li>`)}</ul>` : ""}
+        ${feature ? html`<span class="pcard__cta">View development ${icon("arrow", 18, 2)}</span>` : ""}
       </div>
     </div>
     <div class="pcard__body">

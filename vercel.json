@@ -14,133 +14,143 @@
   ],
   "redirects": [
     {
+      "source": "/properties",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/saved",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/home",
       "destination": "/",
       "permanent": true
     },
     {
       "source": "/explore",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/rentals",
-      "destination": "/properties?purpose=rent",
+      "destination": "/?purpose=rent",
       "permanent": true
     },
     {
       "source": "/land",
-      "destination": "/properties?type=land",
+      "destination": "/?type=land",
       "permanent": true
     },
     {
       "source": "/short-stays",
-      "destination": "/properties?purpose=short_stay",
+      "destination": "/?purpose=short_stay",
       "permanent": true
     },
     {
       "source": "/commercial",
-      "destination": "/properties?type=commercial",
+      "destination": "/?type=commercial",
       "permanent": true
     },
     {
       "source": "/account/saved",
-      "destination": "/saved",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/sign-in",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/sign-up",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/verify",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/verify-phone",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/onboarding",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/account",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/account/:path*",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/inbox",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/inbox/:path*",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/portal",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/portal/:path*",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/ops",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/ops/:path*",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/providers/:slug",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/compare",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/trust-and-verification",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/auth/callback",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/invitations/:path*",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/suspended",
-      "destination": "/properties",
+      "destination": "/",
       "permanent": true
     },
     {

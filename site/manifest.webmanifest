@@ -1,13 +1,13 @@
 {
   "name": "Propertiq",
   "short_name": "Propertiq",
-  "description": "A private portfolio of homes, land and commercial property in Ghana, with floor plans, brochures and 3D tours.",
-  "start_url": "/properties",
+  "description": "Homes, apartments, offices and stores in Accra, with prices, floor plans, brochures and full galleries.",
+  "start_url": "/",
   "display": "standalone",
   "shortcuts": [
     {
       "name": "Map",
-      "url": "/properties?view=map",
+      "url": "/?view=map",
       "icons": [
         {
           "src": "/icons/icon-192.png",
@@ -16,8 +16,8 @@
       ]
     },
     {
-      "name": "Saved",
-      "url": "/saved",
+      "name": "Contact",
+      "url": "/contact",
       "icons": [
         {
           "src": "/icons/icon-192.png",

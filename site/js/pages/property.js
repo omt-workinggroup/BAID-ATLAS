@@ -1,8 +1,8 @@
 // One property: photo hero, key facts, photos, 3D tour, floor plans, brochure, location and contact.
 import { SITE_URL } from "../config.js";
-import { boot, html, icon, raw, render, setTitle, toast, wireSaveButtons } from "../core.js";
+import { boot, html, icon, raw, render, setTitle, toast } from "../core.js";
 import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, formatArea, cover, filterProperties, formatPrice, hasTour, keyFacts, loadPortfolio, place, shortPrice, whatsappLink } from "../data.js";
-import { heartButton, noPhoto, propertyCard } from "../cards.js";
+import { noPhoto, propertyCard } from "../cards.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
 
@@ -18,7 +18,7 @@ try {
 }
 const p = portfolio?.properties?.find((x) => x.slug === slug);
 if (portfolio && !p) {
-  render(root, html`<div class="empty"><h1>This property isn't listed any more.</h1><p>It may have been sold or let. Have a look at the rest of the portfolio.</p><a class="btn" href="/properties">See all properties</a></div>`);
+  render(root, html`<div class="empty"><h1>This property isn't listed any more.</h1><p>It may have been sold or let. Have a look at the rest of the portfolio.</p><a class="btn" href="/">See all properties</a></div>`);
 }
 if (p) show(p, portfolio.owner ?? {});
 
@@ -55,10 +55,9 @@ function show(p, owner) {
         ${cover(p) ? html`<img src="${cover(p).src}" alt="${cover(p).alt ?? p.title}" fetchpriority="high" />` : noPhoto()}
         ${p.renders ? html`<span class="pd-hero__note">Artist's impression</span>` : ""}
         <div class="pd-hero__controls">
-          <a class="round-btn" href="/properties" aria-label="All properties">${icon("back", 20, 2)}</a>
+          <a class="round-btn" href="/" aria-label="All properties">${icon("back", 20, 2)}</a>
           <div>
             <button type="button" class="round-btn" id="share" aria-label="Share">${icon("share", 19)}</button>
-            ${heartButton(p, "Save")}
           </div>
         </div>
         <div class="pd-hero__text">
@@ -180,7 +179,6 @@ function show(p, owner) {
       </div>`,
   );
   root.removeAttribute("aria-busy");
-  wireSaveButtons(root);
 
   // Photos and plans open full screen.
   root.addEventListener("click", (e) => {
