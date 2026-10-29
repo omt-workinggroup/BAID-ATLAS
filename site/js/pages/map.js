@@ -114,7 +114,7 @@ function fitAll() {
   const b = new gl.LngLatBounds();
   rows.forEach((p) => b.extend(m.lngLat(p)));
   const wide = matchMedia("(min-width: 900px)").matches;
-  map.fitBounds(b, { padding: wide ? { top: 140, bottom: 120, left: 140, right: 140 } : { top: 170, bottom: 230, left: 50, right: 50 }, maxZoom: 13.8, pitch: 48, bearing: -15, duration: 2600 });
+  map.fitBounds(b, { padding: wide ? { top: 140, bottom: 120, left: 140, right: 140 } : { top: 210, bottom: 250, left: 60, right: 60 }, maxZoom: 13.8, pitch: 48, bearing: -15, duration: 2600 });
 }
 map.once("load", fitAll);
 
