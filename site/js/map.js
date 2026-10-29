@@ -58,7 +58,7 @@ function siteColours(map) {
       /* a layer without that property */
     }
   };
-  for (const { id, type } of map.getStyle().layers) {
+  for (const { id, type, "source-layer": source } of map.getStyle().layers) {
     const n = id.toLowerCase();
     if (type === "background") set(id, "background-color", "#f1ede5");
     else if (type === "fill") set(id, "fill-color", /water|ocean|sea|lake/.test(n) ? "#cfdcd5" : /building/.test(n) ? "#e3ddd1" : /park|grass|wood|forest|green/.test(n) ? "#dfe6da" : "#ece7dd");
@@ -70,7 +70,7 @@ function siteColours(map) {
       else set(id, "line-color", "#ffffff");
     } else if (type === "symbol") {
       // Shop, bus-stop and similar icons are hidden; street and area names stay.
-      if (/poi|transit|bus|station/.test(n)) {
+      if (/poi|transit|bus|station/.test(n) || /poi|transit|aerodrome/.test(source ?? "")) {
         map.setLayoutProperty(id, "visibility", "none");
         continue;
       }
