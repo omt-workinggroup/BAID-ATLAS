@@ -49,7 +49,7 @@ export function setStyle(map, name) {
 }
 
 // Recolours the dark street map to the site's black and gold: black land, near-black water, dark
-// buildings, quiet grey streets with the main roads in muted gold, and warm grey labels.
+// buildings, quiet grey streets with the main roads in muted gold, warm grey labels, and no shop icons.
 function blackAndGold(map) {
   const set = (id, prop, value) => {
     try {
@@ -69,6 +69,11 @@ function blackAndGold(map) {
       else if (/boundary|admin/.test(n)) set(id, "line-color", "#3a352c");
       else set(id, "line-color", "#2a2824");
     } else if (type === "symbol") {
+      // Shop, bus-stop and similar icons are hidden; street and area names stay.
+      if (/poi|transit|bus|station/.test(n)) {
+        map.setLayoutProperty(id, "visibility", "none");
+        continue;
+      }
       set(id, "text-color", "#a39c8e");
       set(id, "text-halo-color", "#000000");
       set(id, "icon-opacity", 0.6);
