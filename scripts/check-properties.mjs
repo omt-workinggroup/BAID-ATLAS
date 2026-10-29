@@ -27,6 +27,8 @@ export function checkPortfolio(data, siteRoot) {
     if (slugs.has(p.slug)) errors.push(`${at}: the slug is used twice.`);
     slugs.add(p.slug);
     if (!p.title) errors.push(`${at}: "title" is missing.`);
+    // A "coming soon" entry only needs its name until the details arrive.
+    if (p.coming_soon) return;
     if (!PURPOSES.includes(p.purpose)) errors.push(`${at}: "purpose" must be one of ${PURPOSES.join(", ")}.`);
     if (!TYPES.includes(p.type)) errors.push(`${at}: "type" must be one of ${TYPES.join(", ")}.`);
     if (p.status && !STATUSES.includes(p.status)) errors.push(`${at}: "status" must be one of ${STATUSES.join(", ")}.`);
@@ -54,7 +56,6 @@ export function checkPortfolio(data, siteRoot) {
       (s.hotspots ?? []).forEach((h) => !ids.has(h.to) && errors.push(`${at}, tour room ${s.id}: a hotspot leads to "${h.to}", which is not a room in this tour.`));
     });
   });
-  (data.upcoming ?? []).forEach((u, i) => !u?.name && errors.push(`Coming soon ${i + 1}: needs a "name".`));
   return errors;
 }
 
