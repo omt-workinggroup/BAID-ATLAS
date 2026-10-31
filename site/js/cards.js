@@ -1,64 +1,76 @@
-// Property card. On phones the name, price and facts sit on the photo (Homio style); on desktop they sit
-// under it (three-column grid). The same markup serves both; CSS decides.
+// Property card: photo (with save and compare), then price and purpose, name, area, type and key facts,
+// who lists it, and Call / Email / WhatsApp. One layout for phones and desktop.
+import { SITE_URL } from "./config.js";
 import { html, icon } from "./core.js";
-import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, formatPrice, keyFacts, place, small } from "./data.js";
+import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, keyFacts, place, small, waLink, whatsappLink } from "./data.js";
+import { isCompared, isSaved } from "./store.js";
 
 const isNew = (p) => p.listed && Date.now() - new Date(p.listed).getTime() < 30 * 86_400_000;
+const TYPE_SHORT = { ...TYPE_LABELS, commercial: "Offices & stores" };
 
 function tag(p) {
+  if (p.coming_soon) return "Coming soon";
   if (p.status && p.status !== "available") return STATUS_LABELS[p.status];
-  if (isNew(p)) return "New";
-  return p.stage && p.stage !== "completed" ? STAGE_LABELS[p.stage] : null;
+  if (p.stage && p.stage !== "completed") return STAGE_LABELS[p.stage];
+  return isNew(p) ? "New" : null;
 }
+export const initials = (name) =>
+  String(name ?? "")
+    .replace(/\b(ltd|limited|plc|inc)\b\.?/gi, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
 
-// Until a property's photos arrive, its thumbnail is drawn: its initial over a dark architectural pattern.
+// Until a property's photos arrive, its thumbnail is drawn: its initial in a thin frame.
 export function artwork(p) {
   return html`<span class="art" aria-hidden="true"><span class="art__grid"></span><span class="art__mark">${p.title.charAt(0)}</span><span class="art__name">${p.title}</span></span>`;
 }
 
-// "away" is how far the visitor is from it (when they have shared their location).
-export function card(p, { eager = false, away = null } = {}) {
-  if (p.coming_soon) {
-    return html`<article class="card card--soon">
-      <a class="card__media" href="/properties/${p.slug}" aria-label="${p.title}, coming soon">
-        ${artwork(p)}
-        <span class="card__tag">Coming soon</span>
-        <span class="card__overlay"><span class="card__row"><span class="card__title">${p.title}</span></span><span class="card__facts"><span>${p.summary ?? "Details and images coming soon"}</span></span></span>
-      </a>
-      <div class="card__body">
-        <div class="card__row"><h3 class="card__title"><a href="/properties/${p.slug}">${p.title}</a></h3><span class="card__price">Coming soon</span></div>
-        <p class="card__place">${p.summary ?? "Details and images coming soon"}</p>
-      </div>
-    </article>`;
-  }
-  const c = cover(p);
-  const facts = keyFacts(p).slice(0, 3);
-  const factList = facts.length || away ? html`<ul class="card__facts">${facts.map(([ic, t]) => html`<li>${icon(ic, 15)}${t}</li>`)}${away ? html`<li class="card__away">${icon("locate", 15)}${away} away</li>` : ""}</ul>` : "";
-  return html`<article class="card">
-    <a class="card__media" href="/properties/${p.slug}" aria-label="${p.title}, ${formatPrice(p.price)}">
-      ${c ? html`<img src="${small(c)}" alt="" loading="${eager ? "eager" : "lazy"}" ${eager ? html`fetchpriority="high"` : ""} decoding="async" />` : html`<span class="card__noimg">Images to follow</span>`}
-      ${tag(p) ? html`<span class="card__tag">${tag(p)}</span>` : ""}
-      <span class="card__overlay">
-        <span class="card__row"><span class="card__title">${p.title}</span><span class="card__price">${formatPrice(p.price)}</span></span>
-        ${factList}
-      </span>
-    </a>
-    <div class="card__body">
-      <div class="card__row"><h3 class="card__title"><a href="/properties/${p.slug}">${p.title}</a></h3><span class="card__price">${formatPrice(p.price)}</span></div>
-      <p class="card__place">${place(p)} · ${PURPOSE_LABELS[p.purpose] ?? ""}</p>
-      ${factList}
-    </div>
-  </article>`;
+// The two small round buttons on the photo. data-save / data-compare are handled once per page (wireCards).
+export function photoTools(p) {
+  return html`<button type="button" class="ptool card__save" data-save="${p.slug}" aria-pressed="${isSaved(p.slug) ? "true" : "false"}" aria-label="Save ${p.title}">${icon("heart", 18, 1.8)}</button>
+    <button type="button" class="ptool card__cmp" data-compare="${p.slug}" aria-pressed="${isCompared(p.slug) ? "true" : "false"}" aria-label="Compare ${p.title}">${icon("compare", 17, 1.8)}</button>`;
 }
 
-// The property picked on the map.
-export function mapCard(p) {
+// "away" is how far the visitor is from it (when they have shared their location).
+export function card(p, { eager = false, away = null, owner = {} } = {}) {
   const c = cover(p);
-  return html`<a class="map-card" href="/properties/${p.slug}">
-    ${c ? html`<img src="${small(c)}" alt="" />` : ""}
-    <span class="map-card__text"><span class="eyebrow">${place(p)}</span><strong>${p.title}</strong><span>${formatPrice(p.price)}</span></span>
-    ${icon("arrow", 18, 1.8)}
-  </a>`;
+  const url = `/properties/${p.slug}`;
+  const lister = p.listed_by ?? owner.name;
+  const t = tag(p);
+  const facts = keyFacts(p).slice(0, 3);
+  const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : null;
+  const wa = p.coming_soon ? waLink(owner.whatsapp, `Hello, please tell me about "${p.title}" (${SITE_URL}${url}).`) : whatsappLink(owner.whatsapp, p, `${SITE_URL}${url}`);
+  const mail = owner.email ? `mailto:${owner.email}?subject=${encodeURIComponent(p.title)}&body=${encodeURIComponent(`Hello, I'm interested in "${p.title}" (${SITE_URL}${url}).`)}` : null;
+  return html`<article class="card${p.coming_soon ? " card--soon" : ""}">
+    <div class="card__media">
+      <a href="${url}" tabindex="-1" aria-hidden="true">${c ? html`<img src="${small(c)}" alt="" loading="${eager ? "eager" : "lazy"}" ${eager ? html`fetchpriority="high"` : ""} decoding="async" />` : artwork(p)}</a>
+      ${t ? html`<span class="card__tag">${t}</span>` : ""}
+      ${photoTools(p)}
+    </div>
+    <div class="card__body">
+      <p class="card__price"><strong>${p.coming_soon ? "Coming soon" : formatPrice(p.price)}</strong>${PURPOSE_LABELS[p.purpose] ? html`<span class="chip-s">${PURPOSE_LABELS[p.purpose]}</span>` : ""}</p>
+      <h3 class="card__title"><a href="${url}">${p.title}</a></h3>
+      <p class="card__place">${icon("pin", 15)}${place(p) || p.summary || "Accra"}</p>
+      ${facts.length || p.type || away
+        ? html`<ul class="card__facts">
+            ${p.type ? html`<li class="chip-s">${TYPE_SHORT[p.type] ?? p.type}</li>` : ""}
+            ${facts.map(([ic, text]) => html`<li>${icon(ic, 16)}${text}</li>`)}
+            ${away ? html`<li class="card__away">${icon("locate", 16)}${away} away</li>` : ""}
+          </ul>`
+        : ""}
+      ${lister
+        ? html`<div class="card__by"><span class="av">${initials(lister)}</span><span class="card__lister">${lister}</span>${p.listed_by ? "" : html`<span class="tick" title="Listed by the owner">${icon("check", 11, 3)}</span>`}<button type="button" class="ptool ptool--plain" data-share="${url}" data-title="${p.title}" aria-label="Share ${p.title}">${icon("share", 17)}</button></div>`
+        : ""}
+      <div class="card__actions">
+        ${tel ? html`<a class="btn btn--line-dark" href="${tel}">${icon("phone", 16)}Call</a>` : ""}
+        ${mail ? html`<a class="btn btn--line-dark" href="${mail}">${icon("mail", 16)}Email</a>` : ""}
+        ${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">${icon("chat", 16)}WhatsApp</a>` : ""}
+      </div>
+    </div>
+  </article>`;
 }
 
 // A brochure shown as an open printed booklet (its first two pages), linking to the PDF.

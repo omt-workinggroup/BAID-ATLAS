@@ -81,9 +81,10 @@ test.describe("listings", () => {
     await useSamplePortfolio(page);
     await page.goto("/");
     const villa = page.locator("#results .card", { hasText: "Sample: East Legon Villa" });
-    await expect(villa.locator(".card__media")).toHaveAttribute("aria-label", /USD 1,250,000/);
-    await expect(villa.locator(".card__overlay")).toContainText("5 Beds");
-    await expect(page.locator("#results .card", { hasText: "Oyarifa" }).locator(".card__media")).toHaveAttribute("aria-label", /Price on request/);
+    await expect(villa.locator(".card__price")).toContainText("USD 1,250,000");
+    await expect(villa.locator(".card__facts")).toContainText("5 Beds");
+    await expect(villa.getByRole("link", { name: "WhatsApp" })).toHaveAttribute("href", /wa\.me/);
+    await expect(page.locator("#results .card", { hasText: "Oyarifa" }).locator(".card__price")).toContainText("Price on request");
     await expect(page.locator("#results .card", { hasText: "Airport" }).locator(".card__tag")).toHaveText("Under offer");
   });
 
@@ -266,4 +267,110 @@ test("the map falls back to the airport when location isn't shared", async ({ pa
   await page.goto("/map");
   await expect(page.locator("#from-note")).toContainText("Distances are from the airport", { timeout: 15_000 });
   await expect(page.locator("#from")).toHaveValue("airport");
+});
+
+test.describe("search, save and compare", () => {
+  test("the search suggests areas and properties, and filters the list", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/");
+    await page.locator("#q").fill("legon");
+    await expect(page.locator("#suggest")).toContainText("East Legon");
+    await page.locator("#q").press("Enter");
+    await expect(page.locator("#results .card")).toHaveCount(1);
+    await expect(page).toHaveURL(/\?q=legon/);
+    await page.getByRole("button", { name: "Clear search" }).click();
+    await expect(page.locator("#results .card")).toHaveCount(5);
+  });
+
+  test("filters narrow by bedrooms", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Filters" }).click();
+    await page.locator("#filters label", { hasText: "5+" }).click();
+    await page.getByRole("button", { name: "Show results" }).click();
+    await expect(page.locator("#results .card")).toHaveCount(1);
+    await expect(page).toHaveURL(/beds=5/);
+  });
+
+  test("saved properties appear under Saved and on the profile", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Save Sample: East Legon Villa" }).click();
+    await expect(page.getByRole("button", { name: "Save Sample: East Legon Villa" })).toHaveAttribute("aria-pressed", "true");
+    await page.locator("[data-cat=saved]").click();
+    await expect(page.locator("#results .card")).toHaveCount(1);
+    await page.goto("/profile");
+    await expect(page.locator(".mine")).toContainText("Sample: East Legon Villa");
+  });
+
+  test("compare puts properties side by side", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Compare Sample: East Legon Villa" }).click();
+    await page.getByRole("button", { name: "Compare Sample: Cantonments Apartment" }).click();
+    await expect(page.locator(".cmpbar")).toContainText("2 of 3 picked");
+    await page.locator(".cmpbar").getByRole("link", { name: "Compare" }).click();
+    await expect(page).toHaveURL(/\/compare$/);
+    await expect(page.locator(".cmp__name")).toHaveCount(2);
+    await expect(page.locator(".cmp__table")).toContainText("USD 1,250,000");
+  });
+});
+
+test("a property shows icons only for the amenities it lists", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/properties/sample-east-legon-villa");
+  const grid = page.locator("#amenities .amen");
+  await expect(grid.locator("li").first()).toBeVisible();
+  await expect(grid).not.toContainText("Gymnasium");
+});
+
+test("agents and developers lists the owner and invites others to join", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/agents");
+  await expect(page.locator(".pc").first()).toContainText("Propertiq");
+  await page.locator("[data-kind=agent]").click();
+  await expect(page.locator(".pc--join")).toContainText("Are you an agent?");
+  await page.locator(".pc--join").getByRole("link", { name: "Join Propertiq" }).click();
+  await expect(page).toHaveURL(/\/profile\?role=agent/);
+});
+
+test("sign up writes an application with the role and details", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/profile?role=developer");
+  await page.getByRole("link", { name: "Send on WhatsApp" }).click();
+  await expect(page.locator("#signup [role=alert]")).toHaveText("Add your name.");
+  await page.getByLabel("Full name").fill("Sample Person");
+  await page.getByLabel("Phone (WhatsApp)").fill("+233 20 000 0000");
+  await page.getByLabel("Company name").fill("Sample Builders");
+  const href = decodeURIComponent((await page.getByRole("link", { name: "Send on WhatsApp" }).getAttribute("href"))!);
+  expect(href).toContain("join as a developer");
+  expect(href).toContain("Company: Sample Builders");
+  await page.getByRole("tab", { name: "Sign in" }).click();
+  await expect(page.getByRole("heading", { name: "Listing accounts are opening soon" })).toBeVisible();
+});
+
+test.describe("directions", () => {
+  test.use({ geolocation: { latitude: 5.6037, longitude: -0.187 }, permissions: ["geolocation"] });
+
+  test("draw the route with time, distance and turns", async ({ page }) => {
+    await useSamplePortfolio(page);
+    await page.route("**/api/route?**", (r) =>
+      r.fulfill({
+        json: {
+          mode: "drive",
+          distance: 4200,
+          duration: 660,
+          geometry: { type: "LineString", coordinates: [[-0.187, 5.6037], [-0.15, 5.63]] },
+          steps: [{ text: "Head out on Sample Road", distance: 4200 }, { text: "Arrive at the property area", distance: 0 }],
+        },
+      }),
+    );
+    await page.goto("/map?p=sample-east-legon-villa&directions=1");
+    await expect(page.locator("#route")).toContainText("11 min");
+    await expect(page.locator("#route")).toContainText("4.2 km by road");
+    await expect(page.locator("#route")).toContainText("Head out on Sample Road");
+    await expect(page.locator("#route").getByRole("link", { name: "Google Maps" })).toHaveAttribute("href", /destination=/);
+    await page.getByRole("button", { name: "Close directions" }).click();
+    await expect(page.locator("#route")).toBeHidden();
+  });
 });

@@ -3,7 +3,8 @@
 // top and the properties scroll along the bottom; the card in view is the one shown on the map.
 // Extras: the office on the map, straight-line distances from the visitor (the page asks for their
 // location when it opens), the airport or the office (nearest first, with a line to the property picked),
-// and links that open the map on one property (/map?p=slug).
+// links that open the map on one property (/map?p=slug), and road directions from the visitor to a property
+// (/map?p=slug&directions=1), drawn on the map with time, distance and the turns.
 // Speed: the map library starts downloading at once (it is also preloaded in map.html), alongside the
 // properties; the list shows as soon as the properties arrive, and the map opens directly on its final
 // view, so only those tiles load. Nothing animates.
@@ -11,6 +12,7 @@ import { boot, html, icon, render } from "../core.js";
 import { PURPOSE_LABELS, cover, distanceKm, formatKm, formatPrice, keyFacts, loadPortfolio, place, shortPrice, small } from "../data.js";
 import * as m from "../map.js";
 import { locate, quietly } from "../here.js";
+import { openRoute, routeOpen } from "../directions.js";
 
 const library = m.loadMapLibre();
 boot();
@@ -77,7 +79,7 @@ const previewCard = (p) => html`<article class="mpreview">
     <span class="mrow__foot"><span class="mrow__facts">${facts(p).map(([ic, t]) => html`<span>${icon(ic, 14)}${t}</span>`)}</span><b>${formatPrice(p.price)}</b></span>
     <div class="mpreview__actions">
       <a class="btn btn--dark" href="/properties/${p.slug}">View property</a>
-      <a class="btn btn--outline-tan" href="https://www.google.com/maps/dir/?api=1&destination=${p.location.lat},${p.location.lng}" target="_blank" rel="noopener">Directions</a>
+      <button type="button" class="btn btn--line-dark" data-directions="${p.slug}">${icon("route", 16)}Directions</button>
     </div>
   </div>
 </article>`;
@@ -121,6 +123,7 @@ function framing() {
 }
 // /map?p=slug opens on that property; otherwise on all of them, the office and the starting point at once.
 const start = new URLSearchParams(location.search).get("p");
+const wantsDirections = Boolean(new URLSearchParams(location.search).get("directions"));
 const startAt = placed.find((p) => p.slug === start);
 const map = m.createMap(
   document.getElementById("map"),
@@ -184,7 +187,8 @@ function select(slug, { scroll = false, move = true } = {}) {
     carousel.querySelector(`[data-slug="${slug}"]`)?.scrollIntoView({ inline: "center", block: "nearest" });
     document.querySelector(`#list [data-slug="${slug}"]`)?.scrollIntoView({ block: "nearest" });
   }
-  if (move) m.showProperty(map, p);
+  if (move && !routeOpen()) m.showProperty(map, p);
+  document.getElementById("go").hidden = false;
 }
 function deselect() {
   preview.classList.remove("is-open");
@@ -192,6 +196,7 @@ function deselect() {
   markSelected();
   markers.forEach((mk) => mk.getElement().classList.remove("is-active"));
   history.replaceState(null, "", "/map");
+  document.getElementById("go").hidden = true;
   drawLine();
 }
 function fitAll() {
@@ -254,6 +259,8 @@ document.addEventListener("click", (e) => {
   }
   const row = e.target.closest("#list [data-slug], #carousel [data-slug]");
   if (row) return select(row.dataset.slug);
+  const dir = e.target.closest("[data-directions]");
+  if (dir) return startRoute(dir.dataset.directions);
   if (e.target.closest("[data-close]")) deselect();
 });
 document.getElementById("map-q").addEventListener("input", (e) => {
@@ -261,6 +268,16 @@ document.getElementById("map-q").addEventListener("input", (e) => {
   markers.forEach((mk, s) => (mk.getElement().hidden = !visible().some((p) => p.slug === s)));
   drawLists();
 });
+
+// ---- Directions ---------------------------------------------------------------------------------------
+function startRoute(slug, mode) {
+  const p = placed.find((x) => x.slug === slug);
+  if (!p) return;
+  if (selected !== slug) select(slug, { move: false });
+  openRoute({ map, gl, p, owner, here: () => ORIGINS.me.at, setHere: (at) => ((ORIGINS.me.at = at), setOrigin("me")), mode, padding: PADDING });
+}
+document.getElementById("go").addEventListener("click", () => selected && startRoute(selected));
+if (startAt && wantsDirections) startRoute(startAt.slug);
 
 // Phones: when a card settles in the middle of the carousel, the map goes to it.
 let settle;

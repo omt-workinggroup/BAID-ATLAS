@@ -73,6 +73,44 @@ const PATHS = {
   download: "M12 4v11M7 10l5 5 5-5M5 20h14",
   expand: "M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5",
   play: "M8 5v14l11-7z",
+  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
+  people: "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20a6 6 0 0 1 12 0M10 20a6 6 0 0 1 12 0",
+  compare: "M4 5h6v14H4zM14 5h6v14h-6z",
+  link: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
+  globe: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9M12 3C9.5 5.6 8.3 8.6 8.3 12s1.2 6.4 3.7 9",
+  instagram: "M4 4h16v16H4zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17 7h.01",
+  facebook: "M14 21v-8h3l.5-3.5H14V8c0-1 .4-1.6 1.7-1.6H18V3.3A23 23 0 0 0 15.4 3C12.8 3 11 4.6 11 7.5v2H8V13h3v8",
+  linkedin: "M4 9h4v11H4zM6 4.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM11 9h4v1.6c.6-1 1.8-1.8 3.4-1.8 3 0 3.6 2 3.6 4.6V20h-4v-5.6c0-1.3-.2-2.4-1.6-2.4s-1.7 1.1-1.7 2.3V20h-4z",
+  x: "M4 4l16 16M20 4 4 20",
+  tiktok: "M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5M14 3c.5 2.5 2.4 4.3 5 4.5",
+  youtube: "M3 7.5C3 6 4 5 5.5 5h13C20 5 21 6 21 7.5v9c0 1.5-1 2.5-2.5 2.5h-13C4 19 3 18 3 16.5zM10 9v6l5-3z",
+  crane: "M4 21h8M7 21V5l12 3M7 5l4 16M19 8v5M17 13h4v3h-4z",
+  building: "M4 21V5l8-2v18M12 9h8v12M7 8h2M7 12h2M7 16h2M15 13h2M15 17h2M2 21h20",
+  gate: "M3 21V8l9-5 9 5v13M7 21v-9h10v9M10 12v9M14 12v9",
+  walk: "M13 4.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM10 22l2-7 3 3v6M8 12l2-5 4 1 2 4 3 1M12 15l-1.5-6",
+  turn: "M9 20V10a4 4 0 0 1 4-4h6M15 2l4 4-4 4",
+  verified: "M12 3l2.3 1.7 2.8-.2.9 2.7 2.3 1.6-.9 2.7.9 2.7-2.3 1.6-.9 2.7-2.8-.2L12 21l-2.3-1.7-2.8.2-.9-2.7L3.7 15.2l.9-2.7-.9-2.7 2.3-1.6.9-2.7 2.8.2zM8.5 12l2.5 2.5 4.5-5",
+  // Amenities (line icons in the style of the rest)
+  wifi: "M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01",
+  kitchen: "M3 10h18v11H3zM3 14h18M7 10V3h4v4H7M14 3h6v4h-6M8 17h3M15 17h2",
+  ac: "M2 5h20v8H2zM5 10h14M7 16l-1 3M10.5 16l-.5 3M13.5 16l.5 3M17 16l1 3",
+  generator: "M3 6h18v12H3zM10 9l-3 4h4l-2 4M14 10h4M14 13h4M6 18v2M18 18v2",
+  water: "M5 4h14M6 4v12l3 4h6l3-4V4M9 8h2M9 11h2M9 14h2",
+  pool: "M2 18c2 0 2-1.5 4-1.5S8 18 10 18s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M2 21c2 0 2-1.5 4-1.5S8 21 10 21s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M8 15V5a2 2 0 0 1 4 0M14 15V5a2 2 0 0 1 4 0M8 8h6M8 12h6",
+  gym: "M6.5 6.5l11 11M3 10l7-7M14 21l7-7M5 12l7-7M12 19l7-7",
+  shield: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4",
+  lift: "M5 3h14v18H5zM12 3v18M8.5 8l1.5-2 1.5 2M14 16l1.5 2 1.5-2",
+  balcony: "M3 12h18M5 12v8M9 12v8M15 12v8M19 12v8M3 20h18M7 12V4h10v8",
+  smart: "M7 2h10v20H7zM11 18h2M12 6a3 3 0 0 1 3 3M12 3.5a5.5 5.5 0 0 1 5.5 5.5",
+  shop: "M3 9l2-5h14l2 5M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0zM5 13v8h14v-8M10 21v-5h4v5",
+  keys: "M8 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 11h10M18 11v3M21 11v2",
+  garden: "M12 21v-8M12 13c-4 0-6-3-6-7 4 0 6 3 6 7zM12 13c4 0 6-3 6-7-4 0-6 3-6 7zM5 21h14",
+  window: "M4 3h16v18H4zM12 3v18M4 12h16",
+  floor: "M3 21 21 3M3 15 15 3M3 9l6-6M9 21 21 9M15 21l6-6",
+  paint: "M4 4h13v5H4zM17 6h3v6h-8v3M11 15h2v6h-2z",
+  bolt: "M13 2 4 14h7l-1 8 9-12h-7z",
+  cctv: "M3 7l12-4 2 6-12 4zM7 12l1 4h4M15 9l4 1M2 20h7v-4",
+  people2: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M16 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6",
 };
 export function icon(name, size = 22, stroke = 1.6) {
   return raw(
@@ -81,13 +119,14 @@ export function icon(name, size = 22, stroke = 1.6) {
 }
 
 // ---- Page shell ----------------------------------------------------------------------------------------
-// Desktop: a white bar with links, a black "Contact" button and a menu button.
-// Phones: the logo and a call button at the top, and a bottom bar (Home, Map, Contact).
+// Desktop: a black bar with links, a "Contact" button, a profile button and a menu button.
+// Phones: the logo and a call button at the top, and a bottom bar (Home, Map, Agents, Profile, Contact).
 const LINKS = [
   ["/", "Properties"],
   ["/?cat=sale", "For sale"],
   ["/?cat=rent", "For rent"],
   ["/map", "Map"],
+  ["/agents", "Agents & developers"],
 ];
 
 function headerView() {
@@ -101,6 +140,7 @@ function headerView() {
         </nav>
         <div class="site-header__actions">
           <a class="btn btn--dark" href="/contact">Contact</a>
+          <a class="icon-square profile-btn" href="/profile" aria-label="Profile: sign in or sign up">${icon("user", 20)}</a>
           <a class="icon-square" href="tel:" data-owner-tel aria-label="Call us">${icon("phone", 20)}</a>
           <button type="button" class="icon-square menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Menu">${icon("menu", 20, 1.8)}</button>
         </div>
@@ -108,7 +148,7 @@ function headerView() {
     </header>
     <div class="menu" id="menu" hidden>
       <nav aria-label="Main">
-        <ul>${[...LINKS, ["/contact", "Contact"]].map(([href, label], i) => html`<li style="--i:${i}"><a href="${href}">${label}</a></li>`)}</ul>
+        <ul>${[...LINKS, ["/profile", "Profile"], ["/contact", "Contact"]].map(([href, label], i) => html`<li style="--i:${i}"><a href="${href}">${label}</a></li>`)}</ul>
       </nav>
       <p class="menu__foot" data-owner-line></p>
     </div>`;
@@ -118,6 +158,8 @@ function bottomNavView(here) {
   const tabs = [
     ["/", "Home", "home"],
     ["/map", "Map", "map"],
+    ["/agents", "Agents", "people"],
+    ["/profile", "Profile", "user"],
     ["/contact", "Contact", "chat"],
   ];
   return html`<nav class="tabbar" aria-label="Quick links">
@@ -129,7 +171,7 @@ function bottomNavView(here) {
 export function boot() {
   document.body.classList.add("app");
   document.body.insertAdjacentHTML("afterbegin", markup(headerView()));
-  const here = ["/", "/map", "/contact"].includes(location.pathname) ? location.pathname : "";
+  const here = ["/", "/map", "/agents", "/profile", "/contact"].includes(location.pathname) ? location.pathname : "";
   document.body.insertAdjacentHTML("beforeend", markup(bottomNavView(here)));
   // If the logo file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {

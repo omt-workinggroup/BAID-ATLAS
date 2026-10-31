@@ -85,3 +85,48 @@ It explains any mistake in plain words.
 
 Positions on the map (`location.lat` and `location.lng`) should mark the **area**, not the gate. The exact
 address is shared when someone arranges a viewing.
+
+## Amenities
+
+Each property page shows an icon for every amenity in its `features` list: kitchen, air conditioning,
+generator, solar, water/borehole, pool, gym, elevator, parking, security/CCTV, gated, balconies, garden,
+smart home, glazing, floors, finishes, communal areas, retail and property management. Write the feature in
+plain words (for example `"Swimming pool"`, `"Standby generator"`); anything without an icon is listed as
+text underneath. Nothing is shown for amenities a property doesn't list.
+
+## Agents, developers and companies
+
+The Agents page lists the owner (from `owner`, with `"kinds"`) and everyone in `"directory"`. Add a profile
+only once you have checked who they are:
+
+```json
+"directory": [
+  {
+    "name": "Ama Mensah",
+    "kinds": ["agent"],
+    "company": "Mensah Realty",
+    "location": "East Legon, Accra",
+    "areas": ["East Legon", "Airport"],
+    "services": ["Sales", "Rentals"],
+    "phone": "+233 20 000 0000",
+    "whatsapp": "+233 20 000 0000",
+    "email": "ama@example.com",
+    "website": "https://example.com",
+    "socials": { "instagram": "https://instagram.com/…", "linkedin": "https://linkedin.com/in/…" },
+    "experience": "8 years",
+    "verified": true
+  }
+]
+```
+
+`kinds` can be `agent`, `developer`, `company` and `estate`. To show a property as theirs, add
+`"listed_by": "Ama Mensah"` to that property. `pnpm check:properties` checks each profile has a name, a valid
+kind and a way to reach them, and that links start with `https://`.
+
+## Directions
+
+Directions on the map come from `/api/route` (`api/route.mjs`), which runs on Vercel. It works without any
+setup using the free OpenStreetMap routing servers. For OpenRouteService (free, about 2,000 routes a day),
+create a key at openrouteservice.org, then in Vercel open the project, **Settings → Environment Variables**,
+add `ORS_API_KEY` with the key, and redeploy. The key stays on the server; never put it in `site/`.
+

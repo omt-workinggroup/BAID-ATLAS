@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en-GH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Agents & developers · Propertiq</title>
+    <meta name="description" content="Property agents, real estate developers and companies in Accra, with their contacts, websites and listings." />
+    <meta name="theme-color" content="#111111" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Propertiq" />
+    <meta property="og:locale" content="en_GH" />
+    <meta property="og:url" content="https://propertiq-gh.vercel.app/agents" />
+    <link rel="canonical" href="https://propertiq-gh.vercel.app/agents" />
+    <meta property="og:title" content="Agents & developers · Propertiq" />
+    <meta property="og:description" content="Property agents, real estate developers and companies in Accra, with their contacts, websites and listings." />
+    <meta property="og:image" content="https://propertiq-gh.vercel.app/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Propertiq: a modern home at dusk." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Agents & developers · Propertiq" />
+    <meta name="twitter:description" content="Property agents, real estate developers and companies in Accra, with their contacts, websites and listings." />
+    <meta name="twitter:image" content="https://propertiq-gh.vercel.app/og.jpg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preload" href="/data/properties.json" as="fetch" crossorigin />
+    <link rel="preload" href="/fonts/plus-jakarta-sans-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="modulepreload" href="/js/core.js" />
+    <link rel="modulepreload" href="/js/data.js" />
+    <link rel="modulepreload" href="/js/here.js" />
+    <link rel="modulepreload" href="/js/cards.js" />
+    <link rel="preload" href="/brand/propertiq-logo.webp" as="image" type="image/webp" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script type="module" src="/js/pages/agents.js"></script>
+  </head>
+  <body>
+    <main id="main" class="dir-page">
+      <header class="dir-page__head">
+        <p class="eyebrow">Agents · Developers · Companies</p>
+        <h1>The people behind the properties</h1>
+        <p>Agents who show and sell, developers who build, and companies that manage. Every profile here is checked before it appears.</p>
+      </header>
+      <form class="search" id="dir-search" role="search">
+        <label class="search__box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg>
+          <span class="sr-only">Search by name or area</span>
+          <input id="dir-q" type="search" placeholder="Search by name or area" autocomplete="off" />
+        </label>
+      </form>
+      <nav class="cats" aria-label="Kinds" id="kinds"></nav>
+      <div class="dir" id="dir" aria-live="polite"></div>
+    </main>
+  </body>
+</html>

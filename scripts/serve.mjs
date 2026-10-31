@@ -1,7 +1,7 @@
 // Local preview server for the static site, with the same routes as Vercel (vercel.json):
 //   node scripts/serve.mjs            -> http://localhost:3000
 //   PORT=4000 node scripts/serve.mjs
-// No build step: edit a file in site/ and refresh the browser.
+// No build step: edit a file in site/ and refresh the browser. Functions in api/ (e.g. /api/route) run too.
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
@@ -57,8 +57,24 @@ async function resolve(pathname) {
   return r ? file(`${r.dest}.html`) : null;
 }
 
+// /api/<name> runs the GET handler exported by api/<name>.mjs, as Vercel does.
+async function api(req, res, url) {
+  const name = url.pathname.slice(5).replace(/[^a-z0-9-]/gi, "");
+  try {
+    const mod = await import(new URL(`../api/${name}.mjs`, import.meta.url));
+    if (req.method !== "GET" || !mod.GET) throw new Error("method");
+    const out = await mod.GET(new Request(url));
+    res.writeHead(out.status, Object.fromEntries(out.headers));
+    res.end(Buffer.from(await out.arrayBuffer()));
+  } catch {
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end('{"error":"Not found"}');
+  }
+}
+
 createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
+  if (url.pathname.startsWith("/api/")) return api(req, res, url);
   const redirect = redirectFor(url);
   if (redirect) {
     res.writeHead(redirect.status, { Location: redirect.location });

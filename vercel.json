@@ -129,11 +129,6 @@
       "permanent": true
     },
     {
-      "source": "/compare",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/trust-and-verification",
       "destination": "/",
       "permanent": true

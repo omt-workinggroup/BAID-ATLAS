@@ -59,6 +59,21 @@ export function checkPortfolio(data, siteRoot) {
       (s.hotspots ?? []).forEach((h) => !ids.has(h.to) && errors.push(`${at}, tour room ${s.id}: a hotspot leads to "${h.to}", which is not a room in this tour.`));
     });
   });
+  // Agents, developers and companies (the Agents page). Each needs a name, a kind and a way to reach them.
+  const KINDS = ["agent", "developer", "company", "estate"];
+  const okUrl = (u) => typeof u === "string" && /^https:\/\//.test(u);
+  const people = [...(data.owner?.kinds ? [{ ...data.owner, at: "owner" }] : []), ...(data.directory ?? []).map((d, i) => ({ ...d, at: `Directory ${i + 1}` }))];
+  if (data.directory != null && !Array.isArray(data.directory)) errors.push('"directory" must be a list.');
+  people.forEach((x) => {
+    const at = x.name ? `${x.at} (${x.name})` : x.at;
+    if (!x.name) errors.push(`${at}: "name" is missing.`);
+    const kinds = x.kinds ?? [x.kind];
+    if (!kinds.length || kinds.some((k) => !KINDS.includes(k))) errors.push(`${at}: "kinds" must be some of ${KINDS.join(", ")}.`);
+    if (!x.phone && !x.whatsapp && !x.email) errors.push(`${at}: add a phone, WhatsApp number or email.`);
+    if (x.website && !okUrl(x.website)) errors.push(`${at}: "website" must start with https://`);
+    Object.entries(x.socials ?? {}).forEach(([k, u]) => !okUrl(u) && errors.push(`${at}: the ${k} link must start with https://`));
+    if (x.logo) fileOk(x.logo, `${at}, logo`);
+  });
   return errors;
 }
 

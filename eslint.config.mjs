@@ -14,7 +14,7 @@ export default [
     languageOptions: { sourceType: "script", globals: { ...globals.serviceworker } },
   },
   {
-    files: ["scripts/**/*.mjs", "tests/**/*.js", "*.mjs"],
+    files: ["scripts/**/*.mjs", "tests/**/*.js", "api/**/*.mjs", "*.mjs"],
     languageOptions: { ecmaVersion: 2024, sourceType: "module", globals: { ...globals.node } },
   },
 ];

@@ -33,6 +33,8 @@
     <link rel="modulepreload" href="/js/data.js" />
     <link rel="modulepreload" href="/js/here.js" />
     <link rel="modulepreload" href="/js/cards.js" />
+    <link rel="modulepreload" href="/js/store.js" />
+    <link rel="modulepreload" href="/js/collect.js" />
     <link rel="preload" href="/brand/propertiq-logo.webp" as="image" type="image/webp" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
@@ -47,8 +49,19 @@
         </div>
         <button type="button" class="near" id="near" hidden>Show distances from me</button>
       </header>
+      <form class="search" id="search" role="search">
+        <label class="search__box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg>
+          <span class="sr-only">Search by area or property name</span>
+          <input id="q" name="q" type="search" placeholder="Search Ridge, Tse Addo, apartments…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="suggest" />
+          <button type="button" class="search__filters" id="open-filters" aria-label="Filters"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4" /></svg><span class="search__dot" id="filter-dot" hidden></span></button>
+        </label>
+        <div class="suggest" id="suggest" role="listbox" aria-label="Suggestions" hidden></div>
+      </form>
       <nav class="cats" aria-label="Categories" id="cats"></nav>
+      <p class="results-summary" id="summary" aria-live="polite"></p>
       <div id="results" class="cards" aria-live="polite" aria-busy="true"></div>
+      <dialog class="sheet" id="filters" aria-labelledby="filters-h"></dialog>
     </main>
   </body>
 </html>

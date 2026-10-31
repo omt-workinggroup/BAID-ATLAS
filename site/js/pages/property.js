@@ -1,11 +1,14 @@
 // One property, laid out like the reference detail screen: a photo with the name, place and price, a
-// stats card, section tabs, a photo grid, "About Property" with See more, then units, features, payment
+// stats card, section tabs, a photo grid, "About Property" with See more, then units, amenities, payment
 // plan, 3D tour, floor plans, brochure and location. Phones get a bottom bar (price, Book a Viewing,
 // Contact Agent); desktop gets the same actions in a side panel. Printing gives a clean details sheet.
 import { SITE_URL } from "../config.js";
 import { boot, html, icon, render, setTitle, toast } from "../core.js";
 import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, money, paymentPlan, place, shortPrice, small, waLink, whatsappLink } from "../data.js";
-import { artwork, booklet, card } from "../cards.js";
+import { artwork, booklet, card, initials } from "../cards.js";
+import { amenitiesOf } from "../amenities.js";
+import { wireCollect } from "../collect.js";
+import { isCompared, isSaved } from "../store.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
 import { openVisit } from "../visit.js";
@@ -14,6 +17,7 @@ import { awayFrom, locate, quietly } from "../here.js";
 const STAT_NAMES = { bed: "Beds", bath: "Baths", car: "Parking", area: "Size", plot: "Land" };
 
 boot();
+wireCollect();
 document.body.classList.add("page-detail");
 const slug = decodeURIComponent(location.pathname.split("/").filter(Boolean)[1] ?? "");
 const root = document.getElementById("pd");
@@ -67,6 +71,7 @@ function show(p, owner) {
   const facts = keyFacts(p);
   const status = [p.stage && STAGE_LABELS[p.stage], p.status && p.status !== "available" ? STATUS_LABELS[p.status] : null].filter(Boolean).join(" · ");
   const about = [p.summary, ...String(p.description ?? "").split(/\n\s*\n/)].filter(Boolean);
+  const amenities = amenitiesOf(p);
   const others = filterProperties((portfolio.properties ?? []).filter((x) => x.slug !== p.slug), { sort: "newest" }).slice(0, 3);
   const canBook = Boolean(owner.whatsapp || owner.email);
   const actions = (variant) => html`
@@ -78,7 +83,7 @@ function show(p, owner) {
   const tabs = [
     ["about-property", "Overview"],
     p.unit_types?.length && ["units", "Units"],
-    p.features?.length && ["features", "Features"],
+    p.features?.length && ["amenities", "Amenities"],
     plan && ["payment", "Payment plan"],
     hasTour(p) && ["tour", "3D Tour"],
     plans.length && ["plans", "Floor Plans"],
@@ -93,7 +98,11 @@ function show(p, owner) {
         ${cover(p) ? html`<img src="${cover(p).src}" alt="${cover(p).alt ?? p.title}" fetchpriority="high" />` : ""}
         <div class="pd-top__bar">
           <a class="round" href="/" aria-label="Back to properties">${icon("back", 20, 2)}</a>
-          <div><button type="button" class="round" id="share" aria-label="Share">${icon("share", 18, 1.8)}</button></div>
+          <div>
+            <button type="button" class="round" data-save="${p.slug}" aria-pressed="${isSaved(p.slug) ? "true" : "false"}" aria-label="Save">${icon("heart", 18, 1.8)}</button>
+            <button type="button" class="round" data-compare="${p.slug}" aria-pressed="${isCompared(p.slug) ? "true" : "false"}" aria-label="Compare">${icon("compare", 17, 1.8)}</button>
+            <button type="button" class="round" id="share" aria-label="Share">${icon("share", 18, 1.8)}</button>
+          </div>
         </div>
         ${p.renders ? html`<span class="pd-top__note">Artist's impression</span>` : ""}
         <div class="pd-top__text">
@@ -139,7 +148,14 @@ function show(p, owner) {
             ? section("units", "Units", html`<div class="units">${p.unit_types.map((u) => html`<div class="unit"><strong>${u.name}</strong><span>${formatArea(u.size) ?? ""}</span></div>`)}</div>`)
             : ""}
 
-          ${p.features?.length ? section("features", "Features", html`<ul class="ticks">${p.features.map((x) => html`<li>${icon("check", 16, 2.2)}${x}</li>`)}</ul>`) : ""}
+          ${amenities.found.length || amenities.other.length
+            ? section(
+                "amenities",
+                "Amenities",
+                html`${amenities.found.length ? html`<ul class="amen">${amenities.found.map(([ic, label, text]) => html`<li title="${text}">${icon(ic, 40, 1.2)}<span>${label}</span></li>`)}</ul>` : ""}
+                  ${amenities.other.length ? html`<ul class="ticks">${amenities.other.map((x) => html`<li>${icon("check", 16, 2.2)}${x}</li>`)}</ul>` : ""}`,
+              )
+            : ""}
 
           ${plan
             ? section(
@@ -190,7 +206,7 @@ function show(p, owner) {
                 "Location",
                 html`${typeof p.location?.lat === "number" ? html`<div class="pd-map" id="pd-map" role="region" aria-label="Satellite map of the area"></div><p class="fineprint">The circle marks the neighbourhood. The exact address is shared when you arrange a viewing.</p><p class="away" id="pd-away"><button type="button" class="near" data-near>How far is it from me?</button></p>` : html`<p>${place(p)}</p>`}
                   ${p.nearby?.length ? html`<ul class="nearby">${p.nearby.map((x) => html`<li>${icon("pin", 15)}${x}</li>`)}</ul>` : ""}
-                  <p class="pd-links">${typeof p.location?.lat === "number" ? html`<a class="text-link" href="/map?p=${p.slug}">Open on the map</a>` : ""}${p.website ? html`<a class="text-link" href="${p.website}" target="_blank" rel="noopener">Visit the development's website</a>` : ""}</p>`,
+                  <p class="pd-links">${typeof p.location?.lat === "number" ? html`<a class="btn btn--dark" href="/map?p=${p.slug}&directions=1">${icon("route", 17)}Directions</a><a class="text-link" href="/map?p=${p.slug}">Open on the map</a>` : ""}${p.website ? html`<a class="text-link" href="${p.website}" target="_blank" rel="noopener">Visit the development's website</a>` : ""}</p>`,
               )
             : ""}
         </div>
@@ -198,13 +214,14 @@ function show(p, owner) {
         <aside class="side" aria-label="Arrange a viewing">
           <p class="eyebrow">${PURPOSE_LABELS[p.purpose] ?? ""}${status ? ` · ${status}` : ""}</p>
           <p class="side__price">${formatPrice(p.price)}</p>
+          ${p.listed_by ?? owner.name ? html`<p class="side__by"><span class="av">${initials(p.listed_by ?? owner.name)}</span><span>Listed by <strong>${p.listed_by ?? owner.name}</strong></span></p>` : ""}
           <p class="fineprint">Ask a question, get the payment terms or book a visit.</p>
           ${actions("side")}
           <p class="print-only">${[owner.phone, owner.email, `${SITE_URL}/properties/${p.slug}`].filter(Boolean).join("  ·  ")}</p>
         </aside>
       </div>
 
-      ${others.length ? html`<section class="more-props" aria-labelledby="more-h"><h2 id="more-h">Other Properties</h2><div class="cards">${others.map((x) => card(x))}</div></section>` : ""}
+      ${others.length ? html`<section class="more-props" aria-labelledby="more-h"><h2 id="more-h">Other Properties</h2><div class="cards">${others.map((x) => card(x, { owner }))}</div></section>` : ""}
 
       <div class="buybar">
         <p class="buybar__price"><strong>${shortPrice(p.price)}</strong><span>${p.price?.on_request ? "Contact us" : "Total Price"}</span></p>

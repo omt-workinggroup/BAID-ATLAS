@@ -18,8 +18,21 @@
     "office": {
       "lat": 5.6191189,
       "lng": -0.1826011
-    }
+    },
+    "kinds": [
+      "developer",
+      "company"
+    ],
+    "areas": [
+      "Spintex",
+      "Airport West",
+      "Ridge",
+      "Tse Addo"
+    ],
+    "experience": "Close to 10 years",
+    "socials": {}
   },
+  "directory": [],
   "properties": [
     {
       "slug": "the-parkchester-residence",
