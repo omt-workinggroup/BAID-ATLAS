@@ -1722,14 +1722,12 @@ body.app {
   background: none;
   color: var(--ink);
 }
-.mapx__chips,
 .mapx__filters {
   display: flex;
   gap: 0.45rem;
   overflow-x: auto;
   scrollbar-width: none;
 }
-.mapx__chips::-webkit-scrollbar,
 .mapx__filters::-webkit-scrollbar {
   display: none;
 }
@@ -1752,102 +1750,6 @@ body.app {
   color: var(--on-brand);
   font-weight: 700;
 }
-.mapx .map-style {
-  display: flex;
-  padding: 0.2rem;
-  border-radius: 999px;
-  background: var(--glass);
-  box-shadow: 0 0 0 1px var(--line);
-}
-.mapx .map-style button {
-  padding: 0.35rem 0.85rem;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-.mapx .map-style button[aria-pressed="true"] {
-  background: var(--brand);
-  color: var(--on-brand);
-}
-/* Phones: the map/satellite switch floats under the filters, on the right. */
-.mapx .mapx__layers {
-  justify-self: end;
-  box-shadow: var(--shadow), 0 0 0 1px var(--line);
-}
-.mapx__carousel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0.9rem;
-  z-index: 3;
-  display: flex;
-  gap: 0.75rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  padding: 0 1rem;
-}
-.mapx__carousel::-webkit-scrollbar {
-  display: none;
-}
-.mapx__carousel li {
-  flex: 0 0 78%;
-  max-width: 20rem;
-  scroll-snap-align: center;
-}
-.mslide {
-  display: grid;
-  width: 100%;
-  overflow: hidden;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  text-align: left;
-  box-shadow: var(--shadow);
-}
-.mslide[aria-pressed="true"] {
-  border-color: var(--brand);
-}
-.mslide__img {
-  position: relative;
-  display: block;
-  height: 7.5rem;
-  background: var(--surface-2);
-}
-.mslide__img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.mslide__tag {
-  position: absolute;
-  top: 0.55rem;
-  left: 0.55rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  background: var(--sand);
-  color: var(--ink);
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-.mslide__text {
-  display: grid;
-  gap: 0.1rem;
-  padding: 0.7rem 0.9rem 0.85rem;
-  font-size: 0.8rem;
-  color: var(--ink-2);
-}
-.mslide__text b {
-  font-size: 1.05rem;
-  color: var(--brand);
-}
-.mslide__place {
-  color: var(--muted);
-}
 .mapx__preview {
   display: none;
 }
@@ -1863,112 +1765,7 @@ body.app {
   font-size: 0.68rem;
   color: var(--ink-2);
 }
-/* Phones: the zoom, compass and full-screen buttons sit in a row on the left, level with the
-   Map / Satellite switch, so they never cover a price tag or the cards. The map credit stays in its
-   own corner, just above the cards. */
-.mapx .maplibregl-ctrl-bottom-right {
-  bottom: 14.5rem;
-}
-.mapx .maplibregl-ctrl-top-left {
-  top: 7.375rem;
-  left: 0.75rem;
-  display: flex;
-  gap: 0.4rem;
-}
-.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl {
-  margin: 0;
-}
-.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl-group {
-  display: flex;
-  border-radius: 999px;
-  overflow: hidden;
-  box-shadow: var(--shadow), 0 0 0 1px var(--line);
-}
-.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl-group button {
-  width: 2.3rem;
-  height: 2.3rem;
-}
-.mapx .maplibregl-ctrl-top-left .maplibregl-ctrl-group button + button {
-  border-top: 0;
-  border-left: 1px solid var(--line);
-}
 /* Distances. Phones: just above the cards, on the left. Desktop: top right of the map. */
-.mapx__tools {
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 15rem;
-  z-index: 3;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
-  pointer-events: none;
-}
-.mapx__tools > * {
-  pointer-events: auto;
-}
-.mselect,
-.mtool {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: var(--h-chip);
-  padding: 0 0.95rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--ink);
-  font-size: 0.8rem;
-  font-weight: 600;
-  box-shadow: 0 6px 16px -12px rgb(0 0 0 / 0.4);
-}
-.mselect svg,
-.mtool svg {
-  flex: none;
-  color: var(--brand);
-}
-.mselect > span {
-  color: var(--muted);
-  font-weight: 500;
-}
-.mselect__long {
-  display: none;
-}
-.mselect select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0 1rem 0 0;
-  border: 0;
-  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23111111' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right center;
-  color: var(--brand);
-  font-weight: 700;
-  cursor: pointer;
-}
-.mselect select:focus-visible {
-  outline: 0;
-}
-.mselect:focus-within {
-  border-color: var(--brand);
-}
-.mselect option {
-  background: #fff;
-  color: var(--ink);
-}
-.mapx__fromnote {
-  flex-basis: 100%;
-  font-size: 0.75rem;
-  justify-self: start;
-  padding: 0.3rem 0.7rem;
-  border-radius: var(--r-sm);
-  background: var(--glass);
-  color: var(--ink-2);
-}
-.mapx__fromnote:empty {
-  display: none;
-}
 .mrow__away {
   display: inline-flex;
   align-items: center;
@@ -1976,20 +1773,6 @@ body.app {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--brand);
-}
-.mslide__away {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.55rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: var(--brand);
-  color: var(--on-brand);
-  font-size: 0.7rem;
-  font-weight: 700;
 }
 /* Landmarks: the office, the airport and the visitor */
 .landmark {
@@ -2079,6 +1862,134 @@ body.app {
   border-radius: 50%;
   background: rgb(17 17 17 / 0.4);
 }
+/* The property list and the property card (both sizes; phones show the list with the List toggle) */
+.mapx__list {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0.25rem 0.25rem 1rem;
+}
+.mrow {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 1rem;
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  text-align: left;
+}
+.mrow:hover {
+  border-color: rgb(17 17 17 / 0.45);
+}
+.mrow[aria-pressed="true"] {
+  border-color: var(--brand);
+  background: var(--surface-2);
+}
+.mrow__img {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--r);
+  aspect-ratio: 4 / 3.3;
+  background: var(--surface-2);
+}
+.mrow__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mrow__text {
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+  padding: 0.2rem 0;
+}
+.mrow__text strong,
+  .mpreview strong {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+.mrow__place {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.mrow__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+.mrow__facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.mrow__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.mrow__foot b {
+  color: var(--brand);
+  font-size: 0.98rem;
+}
+.mapx__empty {
+  padding: 1rem;
+  color: var(--muted);
+}
+.mpreview {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: 0 24px 50px -24px rgb(0 0 0 / 0.45);
+}
+.mpreview__img {
+  display: block;
+  height: 10.5rem;
+  background: var(--surface-2);
+}
+.mpreview__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mpreview__close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--glass);
+  color: var(--ink);
+}
+.mpreview__text {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem 1rem;
+}
+.mpreview__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.mpreview__actions .btn {
+  padding: 0 0.6rem;
+}
 @media (min-width: 900px) {
   .mapx {
     display: grid;
@@ -2121,88 +2032,6 @@ body.app {
   .mapx__filters {
     flex: none;
   }
-  .mapx__list {
-    display: grid;
-    gap: 0.75rem;
-    align-content: start;
-    overflow-y: auto;
-    min-height: 0;
-    padding: 0.25rem 0.25rem 1rem;
-  }
-  .mrow {
-    display: grid;
-    grid-template-columns: 9.5rem minmax(0, 1fr);
-    gap: 1rem;
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--surface);
-    text-align: left;
-  }
-  .mrow:hover {
-    border-color: rgb(17 17 17 / 0.45);
-  }
-  .mrow[aria-pressed="true"] {
-    border-color: var(--brand);
-    background: var(--surface-2);
-  }
-  .mrow__img {
-    display: block;
-    overflow: hidden;
-    border-radius: var(--r);
-    aspect-ratio: 4 / 3.3;
-    background: var(--surface-2);
-  }
-  .mrow__img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .mrow__text {
-    display: grid;
-    gap: 0.3rem;
-    align-content: start;
-    padding: 0.2rem 0;
-  }
-  .mrow__text strong,
-  .mpreview strong {
-    font-size: 1rem;
-    line-height: 1.25;
-  }
-  .mrow__place {
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-  .mrow__facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.2rem 0.9rem;
-    font-size: 0.78rem;
-    color: var(--ink-2);
-  }
-  .mrow__facts span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-  .mrow__foot {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.35rem;
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-  .mrow__foot b {
-    color: var(--brand);
-    font-size: 0.98rem;
-  }
-  .mapx__empty {
-    padding: 1rem;
-    color: var(--muted);
-  }
   .mapx__stage {
     position: relative;
     inset: auto;
@@ -2215,11 +2044,6 @@ body.app {
     inset: 1rem auto auto 1rem;
     width: min(26rem, 60%);
   }
-  .mapx__chips,
-  .mapx .mapx__layers,
-  .mapx__carousel {
-    display: none;
-  }
   .mapx__preview {
     position: absolute;
     right: 1.25rem;
@@ -2227,89 +2051,14 @@ body.app {
     z-index: 3;
     width: 20rem;
   }
-  .mapx__tools {
-    top: 1rem;
-    right: 1rem;
-    bottom: auto;
-    left: auto;
-    justify-content: flex-end;
-    max-width: 24rem;
-  }
-  .mapx__fromnote {
-    justify-self: end;
-  }
-  .mselect,
-  .mtool {
-    min-height: var(--h-btn);
-  }
-  .mselect__long {
-    display: inline;
-  }
-  .mselect__short {
-    display: none;
-  }
   .mapx__preview.is-open {
     display: block;
-  }
-  .mpreview {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--surface);
-    box-shadow: 0 24px 50px -24px rgb(0 0 0 / 0.45);
-  }
-  .mpreview__img {
-    display: block;
-    height: 10.5rem;
-    background: var(--surface-2);
-  }
-  .mpreview__img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .mpreview__close {
-    position: absolute;
-    top: 0.6rem;
-    right: 0.6rem;
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    border: 0;
-    border-radius: 50%;
-    background: var(--glass);
-    color: var(--ink);
-  }
-  .mpreview__text {
-    display: grid;
-    gap: 0.35rem;
-    padding: 0.9rem 1rem 1rem;
-  }
-  .mpreview__actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-  .mpreview__actions .btn {
-    padding: 0 0.6rem;
   }
   .mapx__note {
     display: block;
     bottom: 0.75rem;
     left: 1rem;
     right: auto;
-  }
-  .mapx .maplibregl-ctrl-bottom-right {
-    bottom: 0;
-  }
-  .mapx .maplibregl-ctrl-top-left {
-    top: auto;
-    bottom: 0.5rem;
-    left: auto;
-    right: 21.5rem;
   }
 }
 
@@ -3271,15 +3020,6 @@ body.app {
 }
 
 /* ---- Map: directions ---------------------------------------------------------------------------------- */
-.mtool {
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-.mtool:hover {
-  border-color: var(--ink);
-}
 /* The panel is a column: the turn list scrolls, the buttons stay in view at the bottom. */
 .route {
   position: absolute;
@@ -3421,10 +3161,7 @@ body.app {
   min-height: var(--h-btn);
   padding: 0 0.6rem;
 }
-.is-routing .mapx__carousel,
-.is-routing .mapx__tools,
 .is-routing .mapx__preview,
-.is-routing .mapx__chips,
 .is-routing .mapx__search {
   display: none !important;
 }
@@ -3650,169 +3387,10 @@ body.app {
   font-size: 0.88rem;
   font-weight: 700;
 }
-.pc--join {
-  justify-items: start;
-  border-style: dashed;
-  background: var(--surface-2);
-}
 
 /* ---- Profile: sign up, sign in, and this device --------------------------------------------------------- */
 .profile {
   max-width: 48rem;
-}
-.seg-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.25rem;
-  margin: 1.5rem 0;
-  padding: 0.3rem;
-  border-radius: 999px;
-  background: var(--surface-2);
-}
-.seg-tabs button {
-  min-height: var(--h-chip);
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  color: var(--ink-2);
-  font: inherit;
-  font-size: 0.92rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-.seg-tabs button[aria-selected="true"] {
-  background: var(--ink);
-  color: #fff;
-}
-.su {
-  display: grid;
-  gap: 1.25rem;
-}
-.roles {
-  display: grid;
-  gap: 0.55rem;
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.roles legend {
-  margin-bottom: 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-@media (min-width: 640px) {
-  .roles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-.role {
-  position: relative;
-  cursor: pointer;
-}
-.role input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-.role__box {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  height: 100%;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-}
-.role__box strong {
-  display: block;
-  font-size: 0.98rem;
-}
-.role__box small {
-  display: block;
-  font-size: 0.82rem;
-  line-height: 1.35;
-  color: var(--muted);
-}
-.role__icon {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 2.9rem;
-  height: 2.9rem;
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  color: var(--ink);
-}
-.role:hover .role__box {
-  border-color: var(--ink-2);
-}
-.role input:checked + .role__box {
-  border: 2px solid var(--ink);
-  padding: calc(0.9rem - 1px) calc(1rem - 1px);
-}
-.role input:checked + .role__box .role__icon {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: #fff;
-}
-.role input:focus-visible + .role__box {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-}
-.su__fields,
-.su__extra {
-  display: grid;
-  gap: 0.9rem;
-}
-@media (min-width: 640px) {
-  .su__fields {
-    grid-template-columns: 1fr 1fr;
-  }
-  .su__extra {
-    grid-column: 1 / -1;
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.su__send {
-  display: grid;
-  gap: 0.5rem;
-}
-@media (min-width: 640px) {
-  .su__send {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.su__send .btn {
-  min-height: var(--h-btn);
-}
-.si {
-  display: grid;
-  justify-items: start;
-  gap: 0.8rem;
-  padding: 1.5rem;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-}
-.si__icon {
-  display: grid;
-  place-items: center;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 50%;
-  background: var(--surface-2);
-}
-.si h2 {
-  font-family: var(--serif);
-  font-size: 1.5rem;
-  font-weight: 500;
-}
-.si p {
-  color: var(--ink-2);
-}
-.si .su__send {
-  width: 100%;
 }
 .mine {
   margin-top: 2.5rem;
@@ -3964,23 +3542,685 @@ body.app {
 }
 
 /* Map: zoomed out, price tags show as dots (see compact() in pages/map.js) */
-.tagpin.is-dot:not(.is-active) .tagpin__label {
+
+/* ---- Profile and accounts (sign up, sign in) ------------------------------------------------------------ */
+.profile__head {
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
+}
+.profile__icon {
+  display: grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  margin-bottom: 0.6rem;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.profile__icon--on {
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 1.8rem;
+}
+.profile__go {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+.profile__go .btn {
+  min-height: 3rem;
+}
+@media (min-width: 640px) {
+  .profile__go {
+    grid-template-columns: 1fr 1fr;
+    max-width: 28rem;
+  }
+}
+.acct {
+  display: grid;
+  margin: 1.5rem 0 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.acct div {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.85rem 1.1rem;
+}
+.acct div + div {
+  border-top: 1px solid var(--line);
+}
+.acct dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.acct dd {
+  margin: 0;
+  font-weight: 600;
+}
+.acct__ok,
+.au__ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.au__ok {
+  margin-left: 0;
+}
+.acct__wait {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+.au {
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 1.5rem var(--gutter) 3rem;
+}
+.au > div {
+  display: grid;
+  gap: 1rem;
+}
+.au h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 7vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.05;
+}
+.au__back {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.au__lead {
+  color: var(--ink-2);
+}
+.steps {
+  display: flex;
+  gap: 0.35rem;
+}
+.steps i {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+.steps i.on {
+  background: var(--ink);
+}
+.stepn {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.au__form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+.au__form .btn {
+  width: 100%;
+  min-height: 3rem;
+}
+.au__field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+.au__field em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--muted);
+}
+.au__field input {
+  width: 100%;
+  min-height: 3.1rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+}
+.au__field input:focus {
+  outline: 0;
+  border-color: var(--ink);
+  background: #fff;
+}
+.au__phone,
+.au__pw {
+  position: relative;
+  display: flex;
+}
+.au__cc {
+  display: grid;
+  place-items: center;
+  flex: none;
+  padding: 0 0.95rem;
+  border: 1px solid var(--line);
+  border-right: 0;
+  border-radius: var(--r) 0 0 var(--r);
+  font-weight: 700;
+}
+.au__phone input {
+  border-radius: 0 var(--r) var(--r) 0;
+}
+.au__pw input {
+  padding-right: 4.5rem;
+}
+.au__show {
+  position: absolute;
+  top: 50%;
+  right: 0.6rem;
+  transform: translateY(-50%);
+  padding: 0.4rem 0.5rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.au__otp {
+  text-align: center;
+  font-size: 1.7rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6em;
+}
+.au__err {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgb(154 59 28 / 0.2);
+  border-radius: var(--r);
+  background: #fbefe9;
+  color: #8a3b1c;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+.au__alt {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+.au__alt a,
+.au__alt .text-link {
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+.au__alt .text-link:disabled {
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  cursor: default;
+}
+.r4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.r4__opt {
+  position: relative;
+  cursor: pointer;
+}
+.r4__opt input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.r4__box {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  height: 100%;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.r4__box small {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.r4__ic {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  margin-bottom: 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+.r4__opt:hover .r4__box {
+  border-color: var(--ink-2);
+}
+.r4__opt input:checked + .r4__box {
+  border: 2px solid var(--ink);
+  padding: calc(1rem - 1px);
+}
+.r4__opt input:checked + .r4__box .r4__ic {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.r4__opt input:focus-visible + .r4__box {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---- Map page: looks, tools, the property card, Map/List on phones, filters ------------------------------ */
+.mapx__bar {
+  display: flex;
+  gap: 0.5rem;
+}
+.mapx__bar .mapx__search {
+  flex: 1;
+  min-width: 0;
+}
+.mapx__iconbtn,
+.mapx__filterbtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex: none;
+  min-width: var(--h-btn);
+  height: var(--h-btn);
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mapx__filterbtn {
+  padding: 0 1rem;
+  height: var(--h-chip);
+}
+.mapx__dot {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: #fff;
+}
+.mapx__chips {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mapx__chips::-webkit-scrollbar {
   display: none;
 }
-.tagpin.is-dot:not(.is-active) .tagpin__tip {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  border: 3px solid #fff;
-  border-radius: 50%;
+.mapx__side {
+  position: absolute;
+  z-index: 4;
+  top: 8.6rem;
+  right: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.looks,
+.mtools {
+  display: grid;
+  overflow: hidden;
+  border-radius: var(--r);
+  background: var(--glass);
+  box-shadow: var(--shadow), 0 0 0 1px var(--line);
+}
+.looks {
+  gap: 0.15rem;
+  padding: 0.25rem;
+}
+.look {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.3rem 0.3rem 0.35rem;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.look__img {
+  width: 2.5rem;
+  height: 1.75rem;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px var(--line);
+  background-size: cover;
+  background-position: center;
+}
+.look--map .look__img {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2040%2028%22%3E%3Crect%20width%3D%2240%22%20height%3D%2228%22%20fill%3D%22%23eeeeee%22/%3E%3Crect%20x%3D%2226%22%20y%3D%2215%22%20width%3D%2210%22%20height%3D%229%22%20fill%3D%22%23e2e2e2%22/%3E%3Cpath%20d%3D%22M-2%2022%20L42%206%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%223%22%20fill%3D%22none%22/%3E%3Cpath%20d%3D%22M12%20-2%20L20%2030%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22/%3E%3C/svg%3E");
+}
+.look--satellite .look__img {
+  background-color: #3b4a32;
+  background-image: url("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/7937/8183");
+}
+.look--hybrid .look__img {
+  background-color: #3b4a32;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2040%2028%22%3E%3Cpath%20d%3D%22M-2%2022%20L42%206%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%221.6%22%20fill%3D%22none%22/%3E%3Cpath%20d%3D%22M12%20-2%20L20%2030%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%221.2%22%20fill%3D%22none%22/%3E%3C/svg%3E"), url("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/7937/8183");
+}
+.look[aria-pressed="true"] {
   background: var(--ink);
-  transform: none;
+  color: #fff;
+}
+.mtools button {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.75rem;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.mtools button + button {
+  border-top: 1px solid var(--line);
+}
+.mtools button:hover,
+.look:not([aria-pressed="true"]):hover {
+  background: var(--surface-2);
+}
+.mapx__loading {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: var(--glass);
+  box-shadow: var(--shadow);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.mapx__empty-map {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.75rem 1rem;
+  border-radius: var(--r);
+  background: var(--glass);
+  box-shadow: var(--shadow);
+  font-size: 0.9rem;
+  text-align: center;
+}
+.mpreview__price {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.mpreview__actions .btn {
+  min-height: var(--h-btn);
+}
+.mapx .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+  border-radius: var(--r);
+}
+.mf-price {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 1fr;
+  gap: 0.5rem;
+}
+.mf-price select,
+.mf-price input {
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+}
+.seg--wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+.seg--wrap .slot span {
+  padding: 0.6rem 0.9rem;
+}
+.mapx__view {
+  display: none;
 }
 @media (max-width: 899px) {
-  .mapx__tools {
-    bottom: 16.5rem;
+  /* Phones: the card slides up from the bottom; the map's own buttons sit just above it. */
+  .mapx__preview {
+    position: absolute;
+    z-index: 6;
+    left: 0.6rem;
+    right: 0.6rem;
+    bottom: 0.6rem;
   }
-  .mapx__fromnote {
-    order: -1;
+  .mapx__preview.is-open {
+    display: block;
+  }
+  .mpreview {
+    display: grid;
+    grid-template-columns: 7.25rem minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: 0 20px 44px -16px rgb(0 0 0 / 0.6);
+  }
+  .mpreview__img {
+    display: block;
+  }
+  .mpreview__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mpreview__text {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+    padding: 0.8rem 0.85rem 0.85rem;
+    font-size: 0.86rem;
+  }
+  .mpreview__close {
+    position: absolute;
+    top: 0.45rem;
+    left: 0.45rem;
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--glass);
+  }
+  .mpreview__actions {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+  }
+  .mpreview__actions .btn {
+    min-height: 2.65rem;
+    padding: 0 0.5rem;
+    font-size: 0.84rem;
+  }
+  .mapx__preview.is-open ~ .mapx__view {
+    bottom: 11.5rem;
+  }
+  .mapx__view {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    display: flex;
+    padding: 0.25rem;
+    border-radius: 999px;
+    background: var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .mapx__view button {
+    min-height: 2.4rem;
+    padding: 0 1.1rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: #fff;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .mapx__view button[aria-pressed="true"] {
+    background: #fff;
+    color: var(--ink);
+  }
+  /* Phones zoom with two fingers; the map's own buttons would crowd the tools. */
+  .mapx .maplibregl-ctrl-top-right {
+    display: none;
+  }
+  .mapx .maplibregl-ctrl-bottom-right {
+    bottom: 4rem;
+  }
+  .look {
+    padding: 0.25rem;
+  }
+  .look__img {
+    width: 2.2rem;
+    height: 1.5rem;
+  }
+  /* List view: the list fills the screen above the toggle. */
+  .mapx[data-view="list"] .mapx__panel {
+    position: absolute;
+    z-index: 8;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem var(--gutter) 5rem;
+    overflow-y: auto;
+    background: var(--bg);
+  }
+  .mapx[data-view="list"] .mapx__view {
+    z-index: 9;
+    bottom: 1rem;
+  }
+  .mapx[data-view="list"] .mapx__preview {
+    display: none;
+  }
+  .mapx__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .mapx__head h1 {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 500;
+  }
+  .mapx__count {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .mapx__panel .mapx__filters {
+    flex: none;
+  }
+  .mapx__list {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .mrow {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 0.8rem;
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    text-align: left;
+    font: inherit;
+    color: inherit;
+  }
+  .mrow__img {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--r);
+    background: var(--surface-2);
+  }
+  .mrow__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mrow__text {
+    display: grid;
+    gap: 0.2rem;
+    align-content: start;
+    font-size: 0.82rem;
+  }
+}
+@media (min-width: 900px) {
+  .mapx__side {
+    top: 1rem;
+    right: 1rem;
+  }
+  /* Zoom, tilt and full screen sit under the looks and tools, clear of the property card. */
+  .mapx .maplibregl-ctrl-top-right {
+    top: 22.5rem;
+    right: 0.4rem;
+  }
+  .mapx__chips {
+    display: none;
+  }
+  .mapx__top {
+    width: min(30rem, 55%);
+  }
+  .mapx__bar .mapx__iconbtn {
+    display: none;
   }
 }

@@ -34,9 +34,10 @@ refresh the browser.
 | File | What's in it |
 | --- | --- |
 | `site/index.html` | Homepage: only the properties, filtered by category (`?cat=sale`, `rent`, `townhouses`, `apartments`, `commercial`, `soon`). Properties marked `"coming_soon": true` show their name on a drawn thumbnail until their photos and details are added. |
-| `site/map.html` | The map page (bottom bar's Map tab): list and price-tag pins on a map (street or satellite), the office marked, straight-line distances from the visitor, the airport or the office, `/map?p=slug` links that open on one property, and road directions (`/map?p=slug&directions=1`, see `site/js/directions.js`). |
-| `site/agents.html` | Agents, developers and companies on one page (the Agents tab). Shows the owner plus approved profiles in `directory` in the data file, and invites others to join. |
-| `site/profile.html` | The Profile tab: sign up (agent, developer, company, estate or home owner) sends a written application to the office on WhatsApp or by email; sign in explains that listing accounts are opening soon; and the visitor's saved properties and location on this device. |
+| `site/map.html` | The map page: opens on Hybrid (Esri satellite imagery with OpenFreeMap road and area names); Satellite and the street Map are a tap away. Nearby properties form numbered clusters; filters (sale or rent, type, price, bedrooms, bathrooms) update the map and list together; the property card's main action is Get directions. Phones switch between Map and List. `/map?p=slug` opens on one property. |
+| `site/agents.html` | Agents, companies, developers and home owners on the platform (the Agents tab), and the office on a satellite map. |
+| `site/profile.html` | The Profile tab: Sign up and Sign in; signed in, the account's name, role, phone and email. Also the saved properties on this phone. |
+| `site/sign-up.html`, `site/sign-in.html`, `site/js/account.js` | Accounts (Supabase Auth): sign up as agent, company, developer or home owner, then phone number, SMS code (sent through SasuSync by `supabase/functions/send-sms`), then name, email and password. Sign in with phone and password; "Forgot password?" resets it by SMS. |
 | `api/route.mjs` | `/api/route`: road directions for the map, run on Vercel. Uses OpenRouteService when `ORS_API_KEY` is set in Vercel, otherwise the free OpenStreetMap routing servers. |
 | `site/property.html` | One property: photo hero, facts, section tabs, photos, payment planner (priced sales), 3D tour, floor plans, brochure, location and contact. Printing gives a clean details sheet. Served at `/properties/:slug`. |
 | `site/js/data.js` | Reads the properties file; price, area, filter, viewing-message and payment-plan helpers. |

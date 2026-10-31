@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { amenitiesOf } from "../../site/js/amenities.js";
 import { formatKm } from "../../site/js/data.js";
+import { normalisePhone, showPhone, validPhone } from "../../site/js/account.js";
 import { GET } from "../../api/route.mjs";
 
 describe("amenities", () => {
@@ -17,6 +18,15 @@ describe("distances", () => {
   it("never shows 1000 m", () => {
     expect(formatKm(0.999)).toBe("1.0 km");
     expect(formatKm(0.95)).toBe("950 m");
+  });
+});
+
+describe("phone numbers", () => {
+  it("reads Ghana numbers however they are typed", () => {
+    for (const n of ["024 123 4567", "241234567", "+233 24 123 4567", "00233241234567", "233241234567"]) expect(normalisePhone(n)).toBe("+233241234567");
+    expect(validPhone("+233241234567")).toBe(true);
+    expect(validPhone(normalisePhone("024 123"))).toBe(false);
+    expect(showPhone("+233241234567")).toBe("+233 24 123 4567");
   });
 });
 

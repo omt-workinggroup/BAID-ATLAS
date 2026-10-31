@@ -340,7 +340,7 @@ function show(p, owner) {
         import("../map.js").then(async (m) => {
           await m.loadMapLibre();
           const at = m.lngLat(p);
-          const map = m.createMap(mapEl, { center: at, zoom: 15.3, pitch: 50, cooperative: true });
+          const map = await m.createMap(mapEl, { center: at, zoom: 15.3, pitch: 45, style: "hybrid", cooperative: true });
           m.addArea(map, at);
         });
       },

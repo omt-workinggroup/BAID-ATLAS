@@ -1,15 +1,11 @@
-// Map page: every development on a 3D map of Accra. Desktop: filters and a list on the left, the map on
-// the right with price tags and a floating preview card. Phones: the map fills the screen, filters sit on
-// top and the properties scroll along the bottom; the card in view is the one shown on the map.
-// Extras: the office on the map, straight-line distances from the visitor (the page asks for their
-// location when it opens), the airport or the office (nearest first, with a line to the property picked),
-// links that open the map on one property (/map?p=slug), and road directions from the visitor to a property
-// (/map?p=slug&directions=1), drawn on the map with time, distance and the turns.
-// Speed: the map library starts downloading at once (it is also preloaded in map.html), alongside the
-// properties; the list shows as soon as the properties arrive, and the map opens directly on its final
-// view, so only those tiles load. Nothing animates.
-import { boot, html, icon, render } from "../core.js";
-import { PURPOSE_LABELS, cover, distanceKm, formatKm, formatPrice, keyFacts, loadPortfolio, place, shortPrice, small } from "../data.js";
+// Map page: every property on a map of Accra, opening on satellite with road names (Hybrid); Satellite and
+// the street map are a tap away. Nearby properties group into numbered clusters that split as you zoom in;
+// the rest show their price. Filters (sale or rent, type, price, bedrooms, bathrooms) update the map and the
+// list together. Picking a property opens a card whose main action is Get directions (road route from the
+// visitor, see directions.js). Desktop: the list on the left. Phones: the map, or the list, with a toggle.
+// /map?p=slug opens on one property; add &directions=1 to start directions.
+import { boot, html, icon, raw, render, toast } from "../core.js";
+import { PURPOSE_LABELS, TYPE_LABELS, contactFor, cover, distanceKm, formatKm, formatPrice, keyFacts, loadPortfolio, place, shortPrice, small } from "../data.js";
 import * as m from "../map.js";
 import { locate, quietly } from "../here.js";
 import { openRoute, routeOpen } from "../directions.js";
@@ -18,292 +14,352 @@ const library = m.loadMapLibre();
 boot();
 const portfolio = await loadPortfolio().catch(() => ({ properties: [] }));
 const owner = portfolio.owner ?? {};
-const placed = (portfolio.properties ?? []).filter((p) => typeof p.location?.lat === "number" && typeof p.location?.lng === "number");
+const placed = (portfolio.properties ?? []).filter((p) => !p.coming_soon && typeof p.location?.lat === "number" && typeof p.location?.lng === "number");
+const bySlug = Object.fromEntries(placed.map((p) => [p.slug, p]));
 
+// ---- Filters --------------------------------------------------------------------------------------------
 const commercial = ["commercial", "office", "retail", "warehouse", "mixed_use"];
-const FILTERS = [
-  ["All", () => true],
-  ["Buy", (p) => p.purpose === "sale"],
-  ["Rent", (p) => p.purpose === "rent"],
-  ["Townhouses", (p) => p.type === "townhouse"],
-  ["Apartments", (p) => p.type === "apartment"],
-  ["Commercial", (p) => commercial.includes(p.type)],
-].filter(([, test], i) => i === 0 || placed.some(test));
+const KINDS = [
+  ["all", "All", () => true],
+  ["sale", "For sale", (p) => p.purpose === "sale"],
+  ["rent", "For rent", (p) => p.purpose === "rent"],
+  ["houses", "Houses", (p) => p.type === "house" || p.type === "townhouse"],
+  ["apartments", "Apartments", (p) => p.type === "apartment"],
+  ["commercial", "Commercial", (p) => commercial.includes(p.type)],
+  ["land", "Land", (p) => p.type === "land"],
+].filter(([k, , test]) => k === "all" || placed.some(test));
+const most = (v) => (typeof v === "number" ? v : Math.max(0, ...(String(v ?? "").match(/\d+/g) ?? ["0"]).map(Number)));
+const f = { kind: "all", q: "", currency: "USD", min: 0, max: 0, beds: 0, baths: 0 };
+const filtersOn = () => Boolean(f.min || f.max || f.beds || f.baths);
+function matches(p) {
+  if (!KINDS.find(([k]) => k === f.kind)[2](p)) return false;
+  if (f.q && ![p.title, place(p)].some((v) => v.toLowerCase().includes(f.q))) return false;
+  if (f.beds && most(p.bedrooms) < f.beds) return false;
+  if (f.baths && most(p.bathrooms) < f.baths) return false;
+  // A price limit applies in the chosen currency; prices in another currency or on request are left out.
+  if (f.min || f.max) {
+    const a = p.price?.amount;
+    if (a == null || p.price.on_request || (p.price.currency ?? "GHS") !== f.currency) return false;
+    if (f.min && a < f.min) return false;
+    if (f.max && a > f.max) return false;
+  }
+  return true;
+}
 
-// Where distances are measured from. Kotoka International Airport's published coordinates; the office
-// comes from the data file; "you" from the browser, only when the visitor asks.
-const ORIGINS = {
-  airport: { label: "the airport", name: "Airport", at: [-0.1683, 5.6053] },
-  ...(typeof owner.office?.lat === "number" ? { office: { label: "our office", name: "Our office", at: [owner.office.lng, owner.office.lat] } } : {}),
-  me: { label: "you", name: "Where I am", at: null },
+// ---- The visitor's position (only after they tap "Show where I am", or if they allowed it before) -------
+let me = null;
+const at = (p) => [p.location.lng, p.location.lat];
+const away = (p) => distanceKm(me, at(p));
+const visible = () => {
+  const rows = placed.filter(matches);
+  return me ? rows.sort((a, b) => away(a) - away(b)) : rows;
 };
 
-let active = 0;
-let query = "";
-let selected = null;
-let origin = "airport";
-
-const lngLatOf = (p) => [p.location.lng, p.location.lat];
-const away = (p) => (ORIGINS[origin]?.at ? distanceKm(ORIGINS[origin].at, lngLatOf(p)) : null);
-const awayText = (p) => {
-  const km = away(p);
-  return km == null ? "" : `${formatKm(km)} from ${ORIGINS[origin].label}`;
-};
-
+// ---- Lists ------------------------------------------------------------------------------------------------
 const facts = (p) => keyFacts(p).slice(0, 2);
+let selected = null;
 const rowCard = (p) => html`<li>
   <button type="button" class="mrow" data-slug="${p.slug}" aria-pressed="false">
     <span class="mrow__img">${cover(p) ? html`<img src="${small(cover(p))}" alt="" loading="lazy" />` : ""}</span>
     <span class="mrow__text">
       <strong>${p.title}</strong>
-      <span class="mrow__place">${place(p)}</span>
+      <span class="mrow__place">${place(p)} · ${TYPE_LABELS[p.type] ?? ""}</span>
       <span class="mrow__facts">${facts(p).map(([ic, t]) => html`<span>${icon(ic, 14)}${t}</span>`)}</span>
-      ${awayText(p) ? html`<span class="mrow__away">${icon("route", 14)}${awayText(p)}</span>` : ""}
+      ${me ? html`<span class="mrow__away">${icon("route", 14)}${formatKm(away(p))} from you</span>` : ""}
       <span class="mrow__foot"><span>${PURPOSE_LABELS[p.purpose] ?? ""}</span><b>${formatPrice(p.price)}</b></span>
     </span>
-  </button>
-</li>`;
-const slideCard = (p) => html`<li>
-  <button type="button" class="mslide" data-slug="${p.slug}">
-    <span class="mslide__img">${cover(p) ? html`<img src="${small(cover(p))}" alt="" loading="lazy" />` : ""}<span class="mslide__tag">${PURPOSE_LABELS[p.purpose] ?? ""}</span>${away(p) != null ? html`<span class="mslide__away">${icon("route", 13)}${formatKm(away(p))}</span>` : ""}</span>
-    <span class="mslide__text"><b>${shortPrice(p.price)}</b><span>${facts(p).map(([, t]) => t).join(", ")}</span><span class="mslide__place">${p.title} · ${place(p)}</span></span>
   </button>
 </li>`;
 const previewCard = (p) => html`<article class="mpreview">
   <a href="/properties/${p.slug}" class="mpreview__img">${cover(p) ? html`<img src="${small(cover(p))}" alt="" />` : ""}</a>
   <button type="button" class="mpreview__close" data-close aria-label="Close">${icon("close", 16, 2)}</button>
   <div class="mpreview__text">
+    <p class="mpreview__price">${formatPrice(p.price)}<span class="chip-s">${PURPOSE_LABELS[p.purpose] ?? ""}</span></p>
     <a href="/properties/${p.slug}"><strong>${p.title}</strong></a>
-    <span class="mrow__place">${place(p)}</span>
-    ${awayText(p) ? html`<span class="mrow__away">${icon("route", 14)}${awayText(p)}, straight line</span>` : ""}
-    <span class="mrow__foot"><span class="mrow__facts">${facts(p).map(([ic, t]) => html`<span>${icon(ic, 14)}${t}</span>`)}</span><b>${formatPrice(p.price)}</b></span>
+    <span class="mrow__place">${place(p)} · ${TYPE_LABELS[p.type] ?? ""}</span>
+    <span class="mrow__facts">${facts(p).map(([ic, t]) => html`<span>${icon(ic, 14)}${t}</span>`)}${me ? html`<span>${icon("route", 14)}${formatKm(away(p))} away</span>` : ""}</span>
     <div class="mpreview__actions">
-      <a class="btn btn--dark" href="/properties/${p.slug}">View property</a>
-      <button type="button" class="btn btn--line-dark" data-directions="${p.slug}">${icon("route", 16)}Directions</button>
+      <button type="button" class="btn btn--dark" data-directions="${p.slug}">${icon("route", 17)}Get directions</button>
+      <a class="btn btn--line-dark" href="/properties/${p.slug}">Details</a>
     </div>
   </div>
 </article>`;
 
-const visible = () => {
-  const rows = placed.filter((p) => FILTERS[active][1](p) && (!query || [p.title, place(p)].some((v) => v.toLowerCase().includes(query))));
-  return ORIGINS[origin]?.at ? rows.sort((a, b) => away(a) - away(b)) : rows;
-};
-
 function drawLists() {
   const rows = visible();
-  document.getElementById("count").textContent = `${rows.length} ${rows.length === 1 ? "development" : "developments"} on the map`;
-  render("#list", rows.length ? rows.map(rowCard) : html`<li class="mapx__empty">No developments match. Try another filter.</li>`);
-  render("#carousel", rows.map(slideCard));
-  const chips = FILTERS.map(([label], i) => html`<button type="button" class="chip" data-filter="${i}" aria-pressed="${i === active ? "true" : "false"}">${label}</button>`);
+  document.getElementById("count").textContent = `${rows.length} ${rows.length === 1 ? "property" : "properties"}${filtersOn() || f.kind !== "all" || f.q ? " match" : " on the map"}`;
+  render("#list", rows.length ? rows.map(rowCard) : html`<li class="mapx__empty">No properties match. <button type="button" class="text-link" data-reset>Clear filters</button></li>`);
+  const chips = KINDS.map(([k, label]) => html`<button type="button" class="chip" data-kind="${k}" aria-pressed="${k === f.kind ? "true" : "false"}">${label}</button>`);
   render("#filters", chips);
   render("#chips", chips);
+  document.querySelectorAll("[data-filter-dot]").forEach((d) => (d.hidden = !filtersOn()));
+  document.getElementById("nomatch").hidden = rows.length > 0;
   markSelected();
 }
 function markSelected() {
-  document.querySelectorAll("[data-slug]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.slug === selected)));
+  document.querySelectorAll("#list [data-slug]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.slug === selected)));
 }
-const fromSel = document.getElementById("from");
-render(fromSel, Object.entries(ORIGINS).map(([k, o]) => html`<option value="${k}">${o.name}</option>`));
-fromSel.value = origin;
 drawLists();
 
-// ---- The map -------------------------------------------------------------------------------------------
+// ---- The map ----------------------------------------------------------------------------------------------
 await library;
 const gl = window.maplibregl;
-const wide = matchMedia("(min-width: 900px)").matches;
-const PADDING = wide ? { top: 140, bottom: 120, left: 140, right: 140 } : { top: 210, bottom: 330, left: 60, right: 80 };
-function framing() {
+const wide = () => matchMedia("(min-width: 900px)").matches;
+const PADDING = () => (wide() ? { top: 140, bottom: 120, left: 120, right: 160 } : { top: 170, bottom: 200, left: 50, right: 90 });
+let look = "hybrid";
+try {
+  const saved = localStorage.getItem("pq-map-look");
+  if (m.STYLES.includes(saved)) look = saved;
+} catch {
+  /* storage unavailable */
+}
+function framing(rows = visible()) {
   const b = new gl.LngLatBounds();
-  visible().forEach((p) => b.extend(m.lngLat(p)));
-  // The starting point is framed too, unless the visitor is far from Accra (then the map stays on Accra).
-  const from = ORIGINS[origin]?.at;
-  if (from && distanceKm(from, m.ACCRA) < 60) b.extend(from);
-  if (ORIGINS.office) b.extend(ORIGINS.office.at);
+  rows.forEach((p) => b.extend(at(p)));
   return b.isEmpty() ? null : b;
 }
-// /map?p=slug opens on that property; otherwise on all of them, the office and the starting point at once.
 const start = new URLSearchParams(location.search).get("p");
 const wantsDirections = Boolean(new URLSearchParams(location.search).get("directions"));
-const startAt = placed.find((p) => p.slug === start);
-const map = m.createMap(
-  document.getElementById("map"),
-  startAt ? { center: m.lngLat(startAt), zoom: 15.6, pitch: 45, style: "map", controls: "top-left" } : { bounds: framing() ?? undefined, padding: PADDING, maxZoom: 13.8, style: "map", controls: "top-left" },
-);
-const markers = new Map();
-for (const p of placed) {
+const startAt = bySlug[start];
+let map;
+try {
+  map = await m.createMap(document.getElementById("map"), {
+    ...(startAt ? { center: at(startAt), zoom: 16.2 } : { bounds: framing() ?? undefined, padding: PADDING(), maxZoom: 14 }),
+    style: look,
+    controls: "top-right",
+    onImageryFail: () => {
+      look = "map";
+      drawLooks();
+      toast("Satellite imagery isn't loading right now, so here's the street map.");
+    },
+  });
+} catch {
+  document.getElementById("loading").textContent = "The map couldn't load. Check your connection and refresh. The list still works.";
+  throw new Error("map failed");
+}
+map.once("load", () => {
+  document.getElementById("loading").hidden = true;
+});
+
+// Properties as a clustered GeoJSON source: numbered circles where they crowd, price tags elsewhere.
+const geojson = () => ({ type: "FeatureCollection", features: visible().map((p) => ({ type: "Feature", properties: { slug: p.slug }, geometry: { type: "Point", coordinates: at(p) } })) });
+function addProperties() {
+  if (map.getSource("props")) return;
+  map.addSource("props", { type: "geojson", data: geojson(), cluster: true, clusterRadius: 52, clusterMaxZoom: 14 });
+  map.addLayer({ id: "clusters", type: "circle", source: "props", filter: ["has", "point_count"], paint: { "circle-color": "#111111", "circle-radius": ["step", ["get", "point_count"], 19, 5, 24, 15, 30], "circle-stroke-width": 3, "circle-stroke-color": "#ffffff" } });
+  map.addLayer({ id: "cluster-count", type: "symbol", source: "props", filter: ["has", "point_count"], layout: { "text-field": ["get", "point_count_abbreviated"], "text-font": ["Noto Sans Bold"], "text-size": 14, "text-allow-overlap": true }, paint: { "text-color": "#ffffff" } });
+}
+map.on("style.load", () => {
+  addProperties();
+  drawPins();
+});
+map.on("click", "clusters", async (e) => {
+  const feature = e.features[0];
+  const zoom = await map.getSource("props").getClusterExpansionZoom(feature.properties.cluster_id);
+  map.jumpTo({ center: feature.geometry.coordinates, zoom: Math.min(zoom + 0.3, 18) });
+});
+map.on("mouseenter", "clusters", () => (map.getCanvas().style.cursor = "pointer"));
+map.on("mouseleave", "clusters", () => (map.getCanvas().style.cursor = ""));
+
+// Price tags are DOM markers for the properties not in a cluster; each is made once and reused.
+const tags = new Map();
+function tagFor(p) {
+  if (tags.has(p.slug)) return tags.get(p.slug);
   const el = document.createElement("button");
   el.type = "button";
   el.className = "tagpin";
-  el.setAttribute("aria-label", `${p.title}, ${formatPrice(p.price)}`);
   el.innerHTML = '<span class="tagpin__label"></span><span class="tagpin__tip"></span>';
   el.querySelector(".tagpin__label").textContent = shortPrice(p.price);
   el.addEventListener("click", (e) => {
     e.stopPropagation();
-    select(p.slug, { scroll: true });
+    select(p.slug, { scroll: true, move: false });
   });
-  markers.set(p.slug, new gl.Marker({ element: el, anchor: "bottom" }).setLngLat(m.lngLat(p)).addTo(map));
+  const mk = new gl.Marker({ element: el, anchor: "bottom" }).setLngLat(at(p));
   // MapLibre labels every marker "Map marker"; give it the property's name and price back.
   el.setAttribute("aria-label", `${p.title}, ${formatPrice(p.price)}`);
+  tags.set(p.slug, mk);
+  return mk;
 }
+function drawPins() {
+  if (!map.getSource("props") || !map.isSourceLoaded("props")) return;
+  const show = new Set(map.querySourceFeatures("props", { filter: ["!", ["has", "point_count"]] }).map((x) => x.properties.slug));
+  if (selected && visible().some((p) => p.slug === selected)) show.add(selected);
+  for (const [slug, mk] of tags) if (!show.has(slug)) mk.remove();
+  for (const slug of show) {
+    const mk = tagFor(bySlug[slug]);
+    if (!mk._map) mk.addTo(map);
+    mk.getElement().classList.toggle("is-active", slug === selected);
+  }
+}
+map.on("moveend", drawPins);
+map.on("sourcedata", (e) => e.sourceId === "props" && e.isSourceLoaded && drawPins());
 
-// Zoomed out, the price tags would pile on top of each other: they become dots until you zoom in (the
-// property picked keeps its tag).
-const compact = () => markers.forEach((mk) => mk.getElement().classList.toggle("is-dot", map.getZoom() < 12.8));
-map.on("zoomend", compact);
-map.once("load", compact);
-
-// Landmarks: the office always; the airport or "you" while distances are measured from them.
-function landmark(cls, label, title) {
+// The office, and "You" once the visitor has shared their location.
+if (typeof owner.office?.lat === "number") {
   const el = document.createElement("div");
-  el.className = `landmark ${cls}`;
-  el.title = title;
-  el.innerHTML = '<span class="landmark__dot"></span><span class="landmark__label"></span>';
-  el.querySelector(".landmark__label").textContent = label;
-  return new gl.Marker({ element: el, anchor: "left", offset: [-7, 0] });
+  el.className = "landmark landmark--office";
+  el.innerHTML = '<span class="landmark__dot"></span><span class="landmark__label">Our office</span>';
+  new gl.Marker({ element: el, anchor: "left", offset: [-7, 0] }).setLngLat([owner.office.lng, owner.office.lat]).addTo(map);
 }
-if (ORIGINS.office) landmark("landmark--office", "Our office", owner.location ?? "Our office").setLngLat(ORIGINS.office.at).addTo(map);
-const airportMark = landmark("landmark--airport", "Airport", "Kotoka International Airport").setLngLat(ORIGINS.airport.at);
-const meMark = landmark("landmark--me", "You", "Your location");
-
-// A dashed line from the chosen starting point to the property picked.
-function drawLine() {
-  if (!map.isStyleLoaded()) return;
-  const from = ORIGINS[origin]?.at;
-  const p = placed.find((x) => x.slug === selected);
-  const data = from && p ? { type: "Feature", geometry: { type: "LineString", coordinates: [from, lngLatOf(p)] }, properties: {} } : { type: "FeatureCollection", features: [] };
-  if (map.getSource("away")) return map.getSource("away").setData(data);
-  map.addSource("away", { type: "geojson", data });
-  map.addLayer({ id: "away-line", type: "line", source: "away", layout: { "line-cap": "round" }, paint: { "line-color": "#111111", "line-width": 2.5, "line-dasharray": [1.5, 2] } });
+const meEl = Object.assign(document.createElement("div"), { className: "landmark landmark--me", innerHTML: '<span class="landmark__dot"></span><span class="landmark__label">You</span>' });
+const meMark = new gl.Marker({ element: meEl, anchor: "left", offset: [-7, 0] });
+function setMe(pos) {
+  me = pos;
+  meMark.setLngLat(me).addTo(map);
+  drawLists();
+  if (selected) render(preview, previewCard(bySlug[selected]));
 }
-map.on("style.load", drawLine);
 
+// ---- Selecting a property ---------------------------------------------------------------------------------
 const preview = document.getElementById("preview");
-const carousel = document.getElementById("carousel");
 function select(slug, { scroll = false, move = true } = {}) {
-  const p = placed.find((x) => x.slug === slug);
+  const p = bySlug[slug];
   if (!p) return;
   selected = slug;
   markSelected();
-  markers.forEach((mk, s) => mk.getElement().classList.toggle("is-active", s === slug));
   render(preview, previewCard(p));
   preview.classList.add("is-open");
   history.replaceState(null, "", `/map?p=${encodeURIComponent(slug)}`);
-  drawLine();
-  if (scroll) {
-    carousel.querySelector(`[data-slug="${slug}"]`)?.scrollIntoView({ inline: "center", block: "nearest" });
-    document.querySelector(`#list [data-slug="${slug}"]`)?.scrollIntoView({ block: "nearest" });
-  }
-  if (move && !routeOpen()) m.showProperty(map, p);
-  document.getElementById("go").hidden = false;
+  if (scroll) document.querySelector(`#list [data-slug="${slug}"]`)?.scrollIntoView({ block: "nearest" });
+  if (move && !routeOpen()) m.showProperty(map, p, { zoom: 16.2 });
+  drawPins();
 }
 function deselect() {
   preview.classList.remove("is-open");
   selected = null;
   markSelected();
-  markers.forEach((mk) => mk.getElement().classList.remove("is-active"));
   history.replaceState(null, "", "/map");
-  document.getElementById("go").hidden = true;
-  drawLine();
+  drawPins();
 }
 function fitAll() {
   const b = framing();
-  if (b) map.fitBounds(b, { padding: PADDING, maxZoom: 13.8, pitch: 0, bearing: 0, animate: false });
+  if (b) map.fitBounds(b, { padding: PADDING(), maxZoom: 14, pitch: 0, bearing: 0, animate: false });
 }
-
-// ---- Distances ---------------------------------------------------------------------------------------
-const note = document.getElementById("from-note");
-function setOrigin(key) {
-  origin = key;
-  fromSel.value = key;
-  if (key === "airport") airportMark.addTo(map);
-  else airportMark.remove();
-  if (key === "me") meMark.setLngLat(ORIGINS.me.at).addTo(map);
-  else meMark.remove();
+function refilter({ fit = true } = {}) {
   drawLists();
-  if (selected) {
-    render(preview, previewCard(placed.find((x) => x.slug === selected)));
-    drawLine();
-  } else fitAll();
+  map.getSource("props")?.setData(geojson());
+  if (selected && !visible().some((p) => p.slug === selected)) deselect();
+  if (fit) fitAll();
 }
-function fromMe() {
-  note.textContent = "Finding you…";
-  return locate().then(
-    (at) => {
-      ORIGINS.me.at = at;
-      note.textContent = "";
-      setOrigin("me");
-    },
-    (err) => {
-      note.textContent = `${err.message} Distances are from ${ORIGINS[origin].label}; choose "Where I am" to try again.`;
-      fromSel.value = origin;
-    },
-  );
-}
-fromSel.addEventListener("change", () => (fromSel.value === "me" ? fromMe() : setOrigin(fromSel.value)));
-if (ORIGINS.airport) airportMark.addTo(map);
-if (startAt) select(startAt.slug, { scroll: true, move: false });
-// Distances from the visitor: straight away if they have already allowed it; otherwise the browser asks.
-quietly().then((at) => {
-  if (at) {
-    ORIGINS.me.at = at;
-    setOrigin("me");
-  } else if (navigator.geolocation) fromMe();
-});
-map.once("load", () => {
-  // The map credit starts folded into its small "i" button, so it doesn't cover the map on phones.
-  document.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
-});
 
-document.addEventListener("click", (e) => {
-  const f = e.target.closest("[data-filter]");
-  if (f) {
-    active = Number(f.dataset.filter);
-    markers.forEach((mk, s) => (mk.getElement().hidden = !visible().some((p) => p.slug === s)));
-    drawLists();
-    fitAll();
-    return;
-  }
-  const row = e.target.closest("#list [data-slug], #carousel [data-slug]");
-  if (row) return select(row.dataset.slug);
-  const dir = e.target.closest("[data-directions]");
-  if (dir) return startRoute(dir.dataset.directions);
-  if (e.target.closest("[data-close]")) deselect();
-});
-document.getElementById("map-q").addEventListener("input", (e) => {
-  query = e.target.value.trim().toLowerCase();
-  markers.forEach((mk, s) => (mk.getElement().hidden = !visible().some((p) => p.slug === s)));
-  drawLists();
-});
-
-// ---- Directions ---------------------------------------------------------------------------------------
-function startRoute(slug, mode) {
-  const p = placed.find((x) => x.slug === slug);
+// ---- Directions --------------------------------------------------------------------------------------------
+function startRoute(slug) {
+  const p = bySlug[slug];
   if (!p) return;
   if (selected !== slug) select(slug, { move: false });
-  openRoute({ map, gl, p, owner, here: () => ORIGINS.me.at, setHere: (at) => ((ORIGINS.me.at = at), setOrigin("me")), mode, padding: PADDING });
+  setView("map");
+  openRoute({ map, gl, p, owner: contactFor(p, portfolio), here: () => me, setHere: setMe, padding: PADDING() });
 }
-document.getElementById("go").addEventListener("click", () => selected && startRoute(selected));
+if (startAt) select(startAt.slug, { scroll: true, move: false });
 if (startAt && wantsDirections) startRoute(startAt.slug);
+// If the visitor allowed location on an earlier visit, use it quietly; never ask on page load.
+quietly().then((pos) => pos && setMe(pos));
 
-// Phones: when a card settles in the middle of the carousel, the map goes to it.
-let settle;
-carousel.addEventListener("scroll", () => {
-  clearTimeout(settle);
-  settle = setTimeout(() => {
-    const mid = carousel.getBoundingClientRect().left + carousel.clientWidth / 2;
-    let best = null;
-    carousel.querySelectorAll("[data-slug]").forEach((b) => {
-      const r = b.getBoundingClientRect();
-      const d = Math.abs(r.left + r.width / 2 - mid);
-      if (!best || d < best.d) best = { d, slug: b.dataset.slug };
-    });
-    if (best && best.slug !== selected) select(best.slug);
-  }, 180);
+// ---- Map looks (Hybrid, Satellite, Map) -------------------------------------------------------------------
+function drawLooks() {
+  render(
+    "#looks",
+    m.STYLES.map((k) => html`<button type="button" class="look look--${k}" data-look="${k}" aria-pressed="${k === look ? "true" : "false"}"><span class="look__img" aria-hidden="true"></span>${m.STYLE_NAMES[k]}</button>`),
+  );
+}
+drawLooks();
+
+// ---- Filters sheet -----------------------------------------------------------------------------------------
+const sheet = document.getElementById("mfilters");
+const seg = (name, value, options) => html`<div class="seg">${options.map(([v, l]) => html`<label class="slot"><input type="radio" name="${name}" value="${v}" ${v === value ? raw("checked") : ""} /><span><b>${l}</b></span></label>`)}</div>`;
+const COUNTS = [[0, "Any"], [1, "1+"], [2, "2+"], [3, "3+"], [4, "4+"], [5, "5+"]];
+function openFilters() {
+  render(
+    sheet,
+    html`<form class="sheet__panel" id="mf-form">
+      <div class="sheet__grip" aria-hidden="true"></div>
+      <header class="sheet__head"><div><h2 id="mf-h">Filters</h2><p>${visible().length} of ${placed.length} properties</p></div><button type="button" class="round round--soft" data-close-sheet aria-label="Close">${icon("close", 18, 2)}</button></header>
+      <fieldset class="pick"><legend>Show</legend><div class="seg seg--wrap">${KINDS.map(([k, l]) => html`<label class="slot"><input type="radio" name="kind" value="${k}" ${k === f.kind ? raw("checked") : ""} /><span><b>${l}</b></span></label>`)}</div></fieldset>
+      <fieldset class="pick"><legend>Price</legend>
+        <div class="mf-price">
+          <select name="currency" aria-label="Currency">${["USD", "GHS"].map((c) => html`<option value="${c}" ${c === f.currency ? raw("selected") : ""}>${c}</option>`)}</select>
+          <input name="min" type="number" inputmode="numeric" min="0" placeholder="Min" aria-label="Minimum price" value="${f.min || ""}" />
+          <input name="max" type="number" inputmode="numeric" min="0" placeholder="Max" aria-label="Maximum price" value="${f.max || ""}" />
+        </div>
+        <p class="fineprint">With a price set, only properties priced in that currency are shown.</p>
+      </fieldset>
+      <fieldset class="pick"><legend>Bedrooms</legend>${seg("beds", f.beds, COUNTS)}</fieldset>
+      <fieldset class="pick"><legend>Bathrooms</legend>${seg("baths", f.baths, COUNTS)}</fieldset>
+      <div class="sheet__actions"><button type="button" class="btn btn--line-dark" data-reset>Clear</button><button type="submit" class="btn btn--dark">Show results</button></div>
+    </form>`,
+  );
+  sheet.showModal();
+}
+sheet.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const d = new FormData(e.target);
+  Object.assign(f, { kind: String(d.get("kind")), currency: String(d.get("currency")), min: Number(d.get("min")) || 0, max: Number(d.get("max")) || 0, beds: Number(d.get("beds")) || 0, baths: Number(d.get("baths")) || 0 });
+  sheet.close();
+  refilter();
 });
+sheet.addEventListener("click", (e) => (e.target === sheet || e.target.closest("[data-close-sheet]")) && sheet.close());
 
-document.querySelectorAll("[data-style]").forEach((b) =>
-  b.addEventListener("click", () => {
-    document.querySelectorAll("[data-style]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.style === b.dataset.style)));
-    m.setStyle(map, b.dataset.style);
-  }),
-);
+// ---- Phones: Map or List ----------------------------------------------------------------------------------
+function setView(v) {
+  document.querySelector(".mapx").dataset.view = v;
+  document.querySelectorAll("button[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+  if (v === "map") map.resize();
+}
+
+// ---- Clicks -------------------------------------------------------------------------------------------------
+document.addEventListener("click", async (e) => {
+  const t = (s) => e.target.closest(s);
+  if (t("[data-open-filters]")) return openFilters();
+  if (t("[data-reset]")) {
+    Object.assign(f, { kind: "all", q: "", min: 0, max: 0, beds: 0, baths: 0 });
+    document.getElementById("map-q").value = "";
+    if (sheet.open) sheet.close();
+    return refilter();
+  }
+  const k = t("[data-kind]");
+  if (k) {
+    f.kind = k.dataset.kind;
+    return refilter();
+  }
+  const lk = t("[data-look]");
+  if (lk && lk.dataset.look !== look) {
+    look = lk.dataset.look;
+    try {
+      localStorage.setItem("pq-map-look", look);
+    } catch {
+      /* storage unavailable */
+    }
+    drawLooks();
+    return m.setStyle(map, look);
+  }
+  const tool = t("[data-tool]")?.dataset.tool;
+  if (tool === "fit") return fitAll();
+  if (tool === "north") return map.jumpTo({ bearing: 0, pitch: 0 });
+  if (tool === "locate") {
+    try {
+      setMe(await locate());
+      map.jumpTo({ center: me, zoom: Math.max(map.getZoom(), 13) });
+    } catch (err) {
+      toast(err.message);
+    }
+    return;
+  }
+  const v = t("button[data-view]");
+  if (v) return setView(v.dataset.view);
+  const row = t("#list [data-slug]");
+  if (row) {
+    setView("map");
+    return select(row.dataset.slug);
+  }
+  const dir = t("[data-directions]");
+  if (dir) return startRoute(dir.dataset.directions);
+  if (t("[data-close]")) deselect();
+});
+let typing;
+document.getElementById("map-q").addEventListener("input", (e) => {
+  clearTimeout(typing);
+  typing = setTimeout(() => {
+    f.q = e.target.value.trim().toLowerCase();
+    refilter({ fit: false });
+  }, 200);
+});

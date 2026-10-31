@@ -59,16 +59,6 @@
       "permanent": true
     },
     {
-      "source": "/sign-in",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/sign-up",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/verify",
       "destination": "/",
       "permanent": true
@@ -187,7 +177,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://api.maptiler.com; font-src 'self'; connect-src 'self' https://api.maptiler.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src https://my.matterport.com https://kuula.co https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tiles.openfreemap.org https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://tiles.openfreemap.org https://server.arcgisonline.com https://ecikayrsbjzgdjkehnhl.supabase.co; worker-src 'self' blob:; child-src 'self' blob:; frame-src https://my.matterport.com https://kuula.co https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
         },
         {
           "key": "X-Content-Type-Options",

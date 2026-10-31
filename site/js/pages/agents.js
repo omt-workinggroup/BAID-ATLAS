@@ -11,9 +11,9 @@ const KINDS = [
   ["agent", "Agents"],
   ["developer", "Developers"],
   ["company", "Companies"],
-  ["estate", "Estates"],
+  ["owner", "Home owners"],
 ];
-const KIND_ONE = { agent: "Agent", developer: "Developer", company: "Company", estate: "Estate" };
+const KIND_ONE = { agent: "Agent", developer: "Developer", company: "Company", owner: "Home owner" };
 const SOCIALS = [
   ["instagram", "Instagram"],
   ["facebook", "Facebook"],
@@ -82,17 +82,6 @@ function profile(x) {
   </article>`;
 }
 
-function joinCard(k) {
-  const who = { agent: "an agent", developer: "a developer", company: "a property company", estate: "an estate", all: "an agent, developer or company" }[k];
-  const role = k === "all" ? "" : `?role=${k}`;
-  return html`<article class="pc pc--join">
-    <span class="pc__mark pc__mark--line">${icon(k === "agent" ? "user" : k === "developer" ? "crane" : k === "estate" ? "gate" : "building", 26, 1.5)}</span>
-    <h2 class="pc__name">Are you ${who}?</h2>
-    <p class="pc__about">Get a profile here, list your properties and reach buyers and tenants across Accra. We check every profile before it goes live.</p>
-    <a class="btn btn--dark" href="/profile${role}">${icon("user", 16)}Join Propertiq</a>
-  </article>`;
-}
-
 function draw() {
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
   const text = (x) => [x.name, x.company, x.location, ...(x.areas ?? []), ...(x.services ?? [])].join(" ").toLowerCase();
@@ -107,7 +96,7 @@ function draw() {
   );
   render(
     "#dir",
-    html`${rows.map(profile)}${q && !rows.length ? html`<p class="empty">No one matches “${q}”.</p>` : ""}${joinCard(kind)}`,
+    rows.length ? rows.map(profile) : html`<p class="empty">${q ? `No one matches “${q}”.` : "No one in this group yet."}</p>`,
   );
   history.replaceState(null, "", kind === "all" ? "/agents" : `/agents?kind=${kind}`);
 }
@@ -161,7 +150,7 @@ if (office && typeof office.lat === "number") {
       obs.disconnect();
       import("../map.js").then(async (m) => {
         await m.loadMapLibre();
-        const map = m.createMap(mapEl, { center: at, zoom: 16.4, pitch: 50, style: "satellite", cooperative: true });
+        const map = await m.createMap(mapEl, { center: at, zoom: 17, pitch: 45, style: "hybrid", cooperative: true });
         const pin = document.createElement("span");
         pin.className = "tagpin is-active";
         pin.innerHTML = '<span class="tagpin__label">We\'re here</span><span class="tagpin__tip"></span>';

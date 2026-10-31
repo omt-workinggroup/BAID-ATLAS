@@ -26,7 +26,8 @@
     <link rel="icon" href="/icon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="preconnect" href="https://api.maptiler.com" crossorigin />
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin />
     <link rel="preload" href="/js/vendor/maplibre-gl.js" as="script" />
     <link rel="preload" href="/data/properties.json" as="fetch" crossorigin />
     <link rel="preload" href="/fonts/plus-jakarta-sans-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -37,50 +38,50 @@
     <link rel="modulepreload" href="/js/map.js" />
     <link rel="modulepreload" href="/js/config.js" />
     <link rel="preload" href="/brand/propertiq-logo.webp" as="image" type="image/webp" />
-    <!-- The map style starts downloading with the page. The MapTiler key is public by design and limited to this site's addresses (see js/config.js). -->
-    <link rel="preload" href="https://api.maptiler.com/maps/streets-v2/style.json?key=9g1fE8seqYv83q0AINcI" as="fetch" crossorigin />
-    <link rel="preload" href="https://api.maptiler.com/tiles/v3/tiles.json?key=9g1fE8seqYv83q0AINcI" as="fetch" crossorigin />
+    <link rel="preload" href="https://tiles.openfreemap.org/styles/liberty" as="fetch" crossorigin />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/maplibre-gl.css" />
     <script type="module" src="/js/pages/map.js"></script>
   </head>
   <body class="page-map">
-    <main id="main" class="mapx">
-      <aside class="mapx__panel" aria-label="Properties on the map">
+    <main id="main" class="mapx" data-view="map">
+      <aside class="mapx__panel" id="panel" aria-label="Properties on the map">
         <div class="mapx__head">
           <div>
             <h1>Accra</h1>
-            <p id="count" class="mapx__count"></p>
+            <p id="count" class="mapx__count" aria-live="polite"></p>
           </div>
-          <div class="map-style" role="group" aria-label="Map style">
-            <button type="button" data-style="map" aria-pressed="true">Map</button>
-            <button type="button" data-style="satellite" aria-pressed="false">Satellite</button>
-          </div>
+          <button type="button" class="mapx__filterbtn" data-open-filters><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4" /></svg>Filters<span class="mapx__dot" data-filter-dot hidden></span></button>
         </div>
-        <div class="mapx__filters" role="group" aria-label="Filter" id="filters"></div>
+        <div class="mapx__filters" role="group" aria-label="Show" id="filters"></div>
         <ul class="mapx__list" id="list"></ul>
       </aside>
       <div class="mapx__stage">
-        <div id="map" class="mapx__map" role="region" aria-label="Map of the developments"></div>
+        <div id="map" class="mapx__map" role="region" aria-label="Map of the properties"></div>
+        <p class="mapx__loading" id="loading" role="status">Loading map…</p>
         <div class="mapx__top">
-          <label class="mapx__search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg><span class="sr-only">Search the map</span><input id="map-q" type="search" placeholder="Search Ridge, Tse Addo…" /></label>
-          <div class="mapx__chips" id="chips" role="group" aria-label="Filter"></div>
-          <div class="map-style mapx__layers" role="group" aria-label="Map style">
-            <button type="button" data-style="map" aria-pressed="true">Map</button>
-            <button type="button" data-style="satellite" aria-pressed="false">Satellite</button>
+          <div class="mapx__bar">
+            <label class="mapx__search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5" /></svg><span class="sr-only">Search the map</span><input id="map-q" type="search" placeholder="Search area or property" autocomplete="off" /></label>
+            <button type="button" class="mapx__iconbtn" data-open-filters aria-label="Filters"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4" /></svg><span class="mapx__dot" data-filter-dot hidden></span></button>
+          </div>
+          <div class="mapx__chips" id="chips" role="group" aria-label="Show"></div>
+        </div>
+        <div class="mapx__side">
+          <div class="looks" role="group" aria-label="Map style" id="looks"></div>
+          <div class="mtools">
+            <button type="button" data-tool="locate" aria-label="Show where I am"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /></svg></button>
+            <button type="button" data-tool="fit" aria-label="Show all properties"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg></button>
+            <button type="button" data-tool="north" aria-label="Reset to north, flat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l5 16-5-3.5L7 19z" /></svg></button>
           </div>
         </div>
-        <div class="mapx__tools">
-          <label class="mselect"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a4 4 0 0 1 4-4h6M18 9v6a4 4 0 0 1-4 4H8" /></svg><span class="mselect__long">Distances from</span><span class="mselect__short">From</span><select id="from" aria-label="Measure distances from"></select></label>
-          <button type="button" class="mtool" id="go" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a4 4 0 0 1 4-4h6M18 9v6a4 4 0 0 1-4 4H8" /></svg><span>Directions</span></button>
-          <p class="mapx__fromnote" id="from-note" role="status"></p>
-        </div>
+        <p class="mapx__empty-map" id="nomatch" hidden>No properties match. <button type="button" class="text-link" data-reset>Clear filters</button></p>
         <section class="route" id="route" aria-label="Directions" aria-live="polite" hidden></section>
         <div class="mapx__preview" id="preview" aria-live="polite"></div>
-        <ul class="mapx__carousel" id="carousel" aria-label="Properties"></ul>
+        <div class="mapx__view" role="group" aria-label="View"><button type="button" data-view="map" aria-pressed="true">Map</button><button type="button" data-view="list" aria-pressed="false">List</button></div>
         <p class="mapx__note">Markers show the neighbourhood, not the exact plot.</p>
       </div>
+      <dialog class="sheet" id="mfilters" aria-labelledby="mf-h"></dialog>
     </main>
   </body>
 </html>

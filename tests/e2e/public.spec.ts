@@ -21,8 +21,13 @@ async function useSamplePortfolio(page: Page, body?: string) {
     const f = new URL(r.request().url()).pathname.split("/").pop()!;
     r.fulfill({ contentType: f.endsWith(".pdf") ? "application/pdf" : "image/jpeg", body: readFileSync(`${FX}/media/${f}`) });
   });
-  // Map tiles are not needed in tests.
-  await page.route("https://api.maptiler.com/**", (r) => r.fulfill({ status: 204 }));
+  // Map tiles are not needed in tests: a one-layer street style stands in, and imagery and fonts are empty.
+  await page.route("https://tiles.openfreemap.org/**", (r) =>
+    r.request().url().includes("/styles/")
+      ? r.fulfill({ json: { version: 8, glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf", sources: {}, layers: [{ id: "background", type: "background", paint: { "background-color": "#eeeeee" } }] } })
+      : r.fulfill({ status: 204 }),
+  );
+  await page.route("https://server.arcgisonline.com/**", (r) => r.fulfill({ contentType: "image/jpeg", body: readFileSync(`${FX}/media/tile.jpg`) }));
 }
 
 test.describe("site", () => {
@@ -51,12 +56,13 @@ test.describe("site", () => {
     expect(h["content-security-policy"]).toContain("frame-ancestors 'none'");
     expect(h["content-security-policy"]).toContain("script-src 'self'");
     expect(h["content-security-policy"]).toContain("worker-src 'self' blob:");
-    expect(h["content-security-policy"]).not.toContain("supabase");
+    expect(h["content-security-policy"]).toContain("https://ecikayrsbjzgdjkehnhl.supabase.co");
+    expect(h["content-security-policy"]).toContain("https://server.arcgisonline.com");
     expect(h["x-frame-options"]).toBe("DENY");
   });
 
   test("old addresses go to the homepage", async ({ page }) => {
-    for (const path of ["/properties", "/saved", "/sign-in", "/portal/acme/listings", "/explore"]) {
+    for (const path of ["/properties", "/saved", "/portal/acme/listings", "/explore"]) {
       await page.goto(path);
       await expect(page).toHaveURL(/localhost:\d+\/(\?.*)?$/);
     }
@@ -185,15 +191,41 @@ test.describe("property page", () => {
   });
 });
 
-test("the map page lists every placed property and shows price tags", async ({ page }) => {
+test("the map page opens on Hybrid, clusters nearby properties and filters", async ({ page }) => {
   await useSamplePortfolio(page);
   await page.goto("/map");
-  await expect(page.locator("#carousel li")).toHaveCount(4);
   await expect(page.locator("#map canvas")).toBeAttached({ timeout: 20_000 });
-  await expect(page.locator(".tagpin")).toHaveCount(4);
-  await page.locator("#chips").getByRole("button", { name: "Rent" }).click();
-  await expect(page.locator("#carousel li")).toHaveCount(1);
+  await expect(page.locator("[data-look=hybrid]")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#count")).toContainText("4 properties");
+  await page.locator("#chips [data-kind=rent], #filters [data-kind=rent]").locator("visible=true").first().click();
+  await expect(page.locator("#count")).toContainText("1 property match");
+  await page.locator("[data-look=map]").click();
+  await expect(page.locator("[data-look=map]")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#from")).toHaveCount(0);
   await expectNoHorizontalScroll(page);
+});
+
+test("filters narrow the map by bedrooms and price", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/map");
+  await page.locator("[data-open-filters]").locator("visible=true").first().click();
+  await page.locator("#mfilters label", { hasText: "5+" }).first().click();
+  await page.getByRole("button", { name: "Show results" }).click();
+  await expect(page.locator("#count")).toContainText("1 property match");
+  await page.locator("[data-open-filters]").locator("visible=true").first().click();
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.locator("#count")).toContainText("4 properties");
+});
+
+test("on phones, the list is one tap away and a pick shows Get directions", async ({ page }, info) => {
+  test.skip(info.project.name === "desktop");
+  await useSamplePortfolio(page);
+  await page.goto("/map");
+  await page.getByRole("button", { name: "List" }).click();
+  await expect(page.locator("#list .mrow").first()).toBeVisible();
+  await page.locator("#list .mrow", { hasText: "Sample: East Legon Villa" }).click();
+  await expect(page.locator(".mpreview")).toBeVisible();
+  await expect(page.locator(".mpreview").getByRole("button", { name: "Get directions" })).toBeVisible();
 });
 
 test("the map page has the list and a preview card on desktop @desktop", async ({ page }) => {
@@ -203,16 +235,13 @@ test("the map page has the list and a preview card on desktop @desktop", async (
   await page.locator("#list .mrow", { hasText: "Sample: East Legon Villa" }).click();
   await expect(page.locator(".mpreview")).toBeVisible();
   await expect(page.locator(".mpreview")).toContainText("Sample: East Legon Villa");
+  await expect(page.locator(".mpreview").getByRole("button", { name: "Get directions" })).toBeVisible();
 });
 
-test("the map measures distances and opens on a linked property @desktop", async ({ page }) => {
+test("the map opens on a linked property @desktop", async ({ page }) => {
   await useSamplePortfolio(page);
   await page.goto("/map?p=sample-cantonments-apartment");
   await expect(page.locator(".mpreview")).toContainText("Sample: Cantonments Apartment");
-  await expect(page.locator(".mpreview")).toContainText("from the airport");
-  await expect(page.locator("#list .mrow__away").first()).toContainText("from the airport");
-  await page.locator("#from").selectOption("office");
-  await expect(page.locator(".mpreview")).toContainText("from our office");
 });
 
 test("a property page links to its place on the map", async ({ page }) => {
@@ -248,17 +277,18 @@ test.describe("distances from the visitor", () => {
     await page.goto("/agents");
     await expect(page.locator("#office-away")).toContainText("from the office");
     await page.goto("/map");
-    await expect(page.locator("#from")).toHaveValue("me");
     await expect(page.locator(".landmark--me")).toHaveCount(1);
+    await expect(page.locator("#list .mrow__away").first()).toContainText("from you");
   });
 });
 
-test("the map falls back to the airport when location isn't shared", async ({ page, context }) => {
+test("the map never asks for location by itself", async ({ page, context }) => {
   await context.clearPermissions();
   await useSamplePortfolio(page);
   await page.goto("/map");
-  await expect(page.locator("#from-note")).toContainText("Distances are from the airport", { timeout: 15_000 });
-  await expect(page.locator("#from")).toHaveValue("airport");
+  await expect(page.locator("#map canvas")).toBeAttached({ timeout: 20_000 });
+  await expect(page.locator(".landmark--me")).toHaveCount(0);
+  await expect(page.locator("#list .mrow__away")).toHaveCount(0);
 });
 
 test.describe("search and save", () => {
@@ -305,31 +335,94 @@ test("a property shows icons only for the amenities it lists", async ({ page }) 
   await expect(grid).not.toContainText("Gymnasium");
 });
 
-test("agents and developers lists the owner and invites others to join", async ({ page }) => {
+test("agents and developers lists people on the platform, with no join card", async ({ page }) => {
   await useSamplePortfolio(page);
   await page.goto("/agents");
   await expect(page.locator(".pc").first()).toContainText("Propertiq");
   await expect(page.locator("#office")).toBeVisible();
   await expect(page.locator("#office-directions")).toHaveAttribute("href", /destination=/);
+  await expect(page.locator(".pc--join")).toHaveCount(0);
+  await expect(page.locator("#kinds")).toContainText("Home owners");
+  await expect(page.locator("#kinds")).not.toContainText("Estates");
   await page.locator("[data-kind=agent]").click();
-  await expect(page.locator(".pc--join")).toContainText("Are you an agent?");
-  await page.locator(".pc--join").getByRole("link", { name: "Join Propertiq" }).click();
-  await expect(page).toHaveURL(/\/profile\?role=agent/);
+  await expect(page.locator("#dir")).toContainText("No one in this group yet.");
 });
 
-test("sign up writes an application with the role and details", async ({ page }) => {
+// Supabase Auth, faked: a code is "sent", "123456" is right, and the session belongs to a new number.
+const SB = "https://ecikayrsbjzgdjkehnhl.supabase.co/auth/v1";
+const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
+function fakeAuth(page: Page, meta: Record<string, string> = {}) {
+  const user = (m: object) => ({ id: "00000000-0000-0000-0000-000000000001", aud: "authenticated", role: "authenticated", phone: "233241234567", email: "", user_metadata: m, app_metadata: {}, created_at: "2026-10-31T00:00:00Z" });
+  const session = (m: object) => ({ access_token: `${b64({ alg: "HS256" })}.${b64({ sub: user(m).id, exp: 4102444800, role: "authenticated" })}.x`, token_type: "bearer", expires_in: 3600, expires_at: 4102444800, refresh_token: "r", user: user(m) });
+  let current: Record<string, string> = meta;
+  const sent: string[] = [];
+  page.route(`${SB}/**`, async (r) => {
+    const url = r.request().url();
+    const body = r.request().postDataJSON?.() ?? {};
+    sent.push(url.replace(SB, ""));
+    if (url.includes("/otp")) return r.fulfill({ json: {} });
+    if (url.includes("/verify")) return body.token === "123456" ? r.fulfill({ json: session(current) }) : r.fulfill({ status: 403, json: { code: "otp_expired", message: "Token has expired or is invalid" } });
+    if (url.includes("/token?grant_type=password")) return body.password === "correct-horse" ? r.fulfill({ json: session({ role: "agent", name: "Sample Agent" }) }) : r.fulfill({ status: 400, json: { code: "invalid_credentials", message: "Invalid login credentials" } });
+    if (url.endsWith("/user") && r.request().method() === "PUT") {
+      current = { ...current, ...(body.data ?? {}) };
+      return r.fulfill({ json: { ...user(current), new_email: body.email } });
+    }
+    if (url.includes("/logout")) return r.fulfill({ status: 204 });
+    return r.fulfill({ json: user(current) });
+  });
+  return sent;
+}
+
+test("profile offers only sign up and sign in", async ({ page }) => {
   await useSamplePortfolio(page);
-  await page.goto("/profile?role=developer");
-  await page.getByRole("link", { name: "Send on WhatsApp" }).click();
-  await expect(page.locator("#signup [role=alert]")).toHaveText("Add your name.");
-  await page.getByLabel("Full name").fill("Sample Person");
-  await page.getByLabel("Phone (WhatsApp)").fill("+233 20 000 0000");
+  fakeAuth(page);
+  await page.goto("/profile");
+  await expect(page.getByRole("link", { name: "Sign up" })).toHaveAttribute("href", "/sign-up");
+  await expect(page.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+});
+
+test("sign up: role, phone, SMS code, then name, email and password", async ({ page }) => {
+  await useSamplePortfolio(page);
+  const sent = fakeAuth(page);
+  await page.goto("/sign-up");
+  await expect(page.locator(".r4__opt")).toHaveCount(4);
+  await page.locator(".r4__opt", { hasText: "Developer" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByRole("heading", { name: "Your phone number" })).toBeVisible();
+  await page.getByLabel("Phone number").fill("024 123 4567");
+  await page.getByRole("button", { name: "Send code" }).click();
+  await expect(page.getByRole("heading", { name: "Enter the code" })).toBeVisible();
+  await expect(page.locator("main")).toContainText("+233 24 123 4567");
+  await page.getByLabel("6-digit code").fill("000000");
+  await page.getByRole("button", { name: "Verify" }).click();
+  await expect(page.getByRole("alert")).toContainText("wrong or has expired");
+  await page.getByLabel("6-digit code").fill("123456");
+  await page.getByRole("button", { name: "Verify" }).click();
+  await expect(page.getByRole("heading", { name: "Your details" })).toBeVisible();
   await page.getByLabel("Company name").fill("Sample Builders");
-  const href = decodeURIComponent((await page.getByRole("link", { name: "Send on WhatsApp" }).getAttribute("href"))!);
-  expect(href).toContain("join as a developer");
-  expect(href).toContain("Company: Sample Builders");
-  await page.getByRole("tab", { name: "Sign in" }).click();
-  await expect(page.getByRole("heading", { name: "Listing accounts are opening soon" })).toBeVisible();
+  await page.getByLabel("Email").fill("hello@example.com");
+  await page.getByLabel("Password").fill("correct-horse");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page).toHaveURL(/\/profile/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sample Builders");
+  await expect(page.locator(".acct")).toContainText("Developer");
+  expect(sent.some((u) => u.startsWith("/otp"))).toBe(true);
+});
+
+test("sign in with phone and password", async ({ page }) => {
+  await useSamplePortfolio(page);
+  fakeAuth(page);
+  await page.goto("/sign-in");
+  await page.getByLabel("Phone number").fill("0241234567");
+  await page.getByLabel("Password").fill("wrong");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("alert")).toContainText("don't match");
+  await page.getByLabel("Password").fill("correct-horse");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/profile/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sample Agent");
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page.getByRole("link", { name: "Sign up" })).toBeVisible();
 });
 
 test.describe("directions", () => {
@@ -378,5 +471,13 @@ test("a sample listing is labelled and can't be contacted", async ({ page }) => 
   await page.goto("/properties/sample-x");
   await expect(page.locator(".sample-note").first()).toContainText("isn't a real property");
   await expect(page.getByRole("button", { name: "Book a Viewing" })).toHaveCount(0);
+});
+
+test("if satellite imagery fails, the map falls back to the street map", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.route("https://server.arcgisonline.com/**", (r) => r.fulfill({ status: 503 }));
+  await page.goto("/map");
+  await expect(page.locator("[data-look=map]")).toHaveAttribute("aria-pressed", "true", { timeout: 20_000 });
+  await expect(page.locator(".toast")).toContainText("street map");
 });
 

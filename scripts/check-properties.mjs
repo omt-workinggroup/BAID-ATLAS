@@ -60,7 +60,7 @@ export function checkPortfolio(data, siteRoot) {
     });
   });
   // Agents, developers and companies (the Agents page). Each needs a name, a kind and a way to reach them.
-  const KINDS = ["agent", "developer", "company", "estate"];
+  const KINDS = ["agent", "developer", "company", "owner"];
   const okUrl = (u) => typeof u === "string" && /^https:\/\//.test(u);
   const people = [...(data.owner?.kinds ? [{ ...data.owner, at: "owner" }] : []), ...(data.directory ?? []).map((d, i) => ({ ...d, at: `Directory ${i + 1}` }))];
   if (data.directory != null && !Array.isArray(data.directory)) errors.push('"directory" must be a list.');
