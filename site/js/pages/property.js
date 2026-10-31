@@ -8,7 +8,7 @@ import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, f
 import { artwork, booklet, card, initials } from "../cards.js";
 import { amenitiesOf } from "../amenities.js";
 import { wireCollect } from "../collect.js";
-import { isCompared, isSaved } from "../store.js";
+import { isSaved } from "../store.js";
 import { mountTour } from "../tour.js";
 import { openViewer } from "../viewer.js";
 import { openVisit } from "../visit.js";
@@ -52,7 +52,7 @@ function showSoon(p, owner) {
       <p>${p.summary ? `${p.summary} ` : ""}Photos, prices and floor plans are being prepared. Ask us and we'll share what we have.</p>
       <div class="soon-page__actions">
         ${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">${icon("chat", 18)}Tell me when it's ready</a>` : ""}
-        <a class="btn btn--outline-tan" href="/contact">Contact</a>
+        <a class="btn btn--outline-tan" href="/agents">See who's building</a>
       </div>
     </section>`,
   );
@@ -67,7 +67,7 @@ function show(p, owner) {
   const photos = p.photos ?? [];
   const plans = p.floorplans ?? [];
   const wa = whatsappLink(owner.whatsapp, p, url);
-  const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : "/contact";
+  const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : "/agents";
   const facts = keyFacts(p);
   const status = [p.stage && STAGE_LABELS[p.stage], p.status && p.status !== "available" ? STATUS_LABELS[p.status] : null].filter(Boolean).join(" · ");
   const about = [p.summary, ...String(p.description ?? "").split(/\n\s*\n/)].filter(Boolean);
@@ -100,7 +100,6 @@ function show(p, owner) {
           <a class="round" href="/" aria-label="Back to properties">${icon("back", 20, 2)}</a>
           <div>
             <button type="button" class="round" data-save="${p.slug}" aria-pressed="${isSaved(p.slug) ? "true" : "false"}" aria-label="Save">${icon("heart", 18, 1.8)}</button>
-            <button type="button" class="round" data-compare="${p.slug}" aria-pressed="${isCompared(p.slug) ? "true" : "false"}" aria-label="Compare">${icon("compare", 17, 1.8)}</button>
             <button type="button" class="round" id="share" aria-label="Share">${icon("share", 18, 1.8)}</button>
           </div>
         </div>

@@ -75,7 +75,6 @@ const PATHS = {
   play: "M8 5v14l11-7z",
   user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
   people: "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20a6 6 0 0 1 12 0M10 20a6 6 0 0 1 12 0",
-  compare: "M4 5h6v14H4zM14 5h6v14h-6z",
   link: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
   globe: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9M12 3C9.5 5.6 8.3 8.6 8.3 12s1.2 6.4 3.7 9",
   instagram: "M4 4h16v16H4zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17 7h.01",
@@ -119,8 +118,8 @@ export function icon(name, size = 22, stroke = 1.6) {
 }
 
 // ---- Page shell ----------------------------------------------------------------------------------------
-// Desktop: a black bar with links, a "Contact" button, a profile button and a menu button.
-// Phones: the logo and a call button at the top, and a bottom bar (Home, Map, Agents, Profile, Contact).
+// Desktop: a black bar with links, a WhatsApp button, a profile button and a menu button.
+// Phones: the logo and a call button at the top, and a bottom bar (Home, Map, Agents, Profile).
 const LINKS = [
   ["/", "Properties"],
   ["/?cat=sale", "For sale"],
@@ -139,7 +138,7 @@ function headerView() {
           <ul>${LINKS.map(([href, label]) => html`<li><a href="${href}">${label}</a></li>`)}</ul>
         </nav>
         <div class="site-header__actions">
-          <a class="btn btn--dark" href="/contact">Contact</a>
+          <a class="btn btn--dark" href="/agents" data-owner-wa target="_blank" rel="noopener">WhatsApp us</a>
           <a class="icon-square profile-btn" href="/profile" aria-label="Profile: sign in or sign up">${icon("user", 20)}</a>
           <a class="icon-square" href="tel:" data-owner-tel aria-label="Call us">${icon("phone", 20)}</a>
           <button type="button" class="icon-square menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Menu">${icon("menu", 20, 1.8)}</button>
@@ -148,7 +147,7 @@ function headerView() {
     </header>
     <div class="menu" id="menu" hidden>
       <nav aria-label="Main">
-        <ul>${[...LINKS, ["/profile", "Profile"], ["/contact", "Contact"]].map(([href, label], i) => html`<li style="--i:${i}"><a href="${href}">${label}</a></li>`)}</ul>
+        <ul>${[...LINKS, ["/profile", "Profile"]].map(([href, label], i) => html`<li style="--i:${i}"><a href="${href}">${label}</a></li>`)}</ul>
       </nav>
       <p class="menu__foot" data-owner-line></p>
     </div>`;
@@ -160,7 +159,6 @@ function bottomNavView(here) {
     ["/map", "Map", "map"],
     ["/agents", "Agents", "people"],
     ["/profile", "Profile", "user"],
-    ["/contact", "Contact", "chat"],
   ];
   return html`<nav class="tabbar" aria-label="Quick links">
     <ul>${tabs.map(([href, label, ic]) => html`<li><a href="${href}" ${raw(here === href ? 'aria-current="page"' : "")}><span class="tabbar__icon">${icon(ic, 22, 1.7)}</span>${label}</a></li>`)}</ul>
@@ -171,7 +169,7 @@ function bottomNavView(here) {
 export function boot() {
   document.body.classList.add("app");
   document.body.insertAdjacentHTML("afterbegin", markup(headerView()));
-  const here = ["/", "/map", "/agents", "/profile", "/contact"].includes(location.pathname) ? location.pathname : "";
+  const here = ["/", "/map", "/agents", "/profile"].includes(location.pathname) ? location.pathname : "";
   document.body.insertAdjacentHTML("beforeend", markup(bottomNavView(here)));
   // If the logo file is missing, show the name in text instead.
   document.querySelectorAll("img[data-logo]").forEach((img) => {
@@ -200,6 +198,8 @@ export function boot() {
         const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : null;
         document.querySelectorAll("[data-owner-line]").forEach((el) => (el.textContent = [owner.phone, owner.email].filter(Boolean).join("   ·   ")));
         document.querySelectorAll("[data-owner-tel]").forEach((el) => (tel ? (el.href = tel) : el.remove()));
+        const wa = owner.whatsapp ? `https://wa.me/${owner.whatsapp.replace(/\D/g, "")}` : null;
+        document.querySelectorAll("[data-owner-wa]").forEach((el) => (wa ? (el.href = wa) : el.removeAttribute("target")));
       })
       .catch(() => {}),
   );

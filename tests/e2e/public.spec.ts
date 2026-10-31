@@ -42,8 +42,8 @@ test.describe("site", () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.getByRole("button", { name: "Menu" }).click();
     await expect(page.locator("#menu")).toBeVisible();
-    await page.locator("#menu").getByRole("link", { name: "Contact" }).click();
-    await expect(page).toHaveURL(/\/contact$/);
+    await page.locator("#menu").getByRole("link", { name: "Profile" }).click();
+    await expect(page).toHaveURL(/\/profile$/);
   });
 
   test("security headers are set and the map's workers are allowed", async ({ request }) => {
@@ -221,14 +221,6 @@ test("a property page links to its place on the map", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Open on the map" })).toHaveAttribute("href", "/map?p=sample-east-legon-villa");
 });
 
-test("contact shows only the details that are filled in", async ({ page }) => {
-  await useSamplePortfolio(page, JSON.stringify({ owner: { about: "x", email: "owner@example.com" }, properties: [] }));
-  await page.goto("/contact");
-  await expect(page.locator(".ways .way")).toHaveCount(1);
-  await expect(page.locator(".ways")).toContainText("owner@example.com");
-  await expect(page.locator("main")).not.toContainText("Resilience");
-});
-
 test("desktop shows the main navigation in the header @desktop", async ({ page }) => {
   await useSamplePortfolio(page);
   await page.goto("/");
@@ -247,14 +239,12 @@ test("manifest, icons and the social image are served", async ({ request }) => {
 test.describe("distances from the visitor", () => {
   test.use({ geolocation: { latitude: 5.6037, longitude: -0.187 }, permissions: ["geolocation"] });
 
-  test("cards, property, contact and map show how far the visitor is", async ({ page }) => {
+  test("cards, property and map show how far the visitor is", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
     await expect(page.locator(".card__away").first()).toContainText("away");
     await page.goto("/properties/sample-east-legon-villa");
     await expect(page.locator("#pd-away")).toContainText("away, in a straight line");
-    await page.goto("/contact");
-    await expect(page.locator("#office-away")).toContainText("from the office");
     await page.goto("/map");
     await expect(page.locator("#from")).toHaveValue("me");
     await expect(page.locator(".landmark--me")).toHaveCount(1);
@@ -269,7 +259,7 @@ test("the map falls back to the airport when location isn't shared", async ({ pa
   await expect(page.locator("#from")).toHaveValue("airport");
 });
 
-test.describe("search, save and compare", () => {
+test.describe("search and save", () => {
   test("the search suggests areas and properties, and filters the list", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
@@ -303,17 +293,6 @@ test.describe("search, save and compare", () => {
     await expect(page.locator(".mine")).toContainText("Sample: East Legon Villa");
   });
 
-  test("compare puts properties side by side", async ({ page }) => {
-    await useSamplePortfolio(page);
-    await page.goto("/");
-    await page.getByRole("button", { name: "Compare Sample: East Legon Villa" }).click();
-    await page.getByRole("button", { name: "Compare Sample: Cantonments Apartment" }).click();
-    await expect(page.locator(".cmpbar")).toContainText("2 of 3 picked");
-    await page.locator(".cmpbar").getByRole("link", { name: "Compare" }).click();
-    await expect(page).toHaveURL(/\/compare$/);
-    await expect(page.locator(".cmp__name")).toHaveCount(2);
-    await expect(page.locator(".cmp__table")).toContainText("USD 1,250,000");
-  });
 });
 
 test("a property shows icons only for the amenities it lists", async ({ page }) => {
@@ -373,4 +352,16 @@ test.describe("directions", () => {
     await page.getByRole("button", { name: "Close directions" }).click();
     await expect(page.locator("#route")).toBeHidden();
   });
+});
+
+test("the bottom bar has four tabs, and old pages redirect", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/");
+  await expect(page.locator(".tabbar li")).toHaveCount(4);
+  await expect(page.locator(".tabbar")).toContainText("Profile");
+  await expect(page.locator(".tabbar")).not.toContainText("Contact");
+  await page.goto("/contact");
+  await expect(page).toHaveURL(/\/agents$/);
+  await page.goto("/compare");
+  await expect(page).toHaveURL(/\/$/);
 });

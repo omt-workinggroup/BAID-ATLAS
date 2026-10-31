@@ -169,6 +169,16 @@
       ],
       "destination": "https://propertiq-gh.vercel.app/:path*",
       "permanent": true
+    },
+    {
+      "source": "/compare",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/agents",
+      "permanent": true
     }
   ],
   "headers": [

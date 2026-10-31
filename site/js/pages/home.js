@@ -110,8 +110,8 @@ function draw() {
       : state.cat === "saved"
         ? html`<p class="empty">Nothing saved yet. Tap the heart on any property to keep it here.</p>`
         : all.length
-          ? html`<p class="empty">No properties match. <button type="button" class="text-link" data-reset>Clear the search</button> or <a class="text-link" href="/contact">tell us what you're looking for</a>.</p>`
-          : html`<p class="empty">New properties are being prepared. <a class="text-link" href="/contact">Ask us what's coming</a></p>`,
+          ? html`<p class="empty">No properties match. <button type="button" class="text-link" data-reset>Clear the search</button> or <a class="text-link" href="/agents">ask the team</a>.</p>`
+          : html`<p class="empty">New properties are being prepared. <a class="text-link" href="/agents">Ask us what's coming</a></p>`,
   );
   toUrl();
 }

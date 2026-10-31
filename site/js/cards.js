@@ -1,9 +1,9 @@
-// Property card: photo (with save and compare), then price and purpose, name, area, type and key facts,
+// Property card: photo (with a save button), then price and purpose, name, area, type and key facts,
 // who lists it, and Call / Email / WhatsApp. One layout for phones and desktop.
 import { SITE_URL } from "./config.js";
 import { html, icon } from "./core.js";
 import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, TYPE_LABELS, cover, formatPrice, keyFacts, place, small, waLink, whatsappLink } from "./data.js";
-import { isCompared, isSaved } from "./store.js";
+import { isSaved } from "./store.js";
 
 const isNew = (p) => p.listed && Date.now() - new Date(p.listed).getTime() < 30 * 86_400_000;
 const TYPE_SHORT = { ...TYPE_LABELS, commercial: "Offices & stores" };
@@ -28,10 +28,9 @@ export function artwork(p) {
   return html`<span class="art" aria-hidden="true"><span class="art__grid"></span><span class="art__mark">${p.title.charAt(0)}</span><span class="art__name">${p.title}</span></span>`;
 }
 
-// The two small round buttons on the photo. data-save / data-compare are handled once per page (wireCards).
+// The heart on the photo. data-save is handled once per page (wireCollect).
 export function photoTools(p) {
-  return html`<button type="button" class="ptool card__save" data-save="${p.slug}" aria-pressed="${isSaved(p.slug) ? "true" : "false"}" aria-label="Save ${p.title}">${icon("heart", 18, 1.8)}</button>
-    <button type="button" class="ptool card__cmp" data-compare="${p.slug}" aria-pressed="${isCompared(p.slug) ? "true" : "false"}" aria-label="Compare ${p.title}">${icon("compare", 17, 1.8)}</button>`;
+  return html`<button type="button" class="ptool card__save" data-save="${p.slug}" aria-pressed="${isSaved(p.slug) ? "true" : "false"}" aria-label="Save ${p.title}">${icon("heart", 18, 1.8)}</button>`;
 }
 
 // "away" is how far the visitor is from it (when they have shared their location).

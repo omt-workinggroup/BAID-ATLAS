@@ -1,11 +1,11 @@
 // Profile: sign up to list (agent, developer, company, estate or home owner), sign in, and what this visitor
-// has kept on this device (saved properties, the compare list, their location).
+// has kept on this device (saved properties, their location).
 // Listing accounts are opened by the Propertiq team for now: "Sign up" sends a written application on
 // WhatsApp or by email, and "Sign in" says so plainly. Nothing here pretends to log anyone in.
 import { boot, html, icon, raw, render, toast } from "../core.js";
 import { formatPrice, loadPortfolio, place, small, waLink } from "../data.js";
 import { wireCollect } from "../collect.js";
-import { compared, saved, toggleSaved } from "../store.js";
+import { saved, toggleSaved } from "../store.js";
 import { remembered } from "../here.js";
 
 boot();
@@ -66,7 +66,6 @@ function signin() {
 
 function mine() {
   const s = saved().map((x) => bySlug[x]).filter(Boolean);
-  const c = compared().map((x) => bySlug[x]).filter(Boolean);
   const row = (p) => html`<li class="mine__row">
     <a href="/properties/${p.slug}">${p.photos?.[0] ? html`<img src="${small(p.photos[0])}" alt="" />` : html`<span class="suggest__mono">${p.title[0]}</span>`}<span><strong>${p.title}</strong><small>${p.coming_soon ? "Coming soon" : formatPrice(p.price)} · ${place(p) || "Accra"}</small></span></a>
     <button type="button" class="ptool ptool--plain" data-unsave="${p.slug}" aria-label="Remove ${p.title} from saved">${icon("close", 16, 2)}</button>
@@ -75,7 +74,6 @@ function mine() {
     <h2 id="mine-h">On this device</h2>
     <div class="mine__grid">
       <div class="mine__box"><h3>${icon("heart", 18, 1.8)}Saved <span>${s.length}</span></h3>${s.length ? html`<ul>${s.map(row)}</ul>` : html`<p class="fineprint">Tap the heart on any property to keep it here.</p>`}</div>
-      <div class="mine__box"><h3>${icon("compare", 18, 1.8)}Compare <span>${c.length}</span></h3>${c.length ? html`<p class="mine__cmp">${c.map((p) => p.title).join(" · ")}</p><a class="btn btn--dark" href="/compare">Compare ${c.length > 1 ? "now" : "(pick 2+)"}</a>` : html`<p class="fineprint">Tap the compare button on up to three properties to see them side by side.</p>`}</div>
       <div class="mine__box"><h3>${icon("locate", 18, 1.8)}Your location</h3>${remembered() ? html`<p class="fineprint">Shared for this visit, to show distances. It never leaves this device.</p><button type="button" class="btn btn--line-dark" data-forget>Forget my location</button>` : html`<p class="fineprint">Not shared. Distances and directions ask first.</p>`}</div>
     </div>
   </section>`;

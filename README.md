@@ -36,15 +36,13 @@ refresh the browser.
 | `site/index.html` | Homepage: only the properties, filtered by category (`?cat=sale`, `rent`, `townhouses`, `apartments`, `commercial`, `soon`). Properties marked `"coming_soon": true` show their name on a drawn thumbnail until their photos and details are added. |
 | `site/map.html` | The map page (bottom bar's Map tab): list and price-tag pins on a map (street or satellite), the office marked, straight-line distances from the visitor, the airport or the office, `/map?p=slug` links that open on one property, and road directions (`/map?p=slug&directions=1`, see `site/js/directions.js`). |
 | `site/agents.html` | Agents, developers and companies on one page (the Agents tab). Shows the owner plus approved profiles in `directory` in the data file, and invites others to join. |
-| `site/profile.html` | The Profile tab: sign up (agent, developer, company, estate or home owner) sends a written application to the office on WhatsApp or by email; sign in explains that listing accounts are opening soon; and the visitor's saved properties, compare list and location on this device. |
-| `site/compare.html` | Up to three properties side by side, picked with the compare button. |
+| `site/profile.html` | The Profile tab: sign up (agent, developer, company, estate or home owner) sends a written application to the office on WhatsApp or by email; sign in explains that listing accounts are opening soon; and the visitor's saved properties and location on this device. |
 | `api/route.mjs` | `/api/route`: road directions for the map, run on Vercel. Uses OpenRouteService when `ORS_API_KEY` is set in Vercel, otherwise the free OpenStreetMap routing servers. |
 | `site/property.html` | One property: photo hero, facts, section tabs, photos, payment planner (priced sales), 3D tour, floor plans, brochure, location and contact. Printing gives a clean details sheet. Served at `/properties/:slug`. |
-| `site/contact.html` | How to get in touch (WhatsApp, call, email) and the office on a satellite map. |
 | `site/js/data.js` | Reads the properties file; price, area, filter, viewing-message and payment-plan helpers. |
 | `site/js/tour.js` | 3D tour: [Pannellum](https://pannellum.org) (MIT, in `site/js/vendor`) with room buttons, hotspots, auto-rotate, tilt-to-look and full screen. |
 | `site/js/viewer.js` | Full-screen photo and floor-plan viewer. |
-| `site/js/store.js`, `site/js/collect.js` | Saved properties (the heart) and the compare list, kept in the browser; the buttons and the compare bar. |
+| `site/js/store.js`, `site/js/collect.js` | Saved properties (the heart), kept in the browser; the save and share buttons. |
 | `site/js/amenities.js` | Matches each property's features to amenity icons; only what a property lists is shown. |
 | `site/js/here.js` | The visitor's location, only for showing how far they are from the properties and the office. The browser asks first; the position stays in that browser tab for 10 minutes and is never sent anywhere. |
 | `site/js/visit.js` | "Book a viewing": pick a day and time, then send the request on WhatsApp or by email, already written. Nothing is booked automatically; the office replies to confirm. |
