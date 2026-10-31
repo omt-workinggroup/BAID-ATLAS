@@ -78,7 +78,7 @@ function profile(x) {
       ${tel ? html`<a class="btn btn--line-dark" href="${tel}">${icon("phone", 16)}Call</a>` : ""}
       ${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">${icon("chat", 16)}WhatsApp</a>` : ""}
     </div>
-    ${ls.length ? html`<a class="pc__more" href="/">See their ${ls.length} ${ls.length === 1 ? "property" : "properties"}${icon("arrow", 16)}</a>` : ""}
+    ${ls.length ? html`<a class="pc__more" href="/?by=${encodeURIComponent(x.name)}">See their ${ls.length} ${ls.length === 1 ? "property" : "properties"}${icon("arrow", 16)}</a>` : ""}
   </article>`;
 }
 

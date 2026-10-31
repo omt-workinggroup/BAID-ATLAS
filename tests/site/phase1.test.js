@@ -1,6 +1,7 @@
 // Amenity icons and the directions function.
 import { describe, expect, it, vi } from "vitest";
 import { amenitiesOf } from "../../site/js/amenities.js";
+import { formatKm } from "../../site/js/data.js";
 import { GET } from "../../api/route.mjs";
 
 describe("amenities", () => {
@@ -9,6 +10,13 @@ describe("amenities", () => {
     expect(a.found.map(([, label]) => label)).toEqual(["Fully Fitted Kitchen", "Backup Water Supply", "Swimming Pool", "24/7 Security & CCTV"]);
     expect(a.other).toEqual(["Boys' quarters"]);
     expect(amenitiesOf({}).found).toEqual([]);
+  });
+});
+
+describe("distances", () => {
+  it("never shows 1000 m", () => {
+    expect(formatKm(0.999)).toBe("1.0 km");
+    expect(formatKm(0.95)).toBe("950 m");
   });
 });
 

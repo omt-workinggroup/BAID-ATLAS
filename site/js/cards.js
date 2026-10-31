@@ -33,11 +33,13 @@ export function photoTools(p) {
   return html`<button type="button" class="ptool card__save" data-save="${p.slug}" aria-pressed="${isSaved(p.slug) ? "true" : "false"}" aria-label="Save ${p.title}">${icon("heart", 18, 1.8)}</button>`;
 }
 
-// "away" is how far the visitor is from it (when they have shared their location).
+// "away" is how far the visitor is from it (when they have shared their location). "owner" is who to
+// contact about it (see contactFor in data.js).
 export function card(p, { eager = false, away = null, owner = {} } = {}) {
   const c = cover(p);
   const url = `/properties/${p.slug}`;
   const lister = p.listed_by ?? owner.name;
+  const checked = !p.listed_by || owner.verified;
   const t = tag(p);
   const facts = keyFacts(p).slice(0, 3);
   const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : null;
@@ -61,7 +63,7 @@ export function card(p, { eager = false, away = null, owner = {} } = {}) {
           </ul>`
         : ""}
       ${lister
-        ? html`<div class="card__by"><span class="av">${initials(lister)}</span><span class="card__lister">${lister}</span>${p.listed_by ? "" : html`<span class="tick" title="Listed by the owner">${icon("check", 11, 3)}</span>`}<button type="button" class="ptool ptool--plain" data-share="${url}" data-title="${p.title}" aria-label="Share ${p.title}">${icon("share", 17)}</button></div>`
+        ? html`<div class="card__by"><span class="av">${initials(lister)}</span><span class="card__lister">${lister}</span>${checked ? html`<span class="tick" title="Checked by Propertiq">${icon("check", 11, 3)}</span>` : ""}<button type="button" class="ptool ptool--plain" data-share="${url}" data-title="${p.title}" aria-label="Share ${p.title}">${icon("share", 17)}</button></div>`
         : ""}
       <div class="card__actions">
         ${tel ? html`<a class="btn btn--line-dark" href="${tel}">${icon("phone", 16)}Call</a>` : ""}

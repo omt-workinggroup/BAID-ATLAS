@@ -1670,8 +1670,10 @@ body.app {
 }
 
 /* ---- Map page ------------------------------------------------------------------------------------------- */
+/* flex: none so the fixed height wins over the page's "fill the space" rule (main { flex: 1 }) */
 .mapx {
   position: relative;
+  flex: none;
   height: calc(100svh - 4.25rem - 4.4rem - env(safe-area-inset-bottom));
   min-height: 30rem;
 }
@@ -2081,6 +2083,8 @@ body.app {
   .mapx {
     display: grid;
     grid-template-columns: 27rem minmax(0, 1fr);
+    /* One row the height of the screen: a long list scrolls inside the panel instead of stretching the map */
+    grid-template-rows: minmax(0, 1fr);
     gap: 1rem;
     height: calc(100vh - 4.25rem);
     padding: 1rem;
@@ -2111,6 +2115,11 @@ body.app {
   }
   .mapx__filters {
     flex-wrap: wrap;
+  }
+  /* Only the list shrinks and scrolls; the heading and filters keep their size */
+  .mapx__head,
+  .mapx__filters {
+    flex: none;
   }
   .mapx__list {
     display: grid;
@@ -3596,6 +3605,7 @@ body.app {
 }
 .pc__links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
 }

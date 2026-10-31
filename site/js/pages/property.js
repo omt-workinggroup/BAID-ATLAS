@@ -4,7 +4,7 @@
 // Contact Agent); desktop gets the same actions in a side panel. Printing gives a clean details sheet.
 import { SITE_URL } from "../config.js";
 import { boot, html, icon, render, setTitle, toast } from "../core.js";
-import { PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, money, paymentPlan, place, shortPrice, small, waLink, whatsappLink } from "../data.js";
+import { contactFor, PURPOSE_LABELS, STAGE_LABELS, STATUS_LABELS, cover, filterProperties, formatArea, formatPrice, hasTour, keyFacts, loadPortfolio, money, paymentPlan, place, shortPrice, small, waLink, whatsappLink } from "../data.js";
 import { artwork, booklet, card, initials } from "../cards.js";
 import { amenitiesOf } from "../amenities.js";
 import { wireCollect } from "../collect.js";
@@ -32,7 +32,8 @@ const p = portfolio?.properties?.find((x) => x.slug === slug);
 if (portfolio && !p) {
   render(root, html`<div class="lost"><p class="eyebrow">No longer listed</p><h1>This property isn't listed any more.</h1><p>It may have been sold or let.</p><div class="lost__actions"><a class="btn btn--dark" href="/">See the other properties</a></div></div>`);
 }
-if (p) show(p, portfolio.owner ?? {});
+// Contact buttons go to whoever lists the property (the owner, or a profile in "directory").
+if (p) show(p, contactFor(p, portfolio));
 
 function section(id, title, body) {
   return html`<section class="pd-section" id="${id}" aria-labelledby="${id}-h"><h2 id="${id}-h">${title}</h2>${body}</section>`;

@@ -53,6 +53,13 @@ export function formatArea(a) {
 }
 export const place = (p) => [p.location?.area, p.location?.city].filter(Boolean).join(", ");
 export const cover = (p) => p.photos?.[0] ?? null;
+// Who to contact about a property: the profile in "directory" that lists it, or else the owner.
+export function contactFor(p, portfolio) {
+  const owner = portfolio?.owner ?? {};
+  if (!p.listed_by || p.listed_by === owner.name) return owner;
+  return (portfolio?.directory ?? []).find((d) => d.name === p.listed_by) ?? { name: p.listed_by };
+}
+
 // The small preview of a photo (made by scripts/make-thumbs.py), or the photo itself if there is none.
 export const small = (photo) => photo?.thumb ?? photo?.src;
 // Tours from these services can be embedded; any other link is ignored rather than framed.
@@ -154,7 +161,7 @@ export function distanceKm([lng1, lat1], [lng2, lat2]) {
   const h = Math.sin(r(lat2 - lat1) / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(r(lng2 - lng1) / 2) ** 2;
   return 6371 * 2 * Math.asin(Math.sqrt(h));
 }
-export const formatKm = (km) => (km < 1 ? `${Math.round(km * 1000 / 50) * 50} m` : `${km < 10 ? km.toFixed(1) : Math.round(km)} km`);
+export const formatKm = (km) => (km < 0.975 ? `${Math.round((km * 1000) / 50) * 50} m` : `${km < 10 ? km.toFixed(1) : Math.round(km)} km`);
 
 export function toQuery(f) {
   const p = new URLSearchParams();

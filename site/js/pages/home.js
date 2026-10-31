@@ -2,7 +2,7 @@
 // bedrooms, sort) and categories (?cat=). The address bar keeps the search, so a result can be shared:
 // /?q=ridge&cat=sale&beds=3&max=1000000&sort=price-asc
 import { boot, html, icon, params, raw, render, toast } from "../core.js";
-import { formatPrice, loadPortfolio, place, small } from "../data.js";
+import { contactFor, formatPrice, loadPortfolio, place, small } from "../data.js";
 import { card } from "../cards.js";
 import { wireCollect } from "../collect.js";
 import { awayFrom, locate, quietly } from "../here.js";
@@ -47,10 +47,12 @@ const state = {
   beds: Number(params().get("beds")) || 0,
   max: Number(params().get("max")) || 0,
   sort: params().get("sort") ?? "",
+  by: params().get("by") ?? "",
 };
 let here = null;
 
 function matches(p) {
+  if (state.by && (p.listed_by ?? owner.name) !== state.by) return false;
   if (state.q && !state.q.toLowerCase().split(/\s+/).every((w) => words(p).includes(w))) return false;
   if (state.beds && bedsOf(p) < state.beds) return false;
   // A price on request can't be compared, so it stays in when a maximum is set.
@@ -58,7 +60,12 @@ function matches(p) {
   return true;
 }
 const rank = (p) => (p.coming_soon ? 2 : p.featured ? 0 : 1);
+// Coming-soon properties always come last, whatever the sort.
 function sorted(rows) {
+  const soon = rows.filter((p) => p.coming_soon);
+  return [...sortedNow(rows.filter((p) => !p.coming_soon)), ...soon];
+}
+function sortedNow(rows) {
   const price = (p) => (p.price?.amount != null ? Number(p.price.amount) : null);
   const by = {
     "price-asc": (a, b) => (price(a) ?? Infinity) - (price(b) ?? Infinity),
@@ -81,6 +88,7 @@ function toUrl() {
   if (state.beds) q.set("beds", state.beds);
   if (state.max) q.set("max", state.max);
   if (state.sort) q.set("sort", state.sort);
+  if (state.by) q.set("by", state.by);
   history.replaceState(null, "", q.size ? `/?${q}` : "/");
 }
 
@@ -96,7 +104,7 @@ function draw() {
   );
   const rows = sorted(pool.filter(current[2]));
   document.getElementById("count").textContent = String(rows.length);
-  const filters = [state.q && `“${state.q}”`, state.beds && `${state.beds}+ beds`, state.max && `up to ${formatPrice({ amount: state.max, currency: "USD" })}`].filter(Boolean);
+  const filters = [state.by && `listed by ${state.by}`, state.q && `“${state.q}”`, state.beds && `${state.beds}+ beds`, state.max && `up to ${formatPrice({ amount: state.max, currency: "USD" })}`].filter(Boolean);
   render(
     "#summary",
     filters.length ? html`<span>${rows.length} ${rows.length === 1 ? "result" : "results"} for ${filters.join(", ")}</span><button type="button" class="text-link" data-reset>Clear search</button>` : "",
@@ -106,7 +114,7 @@ function draw() {
   render(
     results,
     rows.length
-      ? rows.map((p, i) => card(p, { eager: i < 3, owner, away: here && placed(p) ? awayFrom(here, [p.location.lng, p.location.lat]) : null }))
+      ? rows.map((p, i) => card(p, { eager: i < 3, owner: contactFor(p, portfolio), away: here && placed(p) ? awayFrom(here, [p.location.lng, p.location.lat]) : null }))
       : state.cat === "saved"
         ? html`<p class="empty">Nothing saved yet. Tap the heart on any property to keep it here.</p>`
         : all.length
@@ -192,7 +200,7 @@ sheet.addEventListener("submit", async (e) => {
 
 document.addEventListener("click", (e) => {
   if (e.target.closest("[data-reset]")) {
-    Object.assign(state, { q: "", beds: 0, max: 0, sort: "", cat: "all" });
+    Object.assign(state, { q: "", beds: 0, max: 0, sort: "", cat: "all", by: "" });
     box.value = "";
     if (sheet.open) sheet.close();
     return draw();
