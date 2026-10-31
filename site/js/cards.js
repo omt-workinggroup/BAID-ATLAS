@@ -9,6 +9,7 @@ const isNew = (p) => p.listed && Date.now() - new Date(p.listed).getTime() < 30 
 const TYPE_SHORT = { ...TYPE_LABELS, commercial: "Offices & stores" };
 
 function tag(p) {
+  if (p.sample) return "Sample";
   if (p.coming_soon) return "Coming soon";
   if (p.status && p.status !== "available") return STATUS_LABELS[p.status];
   if (p.stage && p.stage !== "completed") return STAGE_LABELS[p.stage];
@@ -38,8 +39,8 @@ export function photoTools(p) {
 export function card(p, { eager = false, away = null, owner = {} } = {}) {
   const c = cover(p);
   const url = `/properties/${p.slug}`;
-  const lister = p.listed_by ?? owner.name;
-  const checked = !p.listed_by || owner.verified;
+  const lister = p.sample ? "Sample listing, for testing" : (p.listed_by ?? owner.name);
+  const checked = !p.sample && (!p.listed_by || owner.verified);
   const t = tag(p);
   const facts = keyFacts(p).slice(0, 3);
   const tel = owner.phone ? `tel:${owner.phone.replace(/\s/g, "")}` : null;
@@ -65,11 +66,11 @@ export function card(p, { eager = false, away = null, owner = {} } = {}) {
       ${lister
         ? html`<div class="card__by"><span class="av">${initials(lister)}</span><span class="card__lister">${lister}</span>${checked ? html`<span class="tick" title="Checked by Propertiq">${icon("check", 11, 3)}</span>` : ""}<button type="button" class="ptool ptool--plain" data-share="${url}" data-title="${p.title}" aria-label="Share ${p.title}">${icon("share", 17)}</button></div>`
         : ""}
-      <div class="card__actions">
+      ${p.sample ? "" : html`<div class="card__actions">
         ${tel ? html`<a class="btn btn--line-dark" href="${tel}">${icon("phone", 16)}Call</a>` : ""}
         ${mail ? html`<a class="btn btn--line-dark" href="${mail}">${icon("mail", 16)}Email</a>` : ""}
         ${wa ? html`<a class="btn btn--dark" href="${wa}" target="_blank" rel="noopener">${icon("chat", 16)}WhatsApp</a>` : ""}
-      </div>
+      </div>`}
     </div>
   </article>`;
 }

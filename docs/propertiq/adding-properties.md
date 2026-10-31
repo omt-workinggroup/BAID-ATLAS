@@ -130,3 +130,10 @@ setup using the free OpenStreetMap routing servers. For OpenRouteService (free, 
 create a key at openrouteservice.org, then in Vercel open the project, **Settings → Environment Variables**,
 add `ORS_API_KEY` with the key, and redeploy. The key stays on the server; never put it in `site/`.
 
+## Sample listings (testing only)
+
+Properties with `"sample": true` (slugs starting `sample-`) are invented listings that show how the site looks
+with a fuller list. They are marked "Sample" everywhere, have no contact or booking buttons, and use free
+photos from Unsplash (unsplash.com/license) stored in `site/media/samples/`. To remove them all, delete every
+property with `"sample": true` from `site/data/properties.json` and delete `site/media/samples/`.
+

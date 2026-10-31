@@ -369,3 +369,14 @@ test("the bottom bar has four tabs, and old pages redirect", async ({ page }) =>
   await page.goto("/compare");
   await expect(page).toHaveURL(/\/$/);
 });
+
+test("a sample listing is labelled and can't be contacted", async ({ page }) => {
+  await useSamplePortfolio(page, JSON.stringify({ owner: { name: "Owner", phone: "+233200000000", whatsapp: "+233200000000" }, properties: [{ slug: "sample-x", title: "Sample: X", sample: true, purpose: "sale", type: "house", price: { amount: 1, currency: "USD" }, location: { area: "Osu", city: "Accra" } }] }));
+  await page.goto("/");
+  await expect(page.locator(".card__tag")).toHaveText("Sample");
+  await expect(page.locator(".card").getByRole("link", { name: "WhatsApp" })).toHaveCount(0);
+  await page.goto("/properties/sample-x");
+  await expect(page.locator(".sample-note").first()).toContainText("isn't a real property");
+  await expect(page.getByRole("button", { name: "Book a Viewing" })).toHaveCount(0);
+});
+

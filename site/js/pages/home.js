@@ -52,7 +52,7 @@ const state = {
 let here = null;
 
 function matches(p) {
-  if (state.by && (p.listed_by ?? owner.name) !== state.by) return false;
+  if (state.by && (p.sample || (p.listed_by ?? owner.name) !== state.by)) return false;
   if (state.q && !state.q.toLowerCase().split(/\s+/).every((w) => words(p).includes(w))) return false;
   if (state.beds && bedsOf(p) < state.beds) return false;
   // A price on request can't be compared, so it stays in when a maximum is set.

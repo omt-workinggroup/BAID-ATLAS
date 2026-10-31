@@ -146,6 +146,12 @@ for (const p of placed) {
   el.setAttribute("aria-label", `${p.title}, ${formatPrice(p.price)}`);
 }
 
+// Zoomed out, the price tags would pile on top of each other: they become dots until you zoom in (the
+// property picked keeps its tag).
+const compact = () => markers.forEach((mk) => mk.getElement().classList.toggle("is-dot", map.getZoom() < 12.8));
+map.on("zoomend", compact);
+map.once("load", compact);
+
 // Landmarks: the office always; the airport or "you" while distances are measured from them.
 function landmark(cls, label, title) {
   const el = document.createElement("div");

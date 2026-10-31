@@ -75,7 +75,10 @@ function show(p, owner) {
   const amenities = amenitiesOf(p);
   const others = filterProperties((portfolio.properties ?? []).filter((x) => x.slug !== p.slug), { sort: "newest" }).slice(0, 3);
   const canBook = Boolean(owner.whatsapp || owner.email);
-  const actions = (variant) => html`
+  const actions = (variant) =>
+    p.sample
+      ? html`<p class="sample-note">Sample listing, for testing how the site looks. It isn't a real property, so it can't be booked or enquired about.</p>`
+      : html`
     ${canBook ? html`<button type="button" class="btn btn--dark" data-visit>${variant === "side" ? icon("calendar", 18) : ""}Book a Viewing</button>` : ""}
     <a class="btn btn--outline-tan" href="${tel}">Contact Agent</a>
     ${variant === "side" && wa ? html`<a class="text-link" href="${wa}" target="_blank" rel="noopener">Ask a question on WhatsApp</a>` : ""}
@@ -105,6 +108,7 @@ function show(p, owner) {
           </div>
         </div>
         ${p.renders ? html`<span class="pd-top__note">Artist's impression</span>` : ""}
+        ${p.sample ? html`<span class="pd-top__note">Sample listing · photo from Unsplash</span>` : ""}
         <div class="pd-top__text">
           <div>
             <h1 id="pd-title">${p.title}</h1>

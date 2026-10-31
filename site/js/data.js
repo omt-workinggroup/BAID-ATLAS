@@ -54,8 +54,10 @@ export function formatArea(a) {
 export const place = (p) => [p.location?.area, p.location?.city].filter(Boolean).join(", ");
 export const cover = (p) => p.photos?.[0] ?? null;
 // Who to contact about a property: the profile in "directory" that lists it, or else the owner.
+// Sample listings ("sample": true) are for testing how the site looks; nobody can be contacted about them.
 export function contactFor(p, portfolio) {
   const owner = portfolio?.owner ?? {};
+  if (p.sample) return { name: "Sample listing" };
   if (!p.listed_by || p.listed_by === owner.name) return owner;
   return (portfolio?.directory ?? []).find((d) => d.name === p.listed_by) ?? { name: p.listed_by };
 }

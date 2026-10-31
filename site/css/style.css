@@ -3948,3 +3948,39 @@ body.app {
     height: 26rem;
   }
 }
+
+/* Sample listings (testing only) */
+.sample-note {
+  padding: 0.75rem 0.9rem;
+  border: 1px dashed var(--muted);
+  border-radius: var(--r);
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.buybar .sample-note {
+  flex: 2;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+/* Map: zoomed out, price tags show as dots (see compact() in pages/map.js) */
+.tagpin.is-dot:not(.is-active) .tagpin__label {
+  display: none;
+}
+.tagpin.is-dot:not(.is-active) .tagpin__tip {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: none;
+}
+@media (max-width: 899px) {
+  .mapx__tools {
+    bottom: 16.5rem;
+  }
+  .mapx__fromnote {
+    order: -1;
+  }
+}

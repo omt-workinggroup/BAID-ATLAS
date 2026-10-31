@@ -324,6 +324,588 @@
       "type": "commercial",
       "summary": "Offices and stores.",
       "coming_soon": true
+    },
+    {
+      "slug": "sample-palm-court-villa",
+      "title": "Sample: Palm Court Villa",
+      "sample": true,
+      "purpose": "sale",
+      "type": "house",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "amount": 1450000,
+        "currency": "USD"
+      },
+      "location": {
+        "area": "Trasacco Valley",
+        "city": "Accra",
+        "lat": 5.661,
+        "lng": -0.141
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Trasacco Valley, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Swimming pool",
+        "Fully fitted kitchen",
+        "Air conditioning",
+        "Standby generator",
+        "Borehole water",
+        "CCTV and 24/7 security",
+        "Landscaped garden",
+        "Parking for four cars"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-palm-court-villa-1.webp",
+          "thumb": "/media/samples/sample-palm-court-villa-1-t.webp",
+          "alt": "Palm Court Villa (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-palm-court-villa-2.webp",
+          "thumb": "/media/samples/sample-palm-court-villa-2-t.webp",
+          "alt": "Palm Court Villa (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-palm-court-villa-3.webp",
+          "thumb": "/media/samples/sample-palm-court-villa-3-t.webp",
+          "alt": "Palm Court Villa (sample photo)"
+        }
+      ],
+      "listed": "2026-10-10",
+      "bedrooms": 5,
+      "bathrooms": 6
+    },
+    {
+      "slug": "sample-labone-garden-flats",
+      "title": "Sample: Labone Garden Flats",
+      "sample": true,
+      "purpose": "rent",
+      "type": "apartment",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "amount": 2200,
+        "currency": "USD",
+        "period": "month"
+      },
+      "location": {
+        "area": "Labone",
+        "city": "Accra",
+        "lat": 5.567,
+        "lng": -0.168
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Labone, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Fully fitted kitchen",
+        "Air conditioning",
+        "Fibre internet",
+        "Backup water supply",
+        "Parking"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-labone-garden-flats-1.webp",
+          "thumb": "/media/samples/sample-labone-garden-flats-1-t.webp",
+          "alt": "Labone Garden Flats (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-labone-garden-flats-2.webp",
+          "thumb": "/media/samples/sample-labone-garden-flats-2-t.webp",
+          "alt": "Labone Garden Flats (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-labone-garden-flats-3.webp",
+          "thumb": "/media/samples/sample-labone-garden-flats-3-t.webp",
+          "alt": "Labone Garden Flats (sample photo)"
+        }
+      ],
+      "listed": "2026-10-11",
+      "bedrooms": 2,
+      "bathrooms": 2
+    },
+    {
+      "slug": "sample-spintex-family-homes",
+      "title": "Sample: Spintex Family Homes",
+      "sample": true,
+      "purpose": "sale",
+      "type": "townhouse",
+      "status": "available",
+      "stage": "under_construction",
+      "price": {
+        "amount": 2350000,
+        "currency": "GHS"
+      },
+      "location": {
+        "area": "Spintex",
+        "city": "Accra",
+        "lat": 5.633,
+        "lng": -0.105
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Spintex, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Gated community",
+        "Fully fitted kitchen",
+        "Solar power",
+        "Parking"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-spintex-family-homes-1.webp",
+          "thumb": "/media/samples/sample-spintex-family-homes-1-t.webp",
+          "alt": "Spintex Family Homes (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-spintex-family-homes-2.webp",
+          "thumb": "/media/samples/sample-spintex-family-homes-2-t.webp",
+          "alt": "Spintex Family Homes (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-spintex-family-homes-3.webp",
+          "thumb": "/media/samples/sample-spintex-family-homes-3-t.webp",
+          "alt": "Spintex Family Homes (sample photo)"
+        }
+      ],
+      "listed": "2026-10-12",
+      "bedrooms": 3,
+      "bathrooms": 3
+    },
+    {
+      "slug": "sample-dzorwulu-office-suites",
+      "title": "Sample: Dzorwulu Office Suites",
+      "sample": true,
+      "purpose": "rent",
+      "type": "commercial",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "on_request": true
+      },
+      "location": {
+        "area": "Dzorwulu",
+        "city": "Accra",
+        "lat": 5.612,
+        "lng": -0.2
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a workspace in Dzorwulu, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Elevator",
+        "Standby generator",
+        "Air conditioning",
+        "24/7 security",
+        "Parking"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-dzorwulu-office-suites-1.webp",
+          "thumb": "/media/samples/sample-dzorwulu-office-suites-1-t.webp",
+          "alt": "Dzorwulu Office Suites (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-dzorwulu-office-suites-2.webp",
+          "thumb": "/media/samples/sample-dzorwulu-office-suites-2-t.webp",
+          "alt": "Dzorwulu Office Suites (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-dzorwulu-office-suites-3.webp",
+          "thumb": "/media/samples/sample-dzorwulu-office-suites-3-t.webp",
+          "alt": "Dzorwulu Office Suites (sample photo)"
+        }
+      ],
+      "listed": "2026-10-13",
+      "size": {
+        "min": 120,
+        "max": 480,
+        "unit": "sqm"
+      }
+    },
+    {
+      "slug": "sample-osu-studio-lofts",
+      "title": "Sample: Osu Studio Lofts",
+      "sample": true,
+      "purpose": "rent",
+      "type": "apartment",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "amount": 950,
+        "currency": "USD",
+        "period": "month"
+      },
+      "location": {
+        "area": "Osu",
+        "city": "Accra",
+        "lat": 5.556,
+        "lng": -0.18
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Osu, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "WiFi",
+        "Air conditioning",
+        "Fully fitted kitchen",
+        "Communal lounge"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-osu-studio-lofts-1.webp",
+          "thumb": "/media/samples/sample-osu-studio-lofts-1-t.webp",
+          "alt": "Osu Studio Lofts (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-osu-studio-lofts-2.webp",
+          "thumb": "/media/samples/sample-osu-studio-lofts-2-t.webp",
+          "alt": "Osu Studio Lofts (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-osu-studio-lofts-3.webp",
+          "thumb": "/media/samples/sample-osu-studio-lofts-3-t.webp",
+          "alt": "Osu Studio Lofts (sample photo)"
+        }
+      ],
+      "listed": "2026-10-14",
+      "bedrooms": 1,
+      "bathrooms": 1
+    },
+    {
+      "slug": "sample-cantonments-courtyard",
+      "title": "Sample: Cantonments Courtyard",
+      "sample": true,
+      "purpose": "sale",
+      "type": "apartment",
+      "status": "available",
+      "stage": "off_plan",
+      "price": {
+        "amount": 420000,
+        "currency": "USD"
+      },
+      "location": {
+        "area": "Cantonments",
+        "city": "Accra",
+        "lat": 5.583,
+        "lng": -0.172
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Cantonments, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Swimming pool",
+        "Gym",
+        "Elevator",
+        "Smart home features",
+        "Standby generator",
+        "Gated community"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-cantonments-courtyard-1.webp",
+          "thumb": "/media/samples/sample-cantonments-courtyard-1-t.webp",
+          "alt": "Cantonments Courtyard (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-cantonments-courtyard-2.webp",
+          "thumb": "/media/samples/sample-cantonments-courtyard-2-t.webp",
+          "alt": "Cantonments Courtyard (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-cantonments-courtyard-3.webp",
+          "thumb": "/media/samples/sample-cantonments-courtyard-3-t.webp",
+          "alt": "Cantonments Courtyard (sample photo)"
+        }
+      ],
+      "listed": "2026-10-15",
+      "bedrooms": 3,
+      "bathrooms": 3
+    },
+    {
+      "slug": "sample-adjiringanor-villas",
+      "title": "Sample: Adjiringanor Villas",
+      "sample": true,
+      "purpose": "sale",
+      "type": "house",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "amount": 3900000,
+        "currency": "GHS"
+      },
+      "location": {
+        "area": "Adjiringanor",
+        "city": "Accra",
+        "lat": 5.664,
+        "lng": -0.153
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Adjiringanor, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Garden",
+        "Fully fitted kitchen",
+        "Air conditioning",
+        "Borehole",
+        "Garage"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-adjiringanor-villas-1.webp",
+          "thumb": "/media/samples/sample-adjiringanor-villas-1-t.webp",
+          "alt": "Adjiringanor Villas (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-adjiringanor-villas-2.webp",
+          "thumb": "/media/samples/sample-adjiringanor-villas-2-t.webp",
+          "alt": "Adjiringanor Villas (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-adjiringanor-villas-3.webp",
+          "thumb": "/media/samples/sample-adjiringanor-villas-3-t.webp",
+          "alt": "Adjiringanor Villas (sample photo)"
+        }
+      ],
+      "listed": "2026-10-16",
+      "bedrooms": 4,
+      "bathrooms": 5
+    },
+    {
+      "slug": "sample-roman-ridge-residences",
+      "title": "Sample: Roman Ridge Residences",
+      "sample": true,
+      "purpose": "rent",
+      "type": "townhouse",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "amount": 6500,
+        "currency": "USD",
+        "period": "month"
+      },
+      "location": {
+        "area": "Roman Ridge",
+        "city": "Accra",
+        "lat": 5.611,
+        "lng": -0.191
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Roman Ridge, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Swimming pool",
+        "Gym",
+        "Generator",
+        "Security",
+        "Balconies and terraces"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-roman-ridge-residences-1.webp",
+          "thumb": "/media/samples/sample-roman-ridge-residences-1-t.webp",
+          "alt": "Roman Ridge Residences (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-roman-ridge-residences-2.webp",
+          "thumb": "/media/samples/sample-roman-ridge-residences-2-t.webp",
+          "alt": "Roman Ridge Residences (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-roman-ridge-residences-3.webp",
+          "thumb": "/media/samples/sample-roman-ridge-residences-3-t.webp",
+          "alt": "Roman Ridge Residences (sample photo)"
+        }
+      ],
+      "listed": "2026-10-17",
+      "bedrooms": 4,
+      "bathrooms": 4
+    },
+    {
+      "slug": "sample-north-legon-starter-homes",
+      "title": "Sample: North Legon Starter Homes",
+      "sample": true,
+      "purpose": "sale",
+      "type": "house",
+      "status": "available",
+      "stage": "under_construction",
+      "price": {
+        "amount": 1250000,
+        "currency": "GHS"
+      },
+      "location": {
+        "area": "North Legon",
+        "city": "Accra",
+        "lat": 5.676,
+        "lng": -0.18
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in North Legon, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Gated community",
+        "Parking",
+        "Water storage"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-north-legon-starter-homes-1.webp",
+          "thumb": "/media/samples/sample-north-legon-starter-homes-1-t.webp",
+          "alt": "North Legon Starter Homes (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-north-legon-starter-homes-2.webp",
+          "thumb": "/media/samples/sample-north-legon-starter-homes-2-t.webp",
+          "alt": "North Legon Starter Homes (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-north-legon-starter-homes-3.webp",
+          "thumb": "/media/samples/sample-north-legon-starter-homes-3-t.webp",
+          "alt": "North Legon Starter Homes (sample photo)"
+        }
+      ],
+      "listed": "2026-10-18",
+      "bedrooms": 2,
+      "bathrooms": 2
+    },
+    {
+      "slug": "sample-airport-sky-apartments",
+      "title": "Sample: Airport Sky Apartments",
+      "sample": true,
+      "purpose": "sale",
+      "type": "apartment",
+      "status": "available",
+      "stage": "off_plan",
+      "price": {
+        "amount": 285000,
+        "currency": "USD"
+      },
+      "location": {
+        "area": "Airport Residential",
+        "city": "Accra",
+        "lat": 5.603,
+        "lng": -0.177
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Airport Residential, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Elevator",
+        "Gym",
+        "Swimming pool",
+        "Floor-to-ceiling glazing",
+        "Concierge and property management"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-airport-sky-apartments-1.webp",
+          "thumb": "/media/samples/sample-airport-sky-apartments-1-t.webp",
+          "alt": "Airport Sky Apartments (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-airport-sky-apartments-2.webp",
+          "thumb": "/media/samples/sample-airport-sky-apartments-2-t.webp",
+          "alt": "Airport Sky Apartments (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-airport-sky-apartments-3.webp",
+          "thumb": "/media/samples/sample-airport-sky-apartments-3-t.webp",
+          "alt": "Airport Sky Apartments (sample photo)"
+        }
+      ],
+      "listed": "2026-10-19",
+      "bedrooms": 2,
+      "bathrooms": 2
+    },
+    {
+      "slug": "sample-tema-waterfront-homes",
+      "title": "Sample: Tema Waterfront Homes",
+      "sample": true,
+      "purpose": "sale",
+      "type": "townhouse",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "amount": 1800000,
+        "currency": "GHS"
+      },
+      "location": {
+        "area": "Tema Community 25",
+        "city": "Tema",
+        "lat": 5.722,
+        "lng": -0.035
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in Tema Community 25, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Gated community",
+        "Solar power",
+        "Parking",
+        "Garden"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-tema-waterfront-homes-1.webp",
+          "thumb": "/media/samples/sample-tema-waterfront-homes-1-t.webp",
+          "alt": "Tema Waterfront Homes (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-tema-waterfront-homes-2.webp",
+          "thumb": "/media/samples/sample-tema-waterfront-homes-2-t.webp",
+          "alt": "Tema Waterfront Homes (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-tema-waterfront-homes-3.webp",
+          "thumb": "/media/samples/sample-tema-waterfront-homes-3-t.webp",
+          "alt": "Tema Waterfront Homes (sample photo)"
+        }
+      ],
+      "listed": "2026-10-20",
+      "bedrooms": 3,
+      "bathrooms": 4
+    },
+    {
+      "slug": "sample-east-legon-penthouse",
+      "title": "Sample: East Legon Penthouse",
+      "sample": true,
+      "purpose": "rent",
+      "type": "apartment",
+      "status": "available",
+      "stage": "completed",
+      "price": {
+        "amount": 4800,
+        "currency": "USD",
+        "period": "month"
+      },
+      "location": {
+        "area": "East Legon",
+        "city": "Accra",
+        "lat": 5.635,
+        "lng": -0.157
+      },
+      "summary": "A sample listing for testing how the site looks. Not a real property.",
+      "description": "Invented details for a home in East Legon, used to test search, filters, the map and amenities with a fuller list. Photos are free Unsplash images, not of this place.",
+      "features": [
+        "Elevator",
+        "Private terrace",
+        "Air conditioning",
+        "Fully fitted kitchen",
+        "Swimming pool",
+        "24/7 security"
+      ],
+      "photos": [
+        {
+          "src": "/media/samples/sample-east-legon-penthouse-1.webp",
+          "thumb": "/media/samples/sample-east-legon-penthouse-1-t.webp",
+          "alt": "East Legon Penthouse (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-east-legon-penthouse-2.webp",
+          "thumb": "/media/samples/sample-east-legon-penthouse-2-t.webp",
+          "alt": "East Legon Penthouse (sample photo)"
+        },
+        {
+          "src": "/media/samples/sample-east-legon-penthouse-3.webp",
+          "thumb": "/media/samples/sample-east-legon-penthouse-3-t.webp",
+          "alt": "East Legon Penthouse (sample photo)"
+        }
+      ],
+      "listed": "2026-10-21",
+      "bedrooms": 3,
+      "bathrooms": 4
     }
   ]
 }

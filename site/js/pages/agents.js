@@ -31,7 +31,7 @@ const people = [
   ...(owner.name ? [{ ...owner, kinds: owner.kinds ?? ["company"], verified: true, own: true }] : []),
   ...(portfolio.directory ?? []).map((d) => ({ ...d, kinds: d.kinds ?? [d.kind].filter(Boolean) })),
 ];
-const listingsOf = (x) => props.filter((p) => (x.own ? !p.listed_by || p.listed_by === x.name : p.listed_by === x.name));
+const listingsOf = (x) => props.filter((p) => !p.sample && (x.own ? !p.listed_by || p.listed_by === x.name : p.listed_by === x.name));
 
 let kind = new URLSearchParams(location.search).get("kind") ?? "all";
 let q = "";
