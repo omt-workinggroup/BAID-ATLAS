@@ -3876,3 +3876,65 @@ body.app {
   font-size: 0.8rem;
   color: var(--muted);
 }
+
+/* ---- The office (Agents page): address, directions and a satellite map ------------------------------- */
+.visit {
+  display: grid;
+  margin-top: 2.5rem;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--brand);
+  color: #fff;
+}
+.visit__text {
+  display: grid;
+  gap: 0.75rem;
+  align-content: center;
+  justify-items: start;
+  padding: 1.75rem 1.5rem;
+}
+.visit__text .eyebrow {
+  color: rgb(255 255 255 / 0.7);
+}
+.visit__text h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+.visit__text p {
+  color: rgb(255 255 255 / 0.75);
+}
+.visit__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.25rem;
+}
+.visit__links .btn {
+  background: #fff;
+  color: var(--ink);
+}
+.visit__text .text-link {
+  color: #fff;
+}
+.visit__text .away {
+  color: #fff;
+}
+.visit__map {
+  height: 20rem;
+  background: var(--surface-2);
+}
+@media (min-width: 900px) {
+  .visit {
+    grid-template-columns: 1fr 1.5fr;
+    margin-top: 3.5rem;
+  }
+  .visit__text {
+    padding: 2.5rem;
+  }
+  .visit__map {
+    height: 26rem;
+  }
+}

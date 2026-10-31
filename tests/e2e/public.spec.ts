@@ -239,12 +239,14 @@ test("manifest, icons and the social image are served", async ({ request }) => {
 test.describe("distances from the visitor", () => {
   test.use({ geolocation: { latitude: 5.6037, longitude: -0.187 }, permissions: ["geolocation"] });
 
-  test("cards, property and map show how far the visitor is", async ({ page }) => {
+  test("cards, property, the office and map show how far the visitor is", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
     await expect(page.locator(".card__away").first()).toContainText("away");
     await page.goto("/properties/sample-east-legon-villa");
     await expect(page.locator("#pd-away")).toContainText("away, in a straight line");
+    await page.goto("/agents");
+    await expect(page.locator("#office-away")).toContainText("from the office");
     await page.goto("/map");
     await expect(page.locator("#from")).toHaveValue("me");
     await expect(page.locator(".landmark--me")).toHaveCount(1);
@@ -307,6 +309,8 @@ test("agents and developers lists the owner and invites others to join", async (
   await useSamplePortfolio(page);
   await page.goto("/agents");
   await expect(page.locator(".pc").first()).toContainText("Propertiq");
+  await expect(page.locator("#office")).toBeVisible();
+  await expect(page.locator("#office-directions")).toHaveAttribute("href", /destination=/);
   await page.locator("[data-kind=agent]").click();
   await expect(page.locator(".pc--join")).toContainText("Are you an agent?");
   await page.locator(".pc--join").getByRole("link", { name: "Join Propertiq" }).click();

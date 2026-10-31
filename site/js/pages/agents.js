@@ -1,6 +1,7 @@
-// Agents, developers and companies on one page. Everyone shown comes from the data file: the owner, plus any
+// Agents, developers and companies on one page, then the office on a satellite map. Everyone shown comes from the data file: the owner, plus any
 // approved profiles in "directory". Nobody is invented; where a group is empty, the page invites them to join.
-import { boot, html, icon, raw, render } from "../core.js";
+import { boot, html, icon, raw, render, toast } from "../core.js";
+import { awayFrom, locate, quietly } from "../here.js";
 import { loadPortfolio, waLink } from "../data.js";
 import { initials } from "../cards.js";
 
@@ -124,3 +125,49 @@ document.getElementById("dir-q").addEventListener("input", (e) => {
 });
 document.getElementById("dir-search").addEventListener("submit", (e) => e.preventDefault());
 draw();
+
+// ---- The office: address, directions, distance from the visitor and a satellite map ---------------------
+const office = owner.office;
+if (office && typeof office.lat === "number") {
+  const at = [office.lng, office.lat];
+  document.getElementById("office").hidden = false;
+  if (owner.location) document.querySelector("[data-office-line]").textContent = owner.location;
+  document.getElementById("office-directions").href = `https://www.google.com/maps/dir/?api=1&destination=${office.lat},${office.lng}`;
+  // How far the visitor is: at once if already allowed, otherwise on request.
+  const awayLine = document.getElementById("office-away");
+  const showAway = (here) => render(awayLine, html`${icon("locate", 16)}<span>You're <strong>${awayFrom(here, at)}</strong> from the office, in a straight line.</span>`);
+  if (navigator.geolocation) {
+    awayLine.hidden = false;
+    quietly().then((here) => here && showAway(here));
+    awayLine.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-near]");
+      if (!btn) return;
+      btn.disabled = true;
+      btn.textContent = "Finding you…";
+      locate()
+        .then(showAway)
+        .catch((err) => {
+          toast(err.message);
+          btn.disabled = false;
+          btn.textContent = "How far is it from me?";
+        });
+    });
+  }
+  // The satellite map loads only when it is about to scroll into view.
+  const mapEl = document.getElementById("office-map");
+  new IntersectionObserver(
+    (entries, obs) => {
+      if (!entries.some((x) => x.isIntersecting)) return;
+      obs.disconnect();
+      import("../map.js").then(async (m) => {
+        await m.loadMapLibre();
+        const map = m.createMap(mapEl, { center: at, zoom: 16.4, pitch: 50, style: "satellite", cooperative: true });
+        const pin = document.createElement("span");
+        pin.className = "tagpin is-active";
+        pin.innerHTML = '<span class="tagpin__label">We\'re here</span><span class="tagpin__tip"></span>';
+        new window.maplibregl.Marker({ element: pin, anchor: "bottom" }).setLngLat(at).addTo(map);
+      });
+    },
+    { rootMargin: "300px" },
+  ).observe(mapEl);
+}
