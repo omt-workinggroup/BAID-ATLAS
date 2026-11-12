@@ -15,6 +15,9 @@ const load = () => {
   }
 };
 const st = { role: "agent", phone: "", ...load() };
+// /sign-up?role=company (from the Profile page) starts with that role picked.
+const asked = new URLSearchParams(location.search).get("role");
+if (ROLES.some(([k]) => k === asked)) st.role = asked;
 const keep = () => {
   try {
     sessionStorage.setItem(KEY, JSON.stringify(st));

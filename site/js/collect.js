@@ -11,7 +11,7 @@ export function wireCollect() {
     const save = e.target.closest("[data-save]");
     if (save) {
       e.preventDefault();
-      toast(toggleSaved(save.dataset.save) ? "Saved. Find it under Profile." : "Removed from saved");
+      toast(toggleSaved(save.dataset.save) ? "Saved. Find it under Saved on the homepage." : "Removed from saved");
       return;
     }
     const share = e.target.closest("[data-share]");

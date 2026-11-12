@@ -316,7 +316,7 @@ test.describe("search and save", () => {
     await expect(page).toHaveURL(/beds=5/);
   });
 
-  test("saved properties appear under Saved and on the profile", async ({ page }) => {
+  test("saved properties appear under Saved", async ({ page }) => {
     await useSamplePortfolio(page);
     await page.goto("/");
     await page.getByRole("button", { name: "Save Sample: East Legon Villa" }).click();
@@ -324,7 +324,7 @@ test.describe("search and save", () => {
     await page.locator("[data-cat=saved]").click();
     await expect(page.locator("#results .card")).toHaveCount(1);
     await page.goto("/profile");
-    await expect(page.locator(".mine")).toContainText("Sample: East Legon Villa");
+    await expect(page.locator(".mine")).toHaveCount(0);
   });
 
 });
@@ -379,7 +379,12 @@ test("profile offers only sign up and sign in", async ({ page }) => {
   await useSamplePortfolio(page);
   fakeAuth(page);
   await page.goto("/profile");
-  await expect(page.getByRole("link", { name: "Sign up" })).toHaveAttribute("href", "/sign-up");
+  await expect(page.getByRole("link", { name: "Create an account" })).toHaveAttribute("href", "/sign-up");
+  await expect(page.locator(".acc__roles a")).toHaveCount(4);
+  await page.locator(".acc__roles a", { hasText: "Company" }).click();
+  await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible();
+  await expect(page.locator(".r4__opt input[value=company]")).toBeChecked();
+  await page.goto("/profile");
   await expect(page.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
 });
 
@@ -424,7 +429,7 @@ test("sign in with phone and password", async ({ page }) => {
   await expect(page).toHaveURL(/\/profile/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sample Agent");
   await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page.getByRole("link", { name: "Sign up" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Create an account" })).toBeVisible();
 });
 
 test.describe("directions", () => {
