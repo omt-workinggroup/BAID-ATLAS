@@ -3465,84 +3465,6 @@ body.app {
   color: var(--muted);
 }
 
-/* ---- The office (Agents page): address, directions and a satellite map ------------------------------- */
-.visit {
-  display: grid;
-  margin-top: 2.5rem;
-  overflow: hidden;
-  border-radius: var(--r-lg);
-  background: var(--brand);
-  color: #fff;
-}
-.visit__text {
-  display: grid;
-  gap: 0.75rem;
-  align-content: center;
-  justify-items: start;
-  padding: 1.75rem 1.5rem;
-}
-.visit__text .eyebrow {
-  color: rgb(255 255 255 / 0.7);
-}
-.visit__text h2 {
-  font-family: var(--serif);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 500;
-  line-height: 1.15;
-}
-.visit__text p {
-  color: rgb(255 255 255 / 0.75);
-}
-.visit__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  margin-top: 0.25rem;
-}
-.visit__links .btn {
-  background: #fff;
-  color: var(--ink);
-}
-.visit__text .text-link {
-  color: #fff;
-}
-.visit__text .away {
-  color: #fff;
-}
-.visit__map {
-  height: 20rem;
-  background: var(--surface-2);
-}
-@media (min-width: 900px) {
-  .visit {
-    grid-template-columns: 1fr 1.5fr;
-    margin-top: 3.5rem;
-  }
-  .visit__text {
-    padding: 2.5rem;
-  }
-  .visit__map {
-    height: 26rem;
-  }
-}
-
-/* Sample listings (testing only) */
-.sample-note {
-  padding: 0.75rem 0.9rem;
-  border: 1px dashed var(--muted);
-  border-radius: var(--r);
-  font-size: 0.85rem;
-  color: var(--ink-2);
-}
-.buybar .sample-note {
-  flex: 2;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.78rem;
-}
-
-/* Map: zoomed out, price tags show as dots (see compact() in pages/map.js) */
-
 /* ---- Profile and accounts (sign up, sign in) ------------------------------------------------------------ */
 .profile__head {
   display: grid;
@@ -4223,4 +4145,119 @@ body.app {
   .mapx__bar .mapx__iconbtn {
     display: none;
   }
+}
+
+/* ---- Map page, calmer: one column of round tools, a style picker on demand, and Get directions ------- */
+.mapx__side {
+  top: 4.4rem;
+}
+.mtools {
+  border-radius: 999px;
+}
+.mtools button {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+.mtools button[aria-expanded="true"] {
+  background: var(--ink);
+  color: #fff;
+}
+.mapx__side .looks {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 0.5rem);
+  grid-auto-flow: column;
+  gap: 0.25rem;
+}
+.mapx__side .looks[hidden] {
+  display: none;
+}
+.mapx__go {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 4.1rem;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 14px 30px -12px rgb(0 0 0 / 0.6);
+  cursor: pointer;
+}
+.mapx__view {
+  background: var(--glass) !important;
+}
+.mapx__view button {
+  color: var(--ink) !important;
+}
+.mapx__view button[aria-pressed="true"] {
+  background: var(--ink) !important;
+  color: #fff !important;
+}
+.mapx__preview.is-open ~ .mapx__go,
+.is-routing .mapx__go,
+.mapx[data-view="list"] .mapx__go {
+  display: none;
+}
+.picklist {
+  display: grid;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.picklist button {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.6rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.picklist img,
+.picklist .suggest__mono {
+  flex: none;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+}
+.picklist span {
+  flex: 1;
+  min-width: 0;
+}
+.picklist small {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+@media (min-width: 900px) {
+  .mapx__side {
+    top: 1rem;
+  }
+  .mapx__go {
+    bottom: 1.25rem;
+  }
+}
+
+/* Agents page: a short, quiet header */
+.dir-page__head h1 {
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+}
+.dir-page .search {
+  margin-top: 1rem;
 }

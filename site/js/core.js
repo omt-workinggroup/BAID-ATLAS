@@ -125,7 +125,7 @@ const LINKS = [
   ["/?cat=sale", "For sale"],
   ["/?cat=rent", "For rent"],
   ["/map", "Map"],
-  ["/agents", "Agents & developers"],
+  ["/agents", "Agents & companies"],
 ];
 
 function headerView() {

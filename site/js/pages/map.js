@@ -89,9 +89,6 @@ function drawLists() {
   const rows = visible();
   document.getElementById("count").textContent = `${rows.length} ${rows.length === 1 ? "property" : "properties"}${filtersOn() || f.kind !== "all" || f.q ? " match" : " on the map"}`;
   render("#list", rows.length ? rows.map(rowCard) : html`<li class="mapx__empty">No properties match. <button type="button" class="text-link" data-reset>Clear filters</button></li>`);
-  const chips = KINDS.map(([k, label]) => html`<button type="button" class="chip" data-kind="${k}" aria-pressed="${k === f.kind ? "true" : "false"}">${label}</button>`);
-  render("#filters", chips);
-  render("#chips", chips);
   document.querySelectorAll("[data-filter-dot]").forEach((d) => (d.hidden = !filtersOn()));
   document.getElementById("nomatch").hidden = rows.length > 0;
   markSelected();
@@ -264,6 +261,28 @@ function drawLooks() {
 }
 drawLooks();
 
+// The style picker opens from the layers button and closes after a choice or a tap elsewhere.
+function toggleLooks(open = document.getElementById("looks").hidden) {
+  document.getElementById("looks").hidden = !open;
+  document.querySelector("[data-tool=layers]").setAttribute("aria-expanded", String(open));
+}
+
+// "Get directions" with nothing picked: choose the property first.
+const picker = document.getElementById("mpick");
+function openPicker() {
+  const rows = visible();
+  render(
+    picker,
+    html`<div class="sheet__panel">
+      <div class="sheet__grip" aria-hidden="true"></div>
+      <header class="sheet__head"><div><h2 id="mp-h">Directions to…</h2><p>Pick a property. The route starts from where you are.</p></div><button type="button" class="round round--soft" data-close-sheet aria-label="Close">${icon("close", 18, 2)}</button></header>
+      <ul class="picklist">${rows.map((p) => html`<li><button type="button" data-pick="${p.slug}">${cover(p) ? html`<img src="${small(cover(p))}" alt="" loading="lazy" />` : html`<span class="suggest__mono">${p.title[0]}</span>`}<span><strong>${p.title}</strong><small>${place(p)}${me ? ` · ${formatKm(away(p))}` : ""}</small></span>${icon("next", 18)}</button></li>`)}</ul>
+    </div>`,
+  );
+  picker.showModal();
+}
+picker.addEventListener("click", (e) => (e.target === picker || e.target.closest("[data-close-sheet]")) && picker.close());
+
 // ---- Filters sheet -----------------------------------------------------------------------------------------
 const sheet = document.getElementById("mfilters");
 const seg = (name, value, options) => html`<div class="seg">${options.map(([v, l]) => html`<label class="slot"><input type="radio" name="${name}" value="${v}" ${v === value ? raw("checked") : ""} /><span><b>${l}</b></span></label>`)}</div>`;
@@ -330,11 +349,19 @@ document.addEventListener("click", async (e) => {
       /* storage unavailable */
     }
     drawLooks();
+    toggleLooks(false);
     return m.setStyle(map, look);
   }
   const tool = t("[data-tool]")?.dataset.tool;
+  if (tool === "layers") return toggleLooks();
+  if (!t("#looks")) toggleLooks(false);
+  if (t("#go")) return selected ? startRoute(selected) : openPicker();
+  const pick = t("[data-pick]");
+  if (pick) {
+    picker.close();
+    return startRoute(pick.dataset.pick);
+  }
   if (tool === "fit") return fitAll();
-  if (tool === "north") return map.jumpTo({ bearing: 0, pitch: 0 });
   if (tool === "locate") {
     try {
       setMe(await locate());
