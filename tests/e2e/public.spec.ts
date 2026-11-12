@@ -197,8 +197,12 @@ test("the map page opens on Hybrid, clusters nearby properties and filters", asy
   await expect(page.locator("#map canvas")).toBeAttached({ timeout: 20_000 });
   await expect(page.locator("[data-look=hybrid]")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#count")).toContainText("4 properties");
-  await page.locator("#chips [data-kind=rent], #filters [data-kind=rent]").locator("visible=true").first().click();
+  await expect(page.locator("#chips")).toHaveCount(0);
+  await page.locator("[data-open-filters]").locator("visible=true").first().click();
+  await page.locator("#mfilters label", { hasText: "For rent" }).click();
+  await page.getByRole("button", { name: "Show results" }).click();
   await expect(page.locator("#count")).toContainText("1 property match");
+  await page.locator("[data-tool=layers]").click();
   await page.locator("[data-look=map]").click();
   await expect(page.locator("[data-look=map]")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#from")).toHaveCount(0);
@@ -274,8 +278,6 @@ test.describe("distances from the visitor", () => {
     await expect(page.locator(".card__away").first()).toContainText("away");
     await page.goto("/properties/sample-east-legon-villa");
     await expect(page.locator("#pd-away")).toContainText("away, in a straight line");
-    await page.goto("/agents");
-    await expect(page.locator("#office-away")).toContainText("from the office");
     await page.goto("/map");
     await expect(page.locator(".landmark--me")).toHaveCount(1);
     await expect(page.locator("#list .mrow__away").first()).toContainText("from you");
@@ -339,8 +341,8 @@ test("agents and developers lists people on the platform, with no join card", as
   await useSamplePortfolio(page);
   await page.goto("/agents");
   await expect(page.locator(".pc").first()).toContainText("Propertiq");
-  await expect(page.locator("#office")).toBeVisible();
-  await expect(page.locator("#office-directions")).toHaveAttribute("href", /destination=/);
+  await expect(page.locator("#office")).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Agents & companies");
   await expect(page.locator(".pc--join")).toHaveCount(0);
   await expect(page.locator("#kinds")).toContainText("Home owners");
   await expect(page.locator("#kinds")).not.toContainText("Estates");
@@ -479,5 +481,13 @@ test("if satellite imagery fails, the map falls back to the street map", async (
   await page.goto("/map");
   await expect(page.locator("[data-look=map]")).toHaveAttribute("aria-pressed", "true", { timeout: 20_000 });
   await expect(page.locator(".toast")).toContainText("street map");
+});
+
+test("Get directions with nothing picked asks which property", async ({ page }) => {
+  await useSamplePortfolio(page);
+  await page.goto("/map");
+  await page.locator("#go").click();
+  await expect(page.locator("#mpick")).toContainText("Directions to");
+  await expect(page.locator("#mpick [data-pick]")).toHaveCount(4);
 });
 
