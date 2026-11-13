@@ -10,9 +10,9 @@ const KINDS = [
   ["agent", "Agents"],
   ["developer", "Developers"],
   ["company", "Companies"],
-  ["owner", "Home owners"],
+  ["owner", "Homeowners"],
 ];
-const KIND_ONE = { agent: "Agent", developer: "Developer", company: "Company", owner: "Home owner" };
+const KIND_ONE = { agent: "Agent", developer: "Developer", company: "Company", owner: "Homeowner" };
 const SOCIALS = [
   ["instagram", "Instagram"],
   ["facebook", "Facebook"],
